@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class PresensiUpacara extends Model
+{
+    use HasFactory;
+    protected $guarded = ['id'];
+
+    public function jadwalKegiatanAsrama()
+    {
+        return $this->belongsTo(jadwalKegiatanAsrama::class , 'jadwalKegiatanAsrama_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class , 'user_id');
+    }
+
+}
