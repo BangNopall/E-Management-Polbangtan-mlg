@@ -1,5 +1,5 @@
 <div
-    class="fixed left-0 top-0 w-64 bg-teal-800 py-4 px-0 z-30 sidebar-menu transition-transform -translate-x-full md:-translate-x-0 h-full">
+    class="fixed left-0 top-0 w-64 bg-teal-800 py-4 px-0 z-30 sidebar-menu transition-transform -translate-x-full md:translate-x-0 h-full">
     <div class="px-3">
         <a href="/" class="flex items-center pb-4 border-b border-b-teal-900">
             <img src="{{ asset('img/logo-asrama2.jpeg') }}" alt="" class="w-8 h-8 rounded object-cover">
