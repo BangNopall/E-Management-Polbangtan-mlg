@@ -19,6 +19,7 @@
     "alpinejs": "^3.15.12",
     "flowbite": "^4.0.2",
     "fullcalendar": "^6.1.9",
+    "jquery": "^4.0.0",
     "tw-elements": "^2.0.0"
   },
   "name": "polbongtan-attend",

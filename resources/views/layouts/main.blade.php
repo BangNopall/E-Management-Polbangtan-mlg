@@ -21,10 +21,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Dashboard - Management Asrama</title>
     <link rel="shortcut icon" href="{{ asset('img/logo-asrama.png') }}" type="image/x-icon">
-    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
-    <link href="{{ asset('css/library/flowbite.min.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/remixIcon/fonts/remixicon.css') }}">
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="text-gray-800 font-inter transit">
     {{-- peringatan keamanan sesi --}}
@@ -40,9 +38,5 @@
         @yield('container')
     </main>
 </body>
-<script src="{{ asset('js/library/popper.min.js') }}" type="text/javascript"></script>
-<script src="{{ asset('js/library/jquery.min.js') }}" type="text/javascript"></script>
-<script src="{{ asset('js/library/flowbite.min.js') }}" type="text/javascript"></script>
-<script src="{{ asset('js/library/axios.min.js') }}" type="text/javascript"></script>
-<script src="{{ asset('js/script.js') }}"></script>
+
 </html>
