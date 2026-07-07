@@ -1,0 +1,147 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+**E-Management Polbangtan-mlg** is a Laravel-based dormitory management system for Politeknik Pembangunan Pertanian Malang. It handles student dormitory attendance via QR code scanning, mandatory activity tracking (Apel, Senam, Upacara), disciplinary violation management, and staff duty scheduling.
+
+## Commands
+
+### Development
+
+```bash
+# Start the Vite dev server (watches resources/js and resources/css)
+npm run dev
+
+# Build production assets
+npm run build
+
+# Start Laravel local server
+php artisan serve
+```
+
+### Database
+
+```bash
+# Run all migrations
+php artisan migrate
+
+# Fresh migration with seeds (resets entire DB)
+php artisan migrate:fresh --seed
+
+# Run seeders only (roles, prodi, kelas, blok, pelanggaran categories)
+php artisan db:seed
+```
+
+### Testing
+
+```bash
+# Run all tests
+php artisan test
+
+# Run a single test file
+php artisan test tests/Feature/ExampleTest.php
+
+# Run with filter
+php artisan test --filter ExampleTest
+```
+
+### Cache & Maintenance
+
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan cache:clear
+```
+
+## Architecture
+
+### Role System
+
+Roles are stored in the `roles` table and referenced via `users.role_id`. Four roles exist with constants defined on the `User` model:
+
+| Constant | `role_id` | Name | Access |
+|---|---|---|---|
+| `ADMIN_ROLE_ID` | 1 | admin | Full access, reports, system settings |
+| `OPERATOR_ROLE_ID` | 2 | operator | Scanner, pelanggaran, jadwal |
+| `USER_ROLE_ID` | 3 | user | Student dashboard, own QR, own history |
+| `PELATIH_ROLE_ID` | 4 | pelatih | Scanner, pelanggaran |
+
+Access control is enforced by `EnsureUserHasRole` middleware, registered as the `role` alias. Routes use `middleware('role:admin')` or `middleware('role:admin,operator,pelatih')` for multi-role groups. On failure it redirects (not 403) to the appropriate dashboard based on the user's actual role.
+
+### Two Parallel Attendance Systems
+
+**System 1 — Gate Attendance (`Attendance` + `Presence`)**
+Tracks students leaving/entering the dormitory. The `Attendance` table holds a daily window (`start_time`/`end_time`, default 06:00–22:00). `Presence` records each scan event with `presence_masuk`, `presence_keluar`, `log_status` (`didalam`/`diluar`/`telat`), and `is_active`. `User.status` is also updated on each scan as a live cache of the student's current location state.
+
+**System 2 — Mandatory Activity Attendance (`PresensiApel`, `PresensiUpacara`, `PresensiSenam`)**
+Three separate tables, one per activity type. Keyed by `jadwalKegiatanAsrama_id` (from `jadwal_kegiatan_asramas`) and `user_id`. Activities are scheduled per blok (dormitory block) and have a `status_kehadiran` field.
+
+The two systems are completely independent — gate scans use `QRController::presense()`, activity scans use `QRControllerKegiatan`.
+
+### QR Code Flow
+
+1. Student visits `/dashboard/kode-qr` → `QRController::kodeqr()` generates a QR containing a JSON payload: `{user_id, date, time, status, scanner}`.
+2. Admin/operator opens `/kamera-scan` (gate) or `/kamera-upacara|apel|senam` (activity cameras).
+3. Camera page (using `html5-qrcode`) decodes the QR and POSTs the JSON to `/presense/api` or the respective activity API endpoint.
+4. The controller validates that the scan time is within the allowed window of the QR generation time, then creates or updates the appropriate presence record.
+
+### Disciplinary Violations (`Pelanggaran`)
+
+Students self-report via `/dashboard/qr-hukum` → `QRControllerHukum`. Staff can also record violations via `/kamera-pelatih`. Violations are categorised via `KategoriPelanggaran` → `JenisPelanggaran` (two-level hierarchy). Each `Pelanggaran` record goes through a status workflow: pending → confirmed / rejected / done. Point deductions are tracked on `users.point`.
+
+### Key Models and Relationships
+
+```
+User
+ ├── belongsTo Role
+ ├── belongsTo Kelas (academic class)
+ ├── belongsTo blokRuangan (dormitory block)
+ ├── belongsTo prodi (study programme)
+ ├── hasMany Presence (gate logs)
+ └── hasOne LoginPermission
+
+jadwalKegiatanAsrama (activity schedule)
+ └── referenced by PresensiApel / PresensiSenam / PresensiUpacara
+
+KategoriPelanggaran
+ └── hasMany JenisPelanggaran
+      └── hasMany Pelanggaran → belongsTo User
+```
+
+### Frontend Stack
+
+- **Tailwind CSS v4** (via `@tailwindcss/postcss`) + **Flowbite** for UI components
+- **Alpine.js** for lightweight reactivity
+- **FullCalendar** for duty/activity schedule calendar views
+- **html5-qrcode** for browser-based QR scanning
+- Assets compiled by **Vite** (`npm run dev` / `npm run build`)
+- The single shared layout is `resources/views/layouts/main.blade.php` — all authenticated views extend it via `@yield('container')`
+- Views are split into `resources/views/admin/` (staff) and root-level views (students), with reusable fragments in `resources/views/partials/`
+
+### Reports & Exports
+
+- PDF reports use **barryvdh/laravel-dompdf** — rendered via dedicated Blade templates in `resources/views/admin/generate/`
+- Excel exports use **maatwebsite/excel** via the `FromView` concern (renders a Blade view to XLSX)
+- Excel import (`UsersImport`) bulk-creates student accounts with default password `"password"` and `role_id = 3`
+
+### Naming Conventions in Codebase
+
+Model and controller naming is inconsistent — some use camelCase (`blokRuangan`, `prodi`, `kegiatanAsramaController`) and some PascalCase. Match the existing style when adding to an existing file. Route name prefixes are `home.` for students and `admin.` for staff (even though operator/pelatih routes also use the `admin.` prefix).
+
+## Environment Setup
+
+Copy `.env.example` to `.env`, generate an app key, and configure the MySQL connection. The session lifetime is set to 525,600 minutes (1 year) intentionally.
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Required: MySQL database. No Redis, mail, or external services are needed for local development.
+
+## Seeder Order
+
+The `DatabaseSeeder` must seed in dependency order (roles before users, kelas/prodi/blok before students). Existing seeders cover: `RoleSeeder`, `ProdiSeeder`, `KelasSeeder`, `BlokRuanganSeeder`, `KategoriPelanggaranSeeder`, `JenisPelanggaranSeeder`.

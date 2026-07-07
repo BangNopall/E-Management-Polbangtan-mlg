@@ -32,6 +32,8 @@ sidebarToggle.addEventListener("click", function (e) {
         let e = document.getElementById("preloader");
         e.style.display = "none";
     });
+import { createPopper } from '@popperjs/core';
+
 const popperInstance = {};
 function hideDropdown() {
     document.querySelectorAll(".dropdown-menu").forEach(function (e) {
@@ -70,7 +72,7 @@ document.querySelectorAll(".dropdown").forEach(function (e, t) {
         n = e.querySelector(".dropdown-toggle"),
         o = e.querySelector(".dropdown-menu");
     (o.dataset.popperId = a),
-        (popperInstance[a] = Popper.createPopper(n, o, {
+        (popperInstance[a] = createPopper(n, o, {
             modifiers: [
                 { name: "offset", options: { offset: [0, 8] } },
                 { name: "preventOverflow", options: { padding: 24 } },
