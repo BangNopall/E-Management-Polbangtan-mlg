@@ -53,7 +53,7 @@
             </div>
         @endif
         <div class="w-full bg-white border-2 rounded-lg p-3">
-            <div id="accordion-flush" data-accordion="collapse" data-active-classes="bg-white text-gray-900"
+            <div id="accordion-flush1" data-accordion="collapse" data-active-classes="bg-white text-gray-900"
                 data-inactive-classes="text-gray-500">
                 <h2 id="accordion-flush-heading-1">
                     <button type="button"

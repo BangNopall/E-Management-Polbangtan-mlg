@@ -204,11 +204,11 @@
                     data-modal-toggle="simpan2Modal"
                     class="text-white mt-4 w-auto block md:hidden bg-utama hover:bg-teal-800 focus:ring-2 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-3 py-2 mr-0 md:mr-3">Simpan</button>
             </form>
-            <div id="accordion-flush" class="mt-3" data-accordion="collapse"
+            <div id="accordion-flush-2" class="mt-3" data-accordion="collapse"
                 data-active-classes="bg-white text-gray-900" data-inactive-classes="text-gray-500">
                 <h2 id="accordion-flush-heading-2">
                     <button type="button"
-                        class="flex items-cente font-normal justify-between gap-5 py-2 text-gray-500 border-b border-gray-200"
+                        class="flex items-center font-normal justify-between gap-5 py-2 text-gray-500 border-b border-gray-200"
                         data-accordion-target="#accordion-flush-body-2" aria-expanded="false"
                         aria-controls="accordion-flush-body-2">
                         <span>Peraturan Baru?</span>

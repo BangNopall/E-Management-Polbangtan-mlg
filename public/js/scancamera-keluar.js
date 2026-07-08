@@ -17,13 +17,14 @@ qrCodeReader.start({ facingMode: "user" }, config, qrCodeSuccessCallback),
     Html5Qrcode.getCameras()
         .then((e) => {
             e &&
-                e.length > 1 &&
+                e.length > 0 &&
                 (e.forEach((e) => {
                     let t = document.createElement("option");
                     (t.value = e.id),
                         (t.text = e.label || `Camera ${e.id}`),
                         cameraSelect.appendChild(t);
                 }),
+                (cameraSelect.disabled = !1),
                 cameraSelect.addEventListener("change", function () {
                     let e = cameraSelect.value;
                     btnstop.classList.remove("bg-gray-500"),

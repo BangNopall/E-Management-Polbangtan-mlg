@@ -8,6 +8,10 @@ window.$ = window.jQuery = $;
 import * as Popper from '@popperjs/core';
 window.Popper = Popper;
 
-import 'flowbite';
+import { initFlowbite } from 'flowbite';
+
+document.addEventListener('DOMContentLoaded', () => {
+    initFlowbite();
+});
 
 import './script';
