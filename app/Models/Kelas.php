@@ -9,7 +9,7 @@ class Kelas extends Model
 {
     use HasFactory;
 
-    protected $protected = ['id'];
+    protected $guarded = ['id'];
 
     public function Prodi()
     {

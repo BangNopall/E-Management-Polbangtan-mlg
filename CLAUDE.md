@@ -142,6 +142,29 @@ php artisan key:generate
 
 Required: MySQL database. No Redis, mail, or external services are needed for local development.
 
+## Known Issues & Compatibility Notes
+
+### simplesoftwareio/simple-qrcode — PHP 8.4 Deprecation Warnings
+
+`simplesoftwareio/simple-qrcode ^4.2` (and its dependency `bacon/bacon-qr-code`) produce PHP 8.4
+deprecation notices about implicit nullable parameters. These are warnings only in PHP 8.4 and do
+**not** affect runtime behaviour, but they will become **fatal errors in PHP 8.5**.
+
+Affected lines (as of July 2026):
+- `vendor/simplesoftwareio/simple-qrcode/src/Generator.php:169`
+- `vendor/bacon/bacon-qr-code/src/Encoder/Encoder.php:158`
+- `vendor/bacon/bacon-qr-code/src/Common/ReedSolomonCodec.php:225`
+
+**Action required before PHP 8.5 upgrade:** Check for a patched release of
+`simplesoftwareio/simple-qrcode` or consider an alternative QR library.
+
+### Cache Key Prefix Change (Laravel 12 → 13)
+
+Laravel 13 changed the default cache key prefix suffix from underscore-separated (`_cache_`) to
+hyphen-separated (`-cache-`). On first deploy after upgrade, existing cached data under the old
+prefix will be unreachable — effectively a cold cache. This causes a temporary performance
+degradation but no data loss. Warm the cache after deploy if needed.
+
 ## Seeder Order
 
 The `DatabaseSeeder` must seed in dependency order (roles before users, kelas/prodi/blok before students). Existing seeders cover: `RoleSeeder`, `ProdiSeeder`, `KelasSeeder`, `BlokRuanganSeeder`, `KategoriPelanggaranSeeder`, `JenisPelanggaranSeeder`.
