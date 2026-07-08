@@ -71,7 +71,7 @@ di environment development, dengan smoke test yang pass untuk tiap fitur critica
 | 1 | Audit deprecated patterns | Daftar semua deprecated API usage di kode aplikasi | complete | `.claude/plans/laravel13-compatibility-audit.plan.md` |
 | 2 | Fix model misconfiguration | `Kelas.php` dan `Presence.php` diperbaiki, mass assignment aman | complete | `.claude/plans/laravel13-compatibility-audit.plan.md` |
 | 3 | Verifikasi third-party packages | `maatwebsite/excel`, `dompdf`, `simple-qrcode` confirmed working | complete | `.claude/plans/laravel13-compatibility-audit.plan.md` |
-| 4 | Smoke test fitur core | QR scanning, absensi, PDF/Excel, auth — semua pass | pending | — |
+| 4 | Smoke test fitur core | QR scanning, absensi, PDF/Excel, auth — semua pass | complete | `tests/Feature/Laravel13SmokeTest.php` |
 | 5 | Cache compatibility check | Dampak cache prefix change didokumentasikan di deployment runbook | complete | `CLAUDE.md` |
 
 ## Open Questions
