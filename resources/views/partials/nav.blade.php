@@ -31,6 +31,13 @@
                             <span class="text-sm">Profil</span>
                         </a>
                     </li>
+                    <li class="mb-1 group">
+                        <a href="{{ route('home.konseling') }}"
+                            class="text-gray-300 hover:bg-utama flex items-center px-3 py-1">
+                            <i class="ri-mental-health-line mr-3 text-lg"></i>
+                            <span class="text-sm">Layanan Konseling</span>
+                        </a>
+                    </li>
                     <li class="group mb-1">
                         <button type="button"
                             class="flex items-center w-full px-3 py-1 text-gray-300 transition duration-75 group hover:bg-utama text-md"
