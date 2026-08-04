@@ -87,7 +87,11 @@ Route::middleware(['auth'])->group(function () {
     // ROUTE SINGGLE END
 
     // ROUTE PIVOT START
-    Route::middleware('role:admin,operator,pelatih')->name('admin.')->group(function () {
+    // 'pembina' ditambahkan supaya EnsureUserHasRole tidak redirect-loop:
+    // authDashboard() mengarahkan role pembina ke admin.index — kalau grup ini
+    // menolaknya, middleware akan redirect balik ke admin.index tanpa akhir.
+    // Lihat Konflik 1 di .claude/plans/epic-01-ukm-dinamis.md.
+    Route::middleware('role:admin,operator,pelatih,pembina')->name('admin.')->group(function () {
         Route::get('/dashboard-admin', [DashboardController::class, 'index'])->name('index');
         Route::get('/getDataPresenceUserLast7Days', [DashboardController::class, 'getDataPresenceUserLast7Days'])->name('getDataPresenceUserLast7Days');
 
