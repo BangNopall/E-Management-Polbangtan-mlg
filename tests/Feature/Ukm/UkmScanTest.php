@@ -53,6 +53,13 @@ class UkmScanTest extends TestCase
             'status' => 'aktif',
         ]);
 
+        UkmMember::create([
+            'ukm_id' => $ukm->id,
+            'user_id' => $pelatih->id,
+            'peran' => 'pelatih',
+            'status' => 'aktif',
+        ]);
+
         $now = Carbon::now();
         $startTime = $now->copy()->subMinutes(10)->format('H:i:s');
         $endTime = $now->copy()->addHour()->format('H:i:s');
@@ -123,6 +130,13 @@ class UkmScanTest extends TestCase
             'ukm_id' => $ukm->id,
             'user_id' => $mhsAnggota->id,
             'peran' => 'anggota',
+            'status' => 'aktif',
+        ]);
+
+        UkmMember::create([
+            'ukm_id' => $ukm->id,
+            'user_id' => $pelatih->id,
+            'peran' => 'pelatih',
             'status' => 'aktif',
         ]);
 
@@ -211,5 +225,31 @@ class UkmScanTest extends TestCase
 
         $response->assertRedirect(route('admin.ukm.scan.show', $jadwal->id));
         $response->assertSessionHas('error', 'Anda Sudah Melakukan Presensi');
+    }
+
+    public function test_pelatih_ukm_lain_tidak_bisa_scan_untuk_jadwal_ukm_bukan_binaannya(): void
+    {
+        [$admin, $pelatih, $ukm, $jadwal, $mhsAnggota] = $this->setupUkmJadwal();
+
+        $pelatihUkmLain = $this->makeUser(User::PELATIH_ROLE_ID);
+        $ukmLain = Ukm::create(['nama' => 'UKM Bulutangkis', 'slug' => 'ukm-bulutangkis']);
+        UkmMember::create(['ukm_id' => $ukmLain->id, 'user_id' => $pelatihUkmLain->id, 'peran' => 'pelatih', 'status' => 'aktif']);
+
+        $showResponse = $this->actingAs($pelatihUkmLain)->get(route('admin.ukm.scan.show', $jadwal->id));
+        $showResponse->assertStatus(403);
+
+        $storeResponse = $this->actingAs($pelatihUkmLain)->post(route('admin.ukm.scan.store', $jadwal->id), [
+            'user_id' => $mhsAnggota->id,
+            'date' => Carbon::now()->toDateString(),
+            'time' => Carbon::now()->format('H:i:s'),
+            'scanner' => 'absensi',
+        ]);
+        $storeResponse->assertStatus(403);
+
+        $this->assertDatabaseMissing('ukm_presensis', [
+            'ukm_jadwal_id' => $jadwal->id,
+            'user_id' => $mhsAnggota->id,
+            'status_kehadiran' => 'Hadir',
+        ]);
     }
 }

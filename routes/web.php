@@ -97,7 +97,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/generate-laporan-kegiatan-asrama', [GenerateReportController::class, 'generateLaporanPelanggaranKegiatanAsrama'])->name('generateLaporanPelanggaranKegiatanAsrama');
 
         // EPIC 01: MODUL UKM DINAMIS — Admin Routes (US 1.1 & US 1.0)
-        Route::resource('ukm', UkmController::class);
+        // 'show' is intentionally excluded here and registered instead in the
+        // broader role:admin,operator,pelatih,pembina group below — Pelatih
+        // and Pembina both need to reach the UKM detail page (jadwal form,
+        // "kembali ke detail" link from verifikasi) but the create/update/
+        // destroy/index actions stay admin-only. See §4 of the frontend
+        // design doc for the intended role matrix.
+        Route::resource('ukm', UkmController::class)->except(['show']);
         Route::post('ukm/{ukm}/anggota', [UkmMemberController::class, 'store'])->name('ukm.anggota.store');
         Route::delete('ukm/{ukm}/anggota/{member}', [UkmMemberController::class, 'destroy'])->name('ukm.anggota.destroy');
     });
@@ -139,7 +145,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/kamera-pelatih', [QRControllerHukum::class, 'scanCamPelatihStore'])->name('scanCamPelatihStore');  //Done Survey
 
         // EPIC 01: MODUL UKM DINAMIS — Pelatih & Admin Schedule Routes (US 1.2 & US 1.3)
+        // 'show' lives here (not in the admin-only resource group above) so
+        // Pelatih/Pembina can reach the UKM detail page (jadwal form, "Buka
+        // Scanner" links, "kembali ke detail" from verifikasi). Scoped
+        // in-controller: non-admin staff only see UKMs they are an active
+        // member of.
+        Route::get('ukm/{ukm}', [UkmController::class, 'show'])->name('ukm.show');
         Route::post('ukm/{ukm}/jadwal', [UkmJadwalController::class, 'store'])->name('ukm.jadwal.store');
+        Route::patch('ukm/jadwal/{jadwal}/ajukan-verifikasi', [UkmJadwalController::class, 'ajukanVerifikasi'])->name('ukm.jadwal.ajukanVerifikasi');
         Route::get('kamera-ukm/{jadwal}', [UkmScanController::class, 'show'])->name('ukm.scan.show');
         Route::post('api/kamera-ukm/{jadwal}', [UkmScanController::class, 'store'])->name('ukm.scan.store');
 

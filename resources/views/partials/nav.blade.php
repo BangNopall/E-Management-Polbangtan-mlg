@@ -141,6 +141,7 @@
                             <span class="text-sm">Scan Absen Keluar</span>
                         </a>
                     </li>
+                    @if (in_array(Auth::user()->role_id, [1, 4, 5]))
                     <li class="group mb-1 mt-1">
                         <button type="button"
                             class="flex items-center w-full px-3 py-1 text-gray-300 transition duration-75 group hover:bg-utama text-md"
@@ -162,19 +163,33 @@
                                         Kelola UKM</a>
                                 </li>
                             @endif
-                            @if (in_array(Auth::user()->role_id, [1, 5]))
+                            @if (Auth::user()->role_id == 4)
                                 @php
-                                    $pembinaUkm = \App\Models\UkmMember::where('user_id', Auth::id())->where('peran', 'pembina')->first();
-                                    $verifikasiRoute = $pembinaUkm ? route('admin.ukm.verifikasi.index', $pembinaUkm->ukm_id) : '#';
+                                    $pelatihUkm = \App\Models\UkmMember::where('user_id', Auth::id())->where('peran', 'pelatih')->where('status', 'aktif')->first();
                                 @endphp
-                                <li>
-                                    <a href="{{ $verifikasiRoute }}"
-                                        class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm/*/verifikasi') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                        Verifikasi Kegiatan</a>
-                                </li>
+                                @if ($pelatihUkm)
+                                    <li>
+                                        <a href="{{ route('admin.ukm.show', $pelatihUkm->ukm_id) }}"
+                                            class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm/*', 'kamera-ukm*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                            Jadwal & Scan</a>
+                                    </li>
+                                @endif
+                            @endif
+                            @if (Auth::user()->role_id == 5)
+                                @php
+                                    $pembinaUkm = \App\Models\UkmMember::where('user_id', Auth::id())->where('peran', 'pembina')->where('status', 'aktif')->first();
+                                @endphp
+                                @if ($pembinaUkm)
+                                    <li>
+                                        <a href="{{ route('admin.ukm.verifikasi.index', $pembinaUkm->ukm_id) }}"
+                                            class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm/*/verifikasi') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                            Verifikasi Kegiatan</a>
+                                    </li>
+                                @endif
                             @endif
                         </ul>
                     </li>
+                    @endif
 
                     <li class="group mb-1 mt-1">
                         <button type="button"

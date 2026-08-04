@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ukm;
+use App\Models\UkmMember;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class UkmLaporanController extends Controller
 {
@@ -15,6 +18,17 @@ class UkmLaporanController extends Controller
      */
     public function pdfReport(Request $request, Ukm $ukm): Response
     {
+        $user = Auth::user();
+        if ($user->role_id !== User::ADMIN_ROLE_ID) {
+            $isStaffOfThisUkm = UkmMember::where('ukm_id', $ukm->id)
+                ->where('user_id', $user->id)
+                ->whereIn('peran', ['pelatih', 'pembina'])
+                ->where('status', 'aktif')
+                ->exists();
+
+            abort_unless($isStaffOfThisUkm, 403, 'Anda tidak berhak mengunduh laporan UKM ini.');
+        }
+
         $request->validate([
             'tanggal_mulai' => 'nullable|date',
             'tanggal_selesai' => 'nullable|date',

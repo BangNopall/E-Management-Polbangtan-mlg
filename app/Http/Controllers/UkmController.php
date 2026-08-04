@@ -6,9 +6,11 @@ use App\Http\Requests\StoreUkmRequest;
 use App\Http\Requests\UpdateUkmRequest;
 use App\Models\Role;
 use App\Models\Ukm;
+use App\Models\UkmMember;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class UkmController extends Controller
@@ -65,6 +67,18 @@ class UkmController extends Controller
     public function show($id)
     {
         $ukm = Ukm::with(['members.user', 'jadwals'])->findOrFail($id);
+
+        $user = Auth::user();
+        if ($user->role_id !== User::ADMIN_ROLE_ID) {
+            $isStaffOfThisUkm = UkmMember::where('ukm_id', $ukm->id)
+                ->where('user_id', $user->id)
+                ->whereIn('peran', ['pelatih', 'pembina'])
+                ->where('status', 'aktif')
+                ->exists();
+
+            abort_unless($isStaffOfThisUkm, 403, 'Anda tidak berhak melihat detail UKM ini.');
+        }
+
         $mahasiswas = User::where('role_id', User::USER_ROLE_ID)->get();
         $staf = User::whereIn('role_id', [User::PELATIH_ROLE_ID, User::PEMBINA_ROLE_ID])->get();
 

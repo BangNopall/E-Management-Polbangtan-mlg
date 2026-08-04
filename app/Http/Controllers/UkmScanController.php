@@ -21,6 +21,8 @@ class UkmScanController extends Controller
     public function show(UkmJadwal $jadwal): View
     {
         $user = Auth::user();
+        abort_unless($this->isStaffOfUkm($user, $jadwal->ukm_id), 403, 'Anda tidak berhak membuka scanner UKM ini.');
+
         $jadwal->load('ukm');
 
         return view('admin.ukm.kamera-ukm', compact('user', 'jadwal'));
@@ -31,6 +33,8 @@ class UkmScanController extends Controller
      */
     public function store(Request $request, UkmJadwal $jadwal): RedirectResponse
     {
+        abort_unless($this->isStaffOfUkm(Auth::user(), $jadwal->ukm_id), 403, 'Anda tidak berhak melakukan scan untuk UKM ini.');
+
         if ($request->input('scanner') !== 'absensi') {
             return redirect()->route('admin.ukm.scan.show', $jadwal->id)
                 ->with('error', 'Anda tidak dapat melakukan scan kode QR Pelanggaran pada scanner kegiatan.');
@@ -110,5 +114,27 @@ class UkmScanController extends Controller
             return redirect()->route('admin.ukm.scan.show', $jadwal->id)
                 ->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Admin bypasses the scope check; Pelatih/Pembina must be an active
+     * staff member (peran = pelatih|pembina) of the given UKM to operate
+     * its scanner — prevents staff of UKM A from scanning for UKM B.
+     */
+    private function isStaffOfUkm(?User $user, int $ukmId): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->role_id === User::ADMIN_ROLE_ID) {
+            return true;
+        }
+
+        return UkmMember::where('ukm_id', $ukmId)
+            ->where('user_id', $user->id)
+            ->whereIn('peran', ['pelatih', 'pembina'])
+            ->where('status', 'aktif')
+            ->exists();
     }
 }

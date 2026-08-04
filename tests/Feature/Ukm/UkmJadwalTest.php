@@ -66,7 +66,9 @@ class UkmJadwalTest extends TestCase
     public function test_membuat_jadwal_menghasilkan_fan_out_presensi_alpha_untuk_n_anggota_aktif(): void
     {
         $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
-        $ukm = Ukm::create(['nama' => 'UKM Voli', 'slug' => 'ukm-voli']);
+        $ukm = Ukm::create(['nama' => 'UKM Voli Jadwal Test', 'slug' => 'ukm-voli-jadwal-test']);
+
+        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pelatih->id, 'peran' => 'pelatih', 'status' => 'aktif']);
 
         // Register 3 active student members
         $mhs1 = $this->makeUser(User::USER_ROLE_ID);
@@ -179,10 +181,31 @@ class UkmJadwalTest extends TestCase
         $this->assertDatabaseMissing('ukm_jadwals', ['judul' => 'Latihan Ilegal']);
     }
 
+    public function test_pelatih_ukm_lain_tidak_bisa_membuat_jadwal_untuk_ukm_bukan_binaannya(): void
+    {
+        $pelatihUkmA = $this->makeUser(User::PELATIH_ROLE_ID);
+        $ukmA = Ukm::create(['nama' => 'UKM Panahan', 'slug' => 'ukm-panahan']);
+        $ukmB = Ukm::create(['nama' => 'UKM Renang', 'slug' => 'ukm-renang']);
+
+        UkmMember::create(['ukm_id' => $ukmA->id, 'user_id' => $pelatihUkmA->id, 'peran' => 'pelatih', 'status' => 'aktif']);
+
+        // Pelatih of UKM A attempts to create a jadwal for UKM B, which they are not assigned to.
+        $response = $this->actingAs($pelatihUkmA)->post(route('admin.ukm.jadwal.store', $ukmB->id), [
+            'judul' => 'Jadwal Ilegal Lintas UKM',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-08-20',
+            'mulai_acara' => '08:00:00',
+            'selesai_acara' => '10:00:00',
+        ]);
+
+        $response->assertStatus(403);
+        $this->assertDatabaseMissing('ukm_jadwals', ['ukm_id' => $ukmB->id, 'judul' => 'Jadwal Ilegal Lintas UKM']);
+    }
+
     public function test_fan_out_presensi_idempoten_tidak_membuat_baris_ganda(): void
     {
         $admin = $this->makeUser(User::ADMIN_ROLE_ID);
-        $ukm = Ukm::create(['nama' => 'UKM Pramuka', 'slug' => 'ukm-pramuka']);
+        $ukm = Ukm::create(['nama' => 'UKM Pramuka Jadwal Test', 'slug' => 'ukm-pramuka-jadwal-test']);
         $mhs = $this->makeUser(User::USER_ROLE_ID);
 
         UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $mhs->id, 'peran' => 'anggota', 'status' => 'aktif']);

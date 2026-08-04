@@ -137,4 +137,28 @@ class UkmCrudTest extends TestCase
         $response->assertViewIs('admin.ukm.show');
         $response->assertViewHas('ukm');
     }
+
+    public function test_pelatih_ukm_binaannya_bisa_melihat_detail_ukm(): void
+    {
+        $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Panjat Tebing', 'slug' => 'ukm-panjat-tebing']);
+        \App\Models\UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pelatih->id, 'peran' => 'pelatih', 'status' => 'aktif']);
+
+        $response = $this->actingAs($pelatih)->get(route('admin.ukm.show', $ukm->id));
+
+        $response->assertStatus(200);
+        $response->assertViewIs('admin.ukm.show');
+    }
+
+    public function test_pelatih_ukm_lain_ditolak_melihat_detail_ukm_bukan_binaannya(): void
+    {
+        $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $ukmLain = Ukm::create(['nama' => 'UKM Memanah', 'slug' => 'ukm-memanah']);
+        $ukmTarget = Ukm::create(['nama' => 'UKM Karate', 'slug' => 'ukm-karate']);
+        \App\Models\UkmMember::create(['ukm_id' => $ukmLain->id, 'user_id' => $pelatih->id, 'peran' => 'pelatih', 'status' => 'aktif']);
+
+        $response = $this->actingAs($pelatih)->get(route('admin.ukm.show', $ukmTarget->id));
+
+        $response->assertStatus(403);
+    }
 }

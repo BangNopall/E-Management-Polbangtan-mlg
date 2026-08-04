@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUkmJadwalRequest;
 use App\Models\Ukm;
 use App\Models\UkmJadwal;
+use App\Models\UkmMember;
 use App\Models\UkmPresensi;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class UkmJadwalController extends Controller
@@ -45,5 +48,35 @@ class UkmJadwalController extends Controller
 
         return redirect()->route('admin.ukm.show', $ukm->id)
             ->with('success', 'Jadwal kegiatan UKM berhasil ditambahkan dan presensi anggota telah disiapkan.');
+    }
+
+    /**
+     * Move a schedule from 'draft' to 'menunggu' so it appears in the
+     * Pembina verification queue (UkmVerifikasiController::index).
+     * Scoped to Admin or the active pelatih of the schedule's UKM.
+     */
+    public function ajukanVerifikasi(UkmJadwal $jadwal): RedirectResponse
+    {
+        $user = Auth::user();
+
+        if ($user->role_id !== User::ADMIN_ROLE_ID) {
+            $isPelatihOfThisUkm = UkmMember::where('ukm_id', $jadwal->ukm_id)
+                ->where('user_id', $user->id)
+                ->where('peran', 'pelatih')
+                ->where('status', 'aktif')
+                ->exists();
+
+            abort_unless($isPelatihOfThisUkm, 403, 'Anda tidak berhak mengajukan verifikasi jadwal ini.');
+        }
+
+        if ($jadwal->status_verifikasi !== 'draft') {
+            return redirect()->route('admin.ukm.show', $jadwal->ukm_id)
+                ->with('error', 'Jadwal ini sudah diajukan atau sudah diverifikasi sebelumnya.');
+        }
+
+        $jadwal->update(['status_verifikasi' => 'menunggu']);
+
+        return redirect()->route('admin.ukm.show', $jadwal->ukm_id)
+            ->with('success', 'Jadwal kegiatan berhasil diajukan untuk verifikasi Pembina.');
     }
 }

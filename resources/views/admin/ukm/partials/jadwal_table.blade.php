@@ -51,6 +51,16 @@
                             class="text-white bg-teal-600 hover:bg-teal-700 font-medium rounded text-xs px-3 py-1.5 flex items-center gap-1">
                             <i class="ri-qr-scan-2-line"></i> Scanner
                         </a>
+                        @if ($jadwal->status_verifikasi === 'draft')
+                            <form action="{{ route('admin.ukm.jadwal.ajukanVerifikasi', $jadwal->id) }}" method="post" class="inline">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit"
+                                    class="text-white bg-amber-600 hover:bg-amber-700 font-medium rounded text-xs px-3 py-1.5 flex items-center gap-1">
+                                    <i class="ri-send-plane-line"></i> Ajukan Verifikasi
+                                </button>
+                            </form>
+                        @endif
                     </td>
                 </tr>
             @empty

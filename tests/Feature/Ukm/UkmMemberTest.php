@@ -57,7 +57,7 @@ class UkmMemberTest extends TestCase
     public function test_admin_bisa_menambah_staf_sebagai_pelatih(): void
     {
         $admin = $this->makeUser(User::ADMIN_ROLE_ID);
-        $ukm = Ukm::create(['nama' => 'UKM Voli', 'slug' => 'ukm-voli']);
+        $ukm = Ukm::create(['nama' => 'UKM Voli Member Test', 'slug' => 'ukm-voli-member-test']);
         $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
 
         $response = $this->actingAs($admin)->post(route('admin.ukm.anggota.store', $ukm->id), [

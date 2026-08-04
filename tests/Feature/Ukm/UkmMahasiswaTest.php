@@ -37,7 +37,7 @@ class UkmMahasiswaTest extends TestCase
     public function test_mahasiswa_bisa_mengakses_halaman_ukm_saya(): void
     {
         $mahasiswa = $this->makeUser(User::USER_ROLE_ID);
-        $ukm = Ukm::create(['nama' => 'UKM Pramuka', 'slug' => 'ukm-pramuka']);
+        $ukm = Ukm::create(['nama' => 'UKM Pramuka Mahasiswa Test', 'slug' => 'ukm-pramuka-mahasiswa-test']);
 
         UkmMember::create([
             'ukm_id' => $ukm->id,
@@ -50,13 +50,13 @@ class UkmMahasiswaTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewIs('ukm.index');
-        $response->assertSee('UKM Pramuka');
+        $response->assertSee('UKM Pramuka Mahasiswa Test');
     }
 
     public function test_mahasiswa_bisa_melihat_riwayat_presensi_ukm(): void
     {
         $mahasiswa = $this->makeUser(User::USER_ROLE_ID);
-        $ukm = Ukm::create(['nama' => 'UKM Voli', 'slug' => 'ukm-voli']);
+        $ukm = Ukm::create(['nama' => 'UKM Voli Mahasiswa Test', 'slug' => 'ukm-voli-mahasiswa-test']);
 
         UkmMember::create([
             'ukm_id' => $ukm->id,

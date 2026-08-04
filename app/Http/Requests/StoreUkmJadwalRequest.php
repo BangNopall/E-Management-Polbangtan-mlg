@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\UkmMember;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -14,8 +15,29 @@ class StoreUkmJadwalRequest extends FormRequest
             return false;
         }
 
-        // Admin (1) and Pelatih (4) can create UKM schedules
-        return in_array($user->role_id, [User::ADMIN_ROLE_ID, User::PELATIH_ROLE_ID]);
+        // Admin (1) bypasses the per-UKM scope check.
+        if ($user->role_id === User::ADMIN_ROLE_ID) {
+            return true;
+        }
+
+        // Pelatih (4) may only create schedules for a UKM they are an
+        // active pelatih of — prevents a pelatih of UKM A from creating
+        // jadwal (and triggering the presensi fan-out) for UKM B.
+        if ($user->role_id !== User::PELATIH_ROLE_ID) {
+            return false;
+        }
+
+        // Route uses implicit model binding, so route('ukm') may already be
+        // the resolved Ukm instance rather than a raw ID — normalize it.
+        $ukmId = $this->route('ukm') instanceof \App\Models\Ukm
+            ? $this->route('ukm')->id
+            : $this->route('ukm');
+
+        return UkmMember::where('ukm_id', $ukmId)
+            ->where('user_id', $user->id)
+            ->where('peran', 'pelatih')
+            ->where('status', 'aktif')
+            ->exists();
     }
 
     public function rules(): array
