@@ -47,7 +47,7 @@
                         @endif
                     </td>
                     <td class="px-4 py-3 flex items-center gap-2">
-                        <a href="{{ route('admin.index') }}"
+                        <a href="{{ route('admin.ukm.scan.show', $jadwal->id) }}"
                             class="text-white bg-teal-600 hover:bg-teal-700 font-medium rounded text-xs px-3 py-1.5 flex items-center gap-1">
                             <i class="ri-qr-scan-2-line"></i> Scanner
                         </a>

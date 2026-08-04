@@ -18,6 +18,7 @@ use App\Http\Controllers\kegiatanAsramaController;
 use App\Http\Controllers\UkmController;
 use App\Http\Controllers\UkmMemberController;
 use App\Http\Controllers\UkmJadwalController;
+use App\Http\Controllers\UkmScanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -129,8 +130,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/kamera-pelatih', [QRControllerHukum::class, 'scanCamPelatih'])->name('scanCamPelatih');  //Done Survey
         Route::post('/kamera-pelatih', [QRControllerHukum::class, 'scanCamPelatihStore'])->name('scanCamPelatihStore');  //Done Survey
 
-        // EPIC 01: MODUL UKM DINAMIS — Pelatih & Admin Schedule Routes (US 1.2)
+        // EPIC 01: MODUL UKM DINAMIS — Pelatih & Admin Schedule Routes (US 1.2 & US 1.3)
         Route::post('ukm/{ukm}/jadwal', [UkmJadwalController::class, 'store'])->name('ukm.jadwal.store');
+        Route::get('kamera-ukm/{jadwal}', [UkmScanController::class, 'show'])->name('ukm.scan.show');
+        Route::post('api/kamera-ukm/{jadwal}', [UkmScanController::class, 'store'])->name('ukm.scan.store');
 
         Route::get('/data-pelanggaran', [PelanggaranController::class, 'dataPelanggaran'])->name('dataPelanggaran');
         Route::post('/data-pelanggaran/searchdatapelanggaran', [PelanggaranController::class, 'searchDataPelanggaran'])->name('searchDataPelanggaran');
