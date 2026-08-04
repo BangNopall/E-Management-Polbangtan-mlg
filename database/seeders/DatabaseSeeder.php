@@ -145,5 +145,7 @@ class DatabaseSeeder extends Seeder
         PresensiUpacara::factory(1000)->create();
         PresensiApel::factory(1000)->create();
         PresensiSenam::factory(1000)->create();
+
+        $this->call(UkmSeeder::class);
     }
 }

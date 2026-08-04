@@ -22,6 +22,8 @@ use App\Http\Controllers\UkmScanController;
 use App\Http\Controllers\UkmVerifikasiController;
 use App\Http\Controllers\UkmLaporanController;
 
+use App\Http\Controllers\UkmMahasiswaController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -64,6 +66,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard/riwayat-aktivitas', [kegiatanAsramaController::class, 'riwayatAktivitasShow'])->name('riwayatAktivitasShow');
         Route::post('/dashboard/delete-foto/{user_id}', [ProfileController::class, 'deleteFotoProfile'])->name('deleteFotoProfile');
         Route::get('/handoff/konseling', [KonselingHandoffController::class, 'redirect'])->name('konseling');
+
+        // EPIC 01: MODUL UKM DINAMIS — Student Routes (US 1.3)
+        Route::get('/dashboard/ukm', [UkmMahasiswaController::class, 'index'])->name('ukm.index');
+        Route::get('/dashboard/ukm/riwayat', [UkmMahasiswaController::class, 'riwayat'])->name('ukm.riwayat');
     });
 
     Route::middleware('role:admin')->name('admin.')->group(function () {

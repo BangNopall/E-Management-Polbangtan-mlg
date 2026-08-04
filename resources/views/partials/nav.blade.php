@@ -31,11 +31,18 @@
                             <span class="text-sm">Profil</span>
                         </a>
                     </li>
-                    <li class="mb-1 group">
+                    <li class="group">
                         <a href="{{ route('home.konseling') }}"
                             class="text-gray-300 hover:bg-utama flex items-center px-3 py-1">
                             <i class="ri-mental-health-line mr-3 text-lg"></i>
                             <span class="text-sm">Layanan Konseling</span>
+                        </a>
+                    </li>
+                    <li class="mb-1 group">
+                        <a href="{{ route('home.ukm.index') }}"
+                            class="{{ Request::is('dashboard/ukm', 'dashboard/ukm/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
+                            <i class="ri-team-line mr-3 text-lg"></i>
+                            <span class="text-sm">UKM Saya</span>
                         </a>
                     </li>
                     <li class="group mb-1">
@@ -91,7 +98,7 @@
                         </ul>
                     </li>
                 @endif
-                @if (Auth::check() && (Auth::user()->role_id == 1 || Auth::user()->role_id == 2 || Auth::user()->role_id == 4))
+                @if (Auth::check() && (Auth::user()->role_id == 1 || Auth::user()->role_id == 2 || Auth::user()->role_id == 4 || Auth::user()->role_id == 5))
                     <li class="mb-1 group mt-1">
                         <a href="{{ route('admin.index') }}"
                             class="{{ Request::is('dashboard-admin') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
@@ -134,6 +141,41 @@
                             <span class="text-sm">Scan Absen Keluar</span>
                         </a>
                     </li>
+                    <li class="group mb-1 mt-1">
+                        <button type="button"
+                            class="flex items-center w-full px-3 py-1 text-gray-300 transition duration-75 group hover:bg-utama text-md"
+                            aria-controls="admin-ukm" data-collapse-toggle="admin-ukm">
+                            <i class="ri-team-line text-lg font-medium"></i>
+                            <span class="flex-1 ms-3 text-left text-sm whitespace-nowrap">UKM</span>
+                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 10 6">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="m1 1 4 4 4-4" />
+                            </svg>
+                        </button>
+                        <ul id="admin-ukm"
+                            class="{{ Request::is('ukm*', 'kamera-ukm*') ? 'block' : 'hidden' }} py-1 space-y-1">
+                            @if (Auth::user()->role_id == 1)
+                                <li>
+                                    <a href="{{ route('admin.ukm.index') }}"
+                                        class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm', 'ukm/*') && !Request::is('ukm/*/verifikasi') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                        Kelola UKM</a>
+                                </li>
+                            @endif
+                            @if (in_array(Auth::user()->role_id, [1, 5]))
+                                @php
+                                    $pembinaUkm = \App\Models\UkmMember::where('user_id', Auth::id())->where('peran', 'pembina')->first();
+                                    $verifikasiRoute = $pembinaUkm ? route('admin.ukm.verifikasi.index', $pembinaUkm->ukm_id) : '#';
+                                @endphp
+                                <li>
+                                    <a href="{{ $verifikasiRoute }}"
+                                        class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm/*/verifikasi') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                        Verifikasi Kegiatan</a>
+                                </li>
+                            @endif
+                        </ul>
+                    </li>
+
                     <li class="group mb-1 mt-1">
                         <button type="button"
                             class="flex items-center w-full px-3 py-1 text-gray-300 transition duration-75 group hover:bg-utama text-md"
