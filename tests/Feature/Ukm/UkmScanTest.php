@@ -114,14 +114,44 @@ class UkmScanTest extends TestCase
 
     public function test_scan_qr_expired_lebih_dari_30_detik_ditolak(): void
     {
-        [$admin, $pelatih, $ukm, $jadwal, $mhsAnggota] = $this->setupUkmJadwal();
+        $admin = $this->makeUser(User::ADMIN_ROLE_ID);
+        $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Taekwondo', 'slug' => 'ukm-taekwondo']);
+        $mhsAnggota = $this->makeUser(User::USER_ROLE_ID);
 
-        // 45 seconds ago (expired)
-        $expiredTime = Carbon::now()->subSeconds(45)->format('H:i:s');
+        UkmMember::create([
+            'ukm_id' => $ukm->id,
+            'user_id' => $mhsAnggota->id,
+            'peran' => 'anggota',
+            'status' => 'aktif',
+        ]);
+
+        $jadwal = UkmJadwal::create([
+            'ukm_id' => $ukm->id,
+            'judul' => 'Latihan Sabuk Hitam',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-08-04',
+            'mulai_acara' => '16:00:00',
+            'selesai_acara' => '18:00:00',
+            'lokasi' => 'Dojo Polbangtan',
+            'created_by' => $pelatih->id,
+        ]);
+
+        UkmPresensi::create([
+            'ukm_jadwal_id' => $jadwal->id,
+            'user_id' => $mhsAnggota->id,
+            'status_kehadiran' => 'Alpha',
+        ]);
+
+        // Fix server time to 16:30:45
+        Carbon::setTestNow(Carbon::create(2026, 8, 4, 16, 30, 45));
+
+        // QR generated 45 seconds ago at 16:30:00
+        $expiredTime = '16:30:00';
 
         $response = $this->actingAs($pelatih)->post(route('admin.ukm.scan.store', $jadwal->id), [
             'user_id' => $mhsAnggota->id,
-            'date' => Carbon::now()->toDateString(),
+            'date' => '2026-08-04',
             'time' => $expiredTime,
             'scanner' => 'absensi',
         ]);
@@ -134,6 +164,8 @@ class UkmScanTest extends TestCase
             'user_id' => $mhsAnggota->id,
             'status_kehadiran' => 'Alpha',
         ]);
+
+        Carbon::setTestNow();
     }
 
     public function test_scan_mahasiswa_bukan_anggota_ditolak(): void

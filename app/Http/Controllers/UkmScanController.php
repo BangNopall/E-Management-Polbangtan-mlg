@@ -45,9 +45,9 @@ class UkmScanController extends Controller
             ]);
 
             // 1. Time freshness validation (30 seconds window)
-            $parsedTime = Carbon::createFromFormat('H:i:s', $request->input('time'));
+            $parsedTime = Carbon::parse($request->input('date') . ' ' . $request->input('time'));
             $timeNow = Carbon::now();
-            $timeDifference = $timeNow->diffInSeconds($parsedTime);
+            $timeDifference = abs($timeNow->diffInSeconds($parsedTime));
             $maxDifference = 30;
 
             if ($timeDifference > $maxDifference) {
@@ -106,6 +106,7 @@ class UkmScanController extends Controller
             return redirect()->route('admin.ukm.scan.show', $jadwal->id)
                 ->with('success', 'Presensi UKM untuk Mahasiswa atas nama ' . $user->name . ' Berhasil Dilakukan.');
         } catch (Exception $e) {
+            logger()->error('Scan error: ' . $e->getMessage());
             return redirect()->route('admin.ukm.scan.show', $jadwal->id)
                 ->with('error', $e->getMessage());
         }

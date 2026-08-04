@@ -19,6 +19,8 @@ use App\Http\Controllers\UkmController;
 use App\Http\Controllers\UkmMemberController;
 use App\Http\Controllers\UkmJadwalController;
 use App\Http\Controllers\UkmScanController;
+use App\Http\Controllers\UkmVerifikasiController;
+use App\Http\Controllers\UkmLaporanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -134,6 +136,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('ukm/{ukm}/jadwal', [UkmJadwalController::class, 'store'])->name('ukm.jadwal.store');
         Route::get('kamera-ukm/{jadwal}', [UkmScanController::class, 'show'])->name('ukm.scan.show');
         Route::post('api/kamera-ukm/{jadwal}', [UkmScanController::class, 'store'])->name('ukm.scan.store');
+
+        // EPIC 01: MODUL UKM DINAMIS — Pembina & Admin Verification & Report Routes (US 1.4)
+        Route::get('ukm/{ukm}/verifikasi', [UkmVerifikasiController::class, 'index'])->name('ukm.verifikasi.index');
+        Route::patch('ukm/jadwal/{jadwal}/verifikasi', [UkmVerifikasiController::class, 'update'])->name('ukm.verifikasi.update');
+        Route::post('ukm/{ukm}/laporan/pdf', [UkmLaporanController::class, 'pdfReport'])->name('ukm.laporan.pdf');
 
         Route::get('/data-pelanggaran', [PelanggaranController::class, 'dataPelanggaran'])->name('dataPelanggaran');
         Route::post('/data-pelanggaran/searchdatapelanggaran', [PelanggaranController::class, 'searchDataPelanggaran'])->name('searchDataPelanggaran');
