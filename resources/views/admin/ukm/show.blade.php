@@ -55,49 +55,117 @@
 
             {{-- Tab 2: Jadwal --}}
             <div class="hidden p-4 rounded-lg bg-white border-2" id="jadwal" role="tabpanel" aria-labelledby="jadwal-tab">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="font-semibold text-lg text-gray-800">Daftar Jadwal Kegiatan UKM</h2>
+                <div class="w-full bg-white border rounded-lg p-3 mb-5">
+                    <div id="accordion-jadwal" data-accordion="collapse" data-active-classes="bg-white text-gray-900"
+                        data-inactive-classes="text-gray-500">
+                        <h2 id="accordion-jadwal-heading">
+                            <button type="button"
+                                class="flex items-center font-normal justify-between gap-5 py-2 text-gray-500 border-b border-gray-200 w-full"
+                                data-accordion-target="#accordion-jadwal-body" aria-expanded="false"
+                                aria-controls="accordion-jadwal-body">
+                                <span class="font-medium text-gray-700">Buat Jadwal Kegiatan UKM</span>
+                                <i data-accordion-icon aria-hidden="true" class="ri-add-box-line text-md shrink-0"></i>
+                            </button>
+                        </h2>
+                        <div id="accordion-jadwal-body" class="hidden" aria-labelledby="accordion-jadwal-heading">
+                            <div class="mt-3">
+                                <form action="{{ route('admin.ukm.jadwal.store', $ukm->id) }}" method="post">
+                                    @csrf
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                        <div>
+                                            <label for="judul" class="block mb-1 font-medium text-gray-700 text-sm">Judul Kegiatan <span class="text-red-500">*</span></label>
+                                            <input type="text" name="judul" id="judul"
+                                                class="w-full p-2 rounded border border-gray-300 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-sm"
+                                                placeholder="Contoh: Latihan Rutin Mingguan" required>
+                                        </div>
+                                        <div>
+                                            <label for="jenis" class="block mb-1 font-medium text-gray-700 text-sm">Jenis Kegiatan <span class="text-red-500">*</span></label>
+                                            <select name="jenis" id="jenis"
+                                                class="w-full p-2 rounded border border-gray-300 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-sm" required>
+                                                <option value="latihan">Latihan</option>
+                                                <option value="kegiatan_wajib">Kegiatan Wajib</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                                        <div>
+                                            <label for="tanggal" class="block mb-1 font-medium text-gray-700 text-sm">Tanggal <span class="text-red-500">*</span></label>
+                                            <input type="date" name="tanggal" id="tanggal"
+                                                class="w-full p-2 rounded border border-gray-300 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-sm" required>
+                                        </div>
+                                        <div>
+                                            <label for="mulai_acara" class="block mb-1 font-medium text-gray-700 text-sm">Mulai Acara <span class="text-red-500">*</span></label>
+                                            <input type="time" name="mulai_acara" id="mulai_acara"
+                                                class="w-full p-2 rounded border border-gray-300 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-sm" required>
+                                        </div>
+                                        <div>
+                                            <label for="selesai_acara" class="block mb-1 font-medium text-gray-700 text-sm">Selesai Acara <span class="text-red-500">*</span></label>
+                                            <input type="time" name="selesai_acara" id="selesai_acara"
+                                                class="w-full p-2 rounded border border-gray-300 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-sm" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="lokasi" class="block mb-1 font-medium text-gray-700 text-sm">Lokasi Kegiatan</label>
+                                        <input type="text" name="lokasi" id="lokasi"
+                                            class="w-full p-2 rounded border border-gray-300 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-sm"
+                                            placeholder="Contoh: Lapangan Utama / GOR Polbangtan">
+                                    </div>
+                                    <div>
+                                        <button class="bg-utama rounded text-sm py-2 px-4 text-white hover:bg-teal-700 font-medium" type="submit">
+                                            Simpan & Presensi Fan-Out Anggota
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                @if ($ukm->jadwals->count() > 0)
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left text-gray-500">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-4 py-3">No</th>
-                                    <th scope="col" class="px-4 py-3">Judul</th>
-                                    <th scope="col" class="px-4 py-3">Jenis</th>
-                                    <th scope="col" class="px-4 py-3">Tanggal</th>
-                                    <th scope="col" class="px-4 py-3">Waktu</th>
-                                    <th scope="col" class="px-4 py-3">Status Verifikasi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($ukm->jadwals as $j)
-                                    <tr class="bg-white border-b hover:bg-gray-50">
-                                        <td class="px-4 py-3 font-medium text-gray-900">{{ $loop->iteration }}</td>
-                                        <td class="px-4 py-3 font-medium text-gray-900">{{ $j->judul }}</td>
-                                        <td class="px-4 py-3 capitalize">{{ str_replace('_', ' ', $j->jenis) }}</td>
-                                        <td class="px-4 py-3">{{ \Carbon\Carbon::parse($j->tanggal)->format('d M Y') }}</td>
-                                        <td class="px-4 py-3">{{ $j->mulai_acara }} - {{ $j->selesai_acara }}</td>
-                                        <td class="px-4 py-3">
-                                            <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded capitalize">
-                                                {{ $j->status_verifikasi }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-semibold text-lg text-gray-800">Daftar Jadwal Kegiatan UKM</h2>
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="btn-toggle-tabel" onclick="toggleJadwalView('tabel')"
+                            class="px-3 py-1.5 text-xs font-medium rounded border bg-teal-700 text-white">
+                            <i class="ri-table-line"></i> Tabel
+                        </button>
+                        <button type="button" id="btn-toggle-kalender" onclick="toggleJadwalView('kalender')"
+                            class="px-3 py-1.5 text-xs font-medium rounded border bg-gray-100 text-gray-700 hover:bg-gray-200">
+                            <i class="ri-calendar-line"></i> Kalender
+                        </button>
                     </div>
-                @else
-                    <div class="py-6 text-center text-gray-500">
-                        Belum ada jadwal kegiatan yang dibuat untuk UKM ini.
-                    </div>
-                @endif
+                </div>
+
+                <div id="view-jadwal-tabel">
+                    @include('admin.ukm.partials.jadwal_table')
+                </div>
+
+                <div id="view-jadwal-kalender" class="hidden">
+                    <div id="calendar" class="p-2 border rounded bg-white min-h-[400px]"></div>
+                </div>
             </div>
         </div>
     </div>
 
     @include('partials.modals.ukm-tambah-anggota')
+
+    <script>
+        function toggleJadwalView(viewMode) {
+            const tabelView = document.getElementById('view-jadwal-tabel');
+            const kalenderView = document.getElementById('view-jadwal-kalender');
+            const btnTabel = document.getElementById('btn-toggle-tabel');
+            const btnKalender = document.getElementById('btn-toggle-kalender');
+
+            if (viewMode === 'tabel') {
+                tabelView.classList.remove('hidden');
+                kalenderView.classList.add('hidden');
+                btnTabel.className = 'px-3 py-1.5 text-xs font-medium rounded border bg-teal-700 text-white';
+                btnKalender.className = 'px-3 py-1.5 text-xs font-medium rounded border bg-gray-100 text-gray-700 hover:bg-gray-200';
+            } else {
+                tabelView.classList.add('hidden');
+                kalenderView.classList.remove('hidden');
+                btnKalender.className = 'px-3 py-1.5 text-xs font-medium rounded border bg-teal-700 text-white';
+                btnTabel.className = 'px-3 py-1.5 text-xs font-medium rounded border bg-gray-100 text-gray-700 hover:bg-gray-200';
+            }
+        }
+    </script>
 @endsection
