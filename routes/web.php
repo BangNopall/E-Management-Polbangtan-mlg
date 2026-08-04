@@ -15,6 +15,8 @@ use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\GenerateReportController;
 use App\Http\Controllers\kegiatanAsramaController;
+use App\Http\Controllers\UkmController;
+use App\Http\Controllers\UkmMemberController;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +85,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/generate-laporan-pelanggaran', [GenerateReportController::class, 'generateLaporanPelanggaran'])->name('generateLaporanPelanggaran');
         Route::get('/generate-laporan-kegiatan', [GenerateReportController::class, 'generateLaporanKegiatan'])->name('generateLaporanKegiatan');
         Route::post('/generate-laporan-kegiatan-asrama', [GenerateReportController::class, 'generateLaporanPelanggaranKegiatanAsrama'])->name('generateLaporanPelanggaranKegiatanAsrama');
+
+        // EPIC 01: MODUL UKM DINAMIS — Admin Routes (US 1.1 & US 1.0)
+        Route::resource('ukm', UkmController::class);
+        Route::post('ukm/{ukm}/anggota', [UkmMemberController::class, 'store'])->name('ukm.anggota.store');
+        Route::delete('ukm/{ukm}/anggota/{member}', [UkmMemberController::class, 'destroy'])->name('ukm.anggota.destroy');
     });
     // ROUTE SINGGLE END
 
