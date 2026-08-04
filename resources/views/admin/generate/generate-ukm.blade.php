@@ -84,7 +84,7 @@
                 </tr>
                 <tr>
                     <td>Jumlah Anggota</td>
-                    <td>: {{ $ukm->members()->count() }} Anggota</td>
+                    <td>: {{ $ukm->members_count ?? $ukm->members()->count() }} Anggota</td>
                 </tr>
                 <tr>
                     <td>Status UKM</td>

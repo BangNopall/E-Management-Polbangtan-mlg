@@ -22,8 +22,7 @@ class UkmMahasiswaController extends Controller
             ->where('status', 'aktif')
             ->with(['ukm.jadwals' => function ($query) {
                 $query->where('tanggal', '>=', now()->toDateString())
-                    ->orderBy('tanggal', 'asc')
-                    ->limit(5);
+                    ->orderBy('tanggal', 'asc');
             }])
             ->get();
 

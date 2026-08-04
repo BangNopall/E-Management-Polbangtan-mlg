@@ -29,6 +29,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['ukm_id', 'tanggal']);
+            $table->index(['ukm_id', 'status_verifikasi']);
         });
     }
 

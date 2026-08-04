@@ -34,7 +34,9 @@ class UkmLaporanController extends Controller
             'tanggal_selesai' => 'nullable|date',
         ]);
 
-        $query = $ukm->jadwals()->with(['presensis.user', 'verifier']);
+        $ukm->loadCount('members');
+
+        $query = $ukm->jadwals()->with(['presensis', 'verifier']);
 
         if ($request->filled('tanggal_mulai') && $request->filled('tanggal_selesai')) {
             $query->whereBetween('tanggal', [$request->input('tanggal_mulai'), $request->input('tanggal_selesai')]);

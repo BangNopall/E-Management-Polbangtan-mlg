@@ -25,7 +25,7 @@
                             <h3 class="font-medium text-sm text-gray-800 mb-2">Jadwal Mendatang:</h3>
                             @if ($membership->ukm->jadwals->count() > 0)
                                 <ul class="space-y-2 text-xs">
-                                    @foreach ($membership->ukm->jadwals as $jadwal)
+                                    @foreach ($membership->ukm->jadwals->take(5) as $jadwal)
                                         <li class="p-2 bg-gray-50 border rounded flex justify-between items-center">
                                             <div>
                                                 <div class="font-medium text-gray-900">{{ $jadwal->judul }}</div>

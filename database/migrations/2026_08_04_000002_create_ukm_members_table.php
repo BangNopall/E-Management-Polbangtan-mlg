@@ -22,6 +22,7 @@ return new class extends Migration
 
             $table->unique(['ukm_id', 'user_id']); // 1 orang 1 baris per UKM
             $table->index(['ukm_id', 'peran', 'status']);
+            $table->index(['user_id', 'status']);
         });
     }
 

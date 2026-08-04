@@ -35,14 +35,21 @@ class UkmJadwalController extends Controller
 
             // Fan-out presensi status 'Alpha' only for active student members (peran = 'anggota' & status = 'aktif')
             $activeMembers = $ukm->anggotaAktif()->get();
+            $now = now();
 
-            foreach ($activeMembers as $member) {
-                UkmPresensi::firstOrCreate([
+            $presensiData = $activeMembers->map(function ($member) use ($jadwal, $now) {
+                return [
                     'ukm_jadwal_id' => $jadwal->id,
                     'user_id' => $member->user_id,
-                ], [
                     'status_kehadiran' => 'Alpha',
-                ]);
+                    'jam_kehadiran' => null,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            })->toArray();
+
+            if (! empty($presensiData)) {
+                UkmPresensi::insert($presensiData);
             }
         });
 

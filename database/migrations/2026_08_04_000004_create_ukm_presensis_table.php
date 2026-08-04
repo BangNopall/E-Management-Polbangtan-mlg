@@ -20,6 +20,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['ukm_jadwal_id', 'user_id']); // cegah presensi ganda
+            $table->index(['user_id', 'created_at']);
         });
     }
 
