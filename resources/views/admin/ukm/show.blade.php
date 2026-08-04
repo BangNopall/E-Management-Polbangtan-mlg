@@ -148,7 +148,10 @@
 
     @include('partials.modals.ukm-tambah-anggota')
 
+    <script src="{{ asset('js/library/index.global.min.js') }}" type="text/javascript"></script>
     <script>
+        let ukmCalendarInstance = null;
+
         function toggleJadwalView(viewMode) {
             const tabelView = document.getElementById('view-jadwal-tabel');
             const kalenderView = document.getElementById('view-jadwal-kalender');
@@ -165,7 +168,38 @@
                 kalenderView.classList.remove('hidden');
                 btnKalender.className = 'px-3 py-1.5 text-xs font-medium rounded border bg-teal-700 text-white';
                 btnTabel.className = 'px-3 py-1.5 text-xs font-medium rounded border bg-gray-100 text-gray-700 hover:bg-gray-200';
+                initUkmCalendar();
             }
+        }
+
+        function initUkmCalendar() {
+            if (ukmCalendarInstance) {
+                return;
+            }
+
+            fetch('{{ route('admin.ukm.jadwal.events', $ukm->id) }}')
+                .then((res) => res.json())
+                .then((events) => {
+                    const el = document.getElementById('calendar');
+                    ukmCalendarInstance = new FullCalendar.Calendar(el, {
+                        height: 450,
+                        initialView: 'dayGridMonth',
+                        headerToolbar: {
+                            left: 'prev,next',
+                            center: 'title',
+                            right: '',
+                        },
+                        events: events,
+                        eventContent: function (arg) {
+                            const div = document.createElement('div');
+                            div.innerHTML = arg.event.title;
+                            div.className = 'px-1 text-white text-center text-sm';
+                            div.classList.add('bg-teal-600');
+                            return { domNodes: [div] };
+                        },
+                    });
+                    ukmCalendarInstance.render();
+                });
         }
     </script>
 @endsection

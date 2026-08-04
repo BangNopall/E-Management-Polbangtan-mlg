@@ -152,6 +152,7 @@ Route::middleware(['auth'])->group(function () {
         // member of.
         Route::get('ukm/{ukm}', [UkmController::class, 'show'])->name('ukm.show');
         Route::post('ukm/{ukm}/jadwal', [UkmJadwalController::class, 'store'])->name('ukm.jadwal.store');
+        Route::get('ukm/{ukm}/jadwal/events', [UkmJadwalController::class, 'events'])->name('ukm.jadwal.events');
         Route::patch('ukm/jadwal/{jadwal}/ajukan-verifikasi', [UkmJadwalController::class, 'ajukanVerifikasi'])->name('ukm.jadwal.ajukanVerifikasi');
         Route::get('kamera-ukm/{jadwal}', [UkmScanController::class, 'show'])->name('ukm.scan.show');
         Route::post('api/kamera-ukm/{jadwal}', [UkmScanController::class, 'store'])->name('ukm.scan.store');

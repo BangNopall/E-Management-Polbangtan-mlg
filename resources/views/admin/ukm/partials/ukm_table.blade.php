@@ -58,6 +58,17 @@
                                 {{ $ukm->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
                             </button>
                         </form>
+                        @unless ($ukm->is_active)
+                            <form action="{{ route('admin.ukm.destroy', $ukm->id) }}" method="post" class="inline"
+                                onsubmit="return confirm('Hapus UKM {{ $ukm->nama }} secara permanen? Seluruh jadwal dan presensi terkait akan ikut terhapus dan TIDAK BISA dikembalikan.')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="text-xs font-medium px-3 py-1.5 rounded text-white bg-red-600 hover:bg-red-700 flex items-center gap-1">
+                                    <i class="ri-delete-bin-line"></i> Hapus
+                                </button>
+                            </form>
+                        @endunless
                     </td>
                 </tr>
             @empty

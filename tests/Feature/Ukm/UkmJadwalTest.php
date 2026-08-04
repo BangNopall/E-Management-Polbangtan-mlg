@@ -235,4 +235,82 @@ class UkmJadwalTest extends TestCase
 
         $this->assertEquals(1, UkmPresensi::where('ukm_jadwal_id', $jadwal->id)->count());
     }
+
+    /**
+     * Perbaikan Modul UKM Dinamis — Isu #1.
+     * Tab kalender di halaman detail UKM butuh endpoint JSON events untuk
+     * FullCalendar (lihat .claude/plans/perbaikan-modul-ukm-dinamis.plan.md,
+     * Task 3). Format field mengikuti konvensi FullCalendar: title, start.
+     */
+    public function test_admin_bisa_mengambil_events_jadwal_ukm_untuk_kalender(): void
+    {
+        $admin = $this->makeUser(User::ADMIN_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Kalender Test', 'slug' => 'ukm-kalender-test']);
+
+        UkmJadwal::create([
+            'ukm_id' => $ukm->id,
+            'judul' => 'Latihan Kalender',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-09-01',
+            'mulai_acara' => '16:00:00',
+            'selesai_acara' => '18:00:00',
+            'status_verifikasi' => 'draft',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.ukm.jadwal.events', $ukm->id));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            [
+                'title' => 'Latihan Kalender',
+                'start' => '2026-09-01',
+            ],
+        ]);
+    }
+
+    public function test_events_jadwal_ukm_hanya_berisi_jadwal_ukm_terkait(): void
+    {
+        $admin = $this->makeUser(User::ADMIN_ROLE_ID);
+        $ukmA = Ukm::create(['nama' => 'UKM Kalender A', 'slug' => 'ukm-kalender-a']);
+        $ukmB = Ukm::create(['nama' => 'UKM Kalender B', 'slug' => 'ukm-kalender-b']);
+
+        UkmJadwal::create([
+            'ukm_id' => $ukmA->id,
+            'judul' => 'Jadwal A',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-09-02',
+            'mulai_acara' => '08:00:00',
+            'selesai_acara' => '10:00:00',
+            'status_verifikasi' => 'draft',
+        ]);
+        UkmJadwal::create([
+            'ukm_id' => $ukmB->id,
+            'judul' => 'Jadwal B',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-09-03',
+            'mulai_acara' => '08:00:00',
+            'selesai_acara' => '10:00:00',
+            'status_verifikasi' => 'draft',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.ukm.jadwal.events', $ukmA->id));
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1);
+        $response->assertJsonFragment(['title' => 'Jadwal A']);
+        $response->assertJsonMissing(['title' => 'Jadwal B']);
+    }
+
+    public function test_pelatih_ukm_lain_ditolak_mengambil_events_jadwal_bukan_binaannya(): void
+    {
+        $pelatihUkmA = $this->makeUser(User::PELATIH_ROLE_ID);
+        $ukmA = Ukm::create(['nama' => 'UKM Events A', 'slug' => 'ukm-events-a']);
+        $ukmB = Ukm::create(['nama' => 'UKM Events B', 'slug' => 'ukm-events-b']);
+
+        UkmMember::create(['ukm_id' => $ukmA->id, 'user_id' => $pelatihUkmA->id, 'peran' => 'pelatih', 'status' => 'aktif']);
+
+        $response = $this->actingAs($pelatihUkmA)->get(route('admin.ukm.jadwal.events', $ukmB->id));
+
+        $response->assertStatus(403);
+    }
 }

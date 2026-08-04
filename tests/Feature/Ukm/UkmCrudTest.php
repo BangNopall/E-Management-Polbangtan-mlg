@@ -161,4 +161,83 @@ class UkmCrudTest extends TestCase
 
         $response->assertStatus(403);
     }
+
+    /**
+     * Perbaikan Modul UKM Dinamis — Isu #5.
+     * Menonaktifkan UKM harus meng-cascade status 'nonaktif' ke seluruh
+     * ukm_members yang sebelumnya aktif (via app/Observers/UkmObserver.php).
+     * Sesuai keputusan user: TIDAK ada auto-reaktivasi saat UKM diaktifkan
+     * kembali — admin mengelola ulang status anggota secara manual.
+     */
+    public function test_menonaktifkan_ukm_mencascade_status_nonaktif_ke_semua_anggota(): void
+    {
+        $admin = $this->makeUser(User::ADMIN_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Cascade Test', 'slug' => 'ukm-cascade-test', 'is_active' => true]);
+
+        $mhs = $this->makeUser(User::USER_ROLE_ID);
+        $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $memberMhs = \App\Models\UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $mhs->id, 'peran' => 'anggota', 'status' => 'aktif']);
+        $memberPelatih = \App\Models\UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pelatih->id, 'peran' => 'pelatih', 'status' => 'aktif']);
+
+        $this->actingAs($admin)->put(route('admin.ukm.update', $ukm->id), [
+            'nama' => 'UKM Cascade Test',
+            'is_active' => 0,
+        ]);
+
+        $this->assertDatabaseHas('ukm_members', ['id' => $memberMhs->id, 'status' => 'nonaktif']);
+        $this->assertDatabaseHas('ukm_members', ['id' => $memberPelatih->id, 'status' => 'nonaktif']);
+    }
+
+    public function test_mengaktifkan_kembali_ukm_tidak_mengaktifkan_ulang_anggota_secara_otomatis(): void
+    {
+        $admin = $this->makeUser(User::ADMIN_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Reaktivasi Test', 'slug' => 'ukm-reaktivasi-test', 'is_active' => true]);
+        $mhs = $this->makeUser(User::USER_ROLE_ID);
+        $member = \App\Models\UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $mhs->id, 'peran' => 'anggota', 'status' => 'aktif']);
+
+        // Deactivate UKM -> cascades member to nonaktif
+        $this->actingAs($admin)->put(route('admin.ukm.update', $ukm->id), [
+            'nama' => 'UKM Reaktivasi Test',
+            'is_active' => 0,
+        ]);
+        $this->assertDatabaseHas('ukm_members', ['id' => $member->id, 'status' => 'nonaktif']);
+
+        // Reactivate UKM -> member status should stay nonaktif (manual admin action required)
+        $this->actingAs($admin)->put(route('admin.ukm.update', $ukm->id), [
+            'nama' => 'UKM Reaktivasi Test',
+            'is_active' => 1,
+        ]);
+        $this->assertDatabaseHas('ukm_members', ['id' => $member->id, 'status' => 'nonaktif']);
+    }
+
+    /**
+     * Perbaikan Modul UKM Dinamis — Isu #6.
+     * Admin bisa menghapus UKM secara permanen HANYA saat UKM sudah
+     * dinonaktifkan (syarat UI di ukm_table.blade.php). Cascade delete
+     * ke ukm_members/ukm_jadwals sudah dijamin oleh FK cascadeOnDelete().
+     */
+    public function test_admin_bisa_menghapus_ukm_nonaktif_secara_permanen(): void
+    {
+        $admin = $this->makeUser(User::ADMIN_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Hapus Test', 'slug' => 'ukm-hapus-test', 'is_active' => false]);
+        $mhs = $this->makeUser(User::USER_ROLE_ID);
+        \App\Models\UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $mhs->id, 'peran' => 'anggota', 'status' => 'nonaktif']);
+
+        $response = $this->actingAs($admin)->delete(route('admin.ukm.destroy', $ukm->id));
+
+        $response->assertRedirect(route('admin.ukm.index'));
+        $this->assertDatabaseMissing('ukms', ['id' => $ukm->id]);
+        $this->assertDatabaseMissing('ukm_members', ['ukm_id' => $ukm->id]);
+    }
+
+    public function test_pelatih_tidak_bisa_menghapus_ukm(): void
+    {
+        $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Hapus Ditolak', 'slug' => 'ukm-hapus-ditolak', 'is_active' => false]);
+
+        $response = $this->actingAs($pelatih)->delete(route('admin.ukm.destroy', $ukm->id));
+
+        $response->assertStatus(302);
+        $this->assertDatabaseHas('ukms', ['id' => $ukm->id]);
+    }
 }

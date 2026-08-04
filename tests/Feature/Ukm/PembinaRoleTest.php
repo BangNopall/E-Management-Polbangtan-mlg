@@ -69,6 +69,56 @@ class PembinaRoleTest extends TestCase
     }
 
     /**
+     * Perbaikan Modul UKM Dinamis — Isu #2.
+     * ProfileController::index() sebelumnya hanya menangani role_id 1/2/4 dan 3,
+     * sehingga Pembina (5) tidak di-redirect ke mana pun (null response).
+     */
+    public function test_pembina_diarahkan_ke_halaman_profil_admin_saat_membuka_profil(): void
+    {
+        $pembina = $this->makeUser(User::PEMBINA_ROLE_ID);
+
+        $response = $this->actingAs($pembina)->get('/profil');
+
+        $response->assertRedirect(route('admin.profil', $pembina->id));
+    }
+
+    public function test_pembina_bisa_membuka_halaman_profil_admin(): void
+    {
+        $pembina = $this->makeUser(User::PEMBINA_ROLE_ID);
+
+        $response = $this->actingAs($pembina)->get(route('admin.profil'));
+
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Perbaikan Modul UKM Dinamis — Isu #3.
+     * headnav.blade.php sebelumnya hanya merender form logout untuk
+     * role_id 1/2/4, sehingga Pembina tidak melihat tombol logout sama sekali.
+     * Assert pada action attribute (bukan teks "Logout") supaya tidak rapuh
+     * terhadap perubahan copy di masa depan.
+     */
+    public function test_pembina_melihat_tombol_logout_di_dashboard_admin(): void
+    {
+        $pembina = $this->makeUser(User::PEMBINA_ROLE_ID);
+
+        $response = $this->actingAs($pembina)->get('/dashboard-admin');
+
+        $response->assertStatus(200);
+        $response->assertSee(route('auth.logout'), false);
+    }
+
+    public function test_pembina_bisa_logout(): void
+    {
+        $pembina = $this->makeUser(User::PEMBINA_ROLE_ID);
+
+        $response = $this->actingAs($pembina)->delete(route('auth.logout'));
+
+        $response->assertRedirect();
+        $this->assertGuest();
+    }
+
+    /**
      * Test ini hanya menguji redirect routing (authDashboard() + middleware
      * role), bukan halaman yang butuh profil lengkap (mis. kodeqr()). blok/
      * kelas/prodi di-null-kan (kolomnya nullable) supaya test tidak perlu

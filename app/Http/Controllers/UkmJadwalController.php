@@ -8,6 +8,7 @@ use App\Models\UkmJadwal;
 use App\Models\UkmMember;
 use App\Models\UkmPresensi;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -85,5 +86,35 @@ class UkmJadwalController extends Controller
 
         return redirect()->route('admin.ukm.show', $jadwal->ukm_id)
             ->with('success', 'Jadwal kegiatan berhasil diajukan untuk verifikasi Pembina.');
+    }
+
+    /**
+     * Return this UKM's schedules as FullCalendar-compatible JSON events for
+     * the calendar tab on the detail page. Scoped identically to
+     * UkmController::show() to prevent cross-UKM IDOR (admin bypass,
+     * staff must be an active member of this specific UKM).
+     */
+    public function events(Ukm $ukm): JsonResponse
+    {
+        $user = Auth::user();
+
+        if ($user->role_id !== User::ADMIN_ROLE_ID) {
+            $isStaffOfThisUkm = UkmMember::where('ukm_id', $ukm->id)
+                ->where('user_id', $user->id)
+                ->whereIn('peran', ['pelatih', 'pembina'])
+                ->where('status', 'aktif')
+                ->exists();
+
+            abort_unless($isStaffOfThisUkm, 403, 'Anda tidak berhak melihat jadwal UKM ini.');
+        }
+
+        $events = $ukm->jadwals()->get()->map(function (UkmJadwal $jadwal) {
+            return [
+                'title' => $jadwal->judul,
+                'start' => $jadwal->tanggal,
+            ];
+        });
+
+        return response()->json($events);
     }
 }
