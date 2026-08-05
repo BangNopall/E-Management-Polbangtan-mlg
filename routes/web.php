@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QRController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\KonselingHandoffController;
 use App\Http\Controllers\AbsensiMahasiswa;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QRControllerHukum;
@@ -56,6 +57,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard/riwayat-pelanggaran/detail/{id}', [PelanggaranController::class, 'riwayatPelanggaranDetail'])->name('riwayatPelanggaranDetail');
         Route::get('/dashboard/riwayat-aktivitas', [kegiatanAsramaController::class, 'riwayatAktivitasShow'])->name('riwayatAktivitasShow');
         Route::post('/dashboard/delete-foto/{user_id}', [ProfileController::class, 'deleteFotoProfile'])->name('deleteFotoProfile');
+        Route::get('/handoff/konseling', [KonselingHandoffController::class, 'redirect'])->name('konseling');
     });
 
     Route::middleware('role:admin')->name('admin.')->group(function () {
