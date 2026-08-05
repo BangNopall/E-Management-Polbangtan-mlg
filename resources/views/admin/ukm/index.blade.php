@@ -23,22 +23,12 @@
                     <div class="mt-3">
                         <form action="{{ route('admin.ukm.store') }}" method="post">
                             @csrf
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                            <div class="mb-3">
                                 <div>
                                     <label for="nama" class="block mb-1 font-medium text-gray-700 text-sm">Nama UKM <span class="text-red-500">*</span></label>
                                     <input type="text" name="nama" id="nama"
                                         class="w-full p-2 rounded border border-gray-300 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-sm"
                                         placeholder="Contoh: UKM Robotik" required>
-                                </div>
-                                <div>
-                                    <label for="pelatih_id" class="block mb-1 font-medium text-gray-700 text-sm">Pelatih / Pembina Staf (Opsional)</label>
-                                    <select name="pelatih_id" id="pelatih_id"
-                                        class="w-full p-2 rounded border border-gray-300 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-sm">
-                                        <option value="">-- Pilih Staf Pelatih --</option>
-                                        @foreach ($stafPelatih as $staf)
-                                            <option value="{{ $staf->id }}">{{ $staf->name }}</option>
-                                        @endforeach
-                                    </select>
                                 </div>
                             </div>
                             <div class="mb-3">

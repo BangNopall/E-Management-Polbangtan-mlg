@@ -41,6 +41,7 @@ class UkmController extends Controller
 
     public function store(StoreUkmRequest $request)
     {
+        dd($request->all());
         try {
             $validated = $request->validated();
             $validated['slug'] = Str::slug($validated['nama']);
@@ -48,15 +49,6 @@ class UkmController extends Controller
             $validated['is_active'] = true;
 
             $ukm = Ukm::create($validated);
-
-            if ($request->filled('pelatih_id')) {
-                $ukm->members()->create([
-                    'user_id' => $request->pelatih_id,
-                    'peran' => 'pelatih',
-                    'status' => 'aktif',
-                    'tanggal_bergabung' => now(),
-                ]);
-            }
 
             return redirect()->route('admin.ukm.index')->with('success', 'UKM ' . $ukm->nama . ' berhasil ditambahkan.');
         } catch (\Throwable $th) {
