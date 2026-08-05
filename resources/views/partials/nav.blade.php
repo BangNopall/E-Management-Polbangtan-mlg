@@ -58,7 +58,7 @@
                             </svg>
                         </button>
                         <ul id="absen"
-                            class="{{ Request::is('dashboard/riwayat-absen', 'dashboard/riwayat-aktivitas') ? 'block' : 'hidden' }} py-1 space-y-1">
+                            class="{{ Request::is('dashboard/riwayat-absen', 'dashboard/riwayat-aktivitas', 'dashboard/riwayat-ukm') ? 'block' : 'hidden' }} py-1 space-y-1">
                             <li>
                                 <a href="{{ route('home.riwayatindex') }}"
                                     class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('dashboard/riwayat-absen') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
@@ -68,6 +68,11 @@
                                 <a href="/dashboard/riwayat-aktivitas"
                                     class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('dashboard/riwayat-aktivitas') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
                                     Kegiatan Wajib</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('home.ukm.riwayatAbsen') }}"
+                                    class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('dashboard/riwayat-ukm') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                    UKM</a>
                             </li>
                         </ul>
                     </li>
@@ -118,6 +123,13 @@
                         class="{{ Request::is('data-absen-keluar', 'data-absen-keluar/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
                         <i class="ri-survey-line mr-3 text-lg"></i>
                             <span class="text-sm">Data Absen Keluar</span>
+                        </a>
+                    </li>
+                    <li class="mb-1 group">
+                        <a href="/data-kegiatan-wajib"
+                        class="{{ Request::is('data-kegiatan-wajib', 'data-kegiatan-wajib/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
+                        <i class="ri-file-list-line mr-3 text-lg"></i>
+                            <span class="text-sm">Data Absen Kegiatan</span>
                         </a>
                     </li>
                     <li class="mb-1 group">
@@ -204,7 +216,7 @@
                             </svg>
                         </button>
                         <ul id="admin-kegiatanwajib"
-                            class="{{ Request::is('kamera-upacara', 'kamera-apel', 'kamera-senam', 'jadwal-kegiatan', 'data-kegiatan-wajib', 'data-kegiatan-wajib/*') ? 'block' : 'hidden' }} py-1 space-y-1">
+                            class="{{ Request::is('kamera-upacara', 'kamera-apel', 'kamera-senam', 'jadwal-kegiatan') ? 'block' : 'hidden' }} py-1 space-y-1">
                             <li>
                                 <a href="/kamera-upacara"
                                     class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('kamera-upacara') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
@@ -224,11 +236,6 @@
                                 <a href="/jadwal-kegiatan"
                                     class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('jadwal-kegiatan') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
                                     Jadwal Kegiatan</a>
-                            </li>
-                            <li>
-                                <a href="/data-kegiatan-wajib"
-                                    class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('data-kegiatan-wajib', 'data-kegiatan-wajib/*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                    Data Absen Kegiatan</a>
                             </li>
                         </ul>
                     </li>

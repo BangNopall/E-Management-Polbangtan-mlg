@@ -76,10 +76,16 @@ class UkmController extends Controller
         $anggotas = $ukm->members()->with('user')->paginate(20, ['*'], 'anggota_page');
         $jadwals = $ukm->jadwals()->paginate(20, ['*'], 'jadwal_page');
 
+        // Batch 3: Rekap presensi anggota per jadwal yang disetujui
+        $rekapJadwals = $ukm->jadwals()
+            ->where('status_verifikasi', 'disetujui')
+            ->with(['presensis.user'])
+            ->paginate(20, ['*'], 'rekap_page');
+
         $mahasiswas = User::where('role_id', User::USER_ROLE_ID)->get();
         $staf = User::whereIn('role_id', [User::PELATIH_ROLE_ID, User::PEMBINA_ROLE_ID])->get();
 
-        return view('admin.ukm.show', compact('ukm', 'anggotas', 'jadwals', 'mahasiswas', 'staf'));
+        return view('admin.ukm.show', compact('ukm', 'anggotas', 'jadwals', 'rekapJadwals', 'mahasiswas', 'staf'));
     }
 
     public function update(UpdateUkmRequest $request, $id)

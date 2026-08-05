@@ -47,4 +47,19 @@ class UkmMahasiswaController extends Controller
 
         return view('ukm.riwayat', compact('presensis'));
     }
+
+    /**
+     * Display dedicated UKM presence history page for student dashboard.
+     */
+    public function riwayatUkm(): View
+    {
+        $user = Auth::user();
+
+        $presensis = UkmPresensi::where('user_id', $user->id)
+            ->with(['jadwal.ukm'])
+            ->latest()
+            ->paginate(20);
+
+        return view('ukm.riwayat-ukm', compact('presensis'));
+    }
 }

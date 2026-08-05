@@ -145,6 +145,15 @@ class UkmJadwalController extends Controller
             return [
                 'title' => $jadwal->judul,
                 'start' => $jadwal->tanggal,
+                'extendedProps' => [
+                    'jenis' => $jadwal->jenis,
+                    'tanggal' => \Carbon\Carbon::parse($jadwal->tanggal)->format('d M Y'),
+                    'mulai_acara' => $jadwal->mulai_acara,
+                    'selesai_acara' => $jadwal->selesai_acara,
+                    'lokasi' => $jadwal->lokasi ?? '-',
+                    'status_verifikasi' => $jadwal->status_verifikasi,
+                    'catatan_pembina' => $jadwal->catatan_pembina ?? '-',
+                ],
             ];
         });
 

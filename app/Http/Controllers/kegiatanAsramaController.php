@@ -369,7 +369,12 @@ class kegiatanAsramaController extends Controller
             ]
         ];
 
-        return view('admin.detail-absenkegiatan', compact('user', 'dataKegiatanUpacara', 'dataKegiatanApel', 'dataKegiatanSenam', 'timeNow', 'keyPagination', 'rekapKegiatan'));
+        $presensiUkm = \App\Models\UkmPresensi::where('user_id', $id)
+            ->with(['jadwal.ukm'])
+            ->latest()
+            ->paginate(20, ['*'], 'ukm_page');
+
+        return view('admin.detail-absenkegiatan', compact('user', 'dataKegiatanUpacara', 'dataKegiatanApel', 'dataKegiatanSenam', 'presensiUkm', 'timeNow', 'keyPagination', 'rekapKegiatan'));
     }
 
     public function dataKegiatanWajibDetailFilter(Request $request)

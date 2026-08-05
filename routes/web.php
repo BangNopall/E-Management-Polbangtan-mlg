@@ -70,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
         // EPIC 01: MODUL UKM DINAMIS — Student Routes (US 1.3)
         Route::get('/dashboard/ukm', [UkmMahasiswaController::class, 'index'])->name('ukm.index');
         Route::get('/dashboard/ukm/riwayat', [UkmMahasiswaController::class, 'riwayat'])->name('ukm.riwayat');
+        Route::get('/dashboard/riwayat-ukm', [UkmMahasiswaController::class, 'riwayatUkm'])->name('ukm.riwayatAbsen');
     });
 
     Route::middleware('role:admin')->name('admin.')->group(function () {
@@ -95,6 +96,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/generate-laporan-pelanggaran', [GenerateReportController::class, 'generateLaporanPelanggaran'])->name('generateLaporanPelanggaran');
         Route::get('/generate-laporan-kegiatan', [GenerateReportController::class, 'generateLaporanKegiatan'])->name('generateLaporanKegiatan');
         Route::post('/generate-laporan-kegiatan-asrama', [GenerateReportController::class, 'generateLaporanPelanggaranKegiatanAsrama'])->name('generateLaporanPelanggaranKegiatanAsrama');
+        Route::post('/generate-laporan-ukm', [GenerateReportController::class, 'generateLaporanUkm'])->name('generateLaporanUkm');
 
         // EPIC 01: MODUL UKM DINAMIS — Admin Routes (US 1.1 & US 1.0)
         // 'show' is intentionally excluded here and registered instead in the

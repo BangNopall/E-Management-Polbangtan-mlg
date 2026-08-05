@@ -36,6 +36,11 @@
                         <i class="ri-calendar-event-line mr-1"></i> Jadwal ({{ $ukm->jadwals->count() }})
                     </button>
                 </li>
+                <li class="me-2" role="presentation">
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300" id="rekap-tab" data-tabs-target="#rekap" type="button" role="tab" aria-controls="rekap" aria-selected="false">
+                        <i class="ri-checkbox-circle-line mr-1"></i> Rekap Presensi
+                    </button>
+                </li>
             </ul>
         </div>
 
@@ -143,10 +148,16 @@
                     <div id="calendar" class="p-2 border rounded bg-white min-h-[400px]"></div>
                 </div>
             </div>
+
+            {{-- Tab 3: Rekap Presensi --}}
+            <div class="hidden p-4 rounded-lg bg-white border-2" id="rekap" role="tabpanel" aria-labelledby="rekap-tab">
+                @include('admin.ukm.partials.rekap_presensi_table')
+            </div>
         </div>
     </div>
 
     @include('partials.modals.ukm-tambah-anggota')
+    @include('partials.modals.ukm-detail-kegiatan')
 
     <script src="{{ asset('js/library/index.global.min.js') }}" type="text/javascript"></script>
     <script>
@@ -190,6 +201,20 @@
                             right: '',
                         },
                         events: events,
+                        eventClick: function(info) {
+                            if (info.event.extendedProps) {
+                                openModalDetailKegiatan({
+                                    judul: info.event.title,
+                                    jenis: info.event.extendedProps.jenis,
+                                    tanggal: info.event.extendedProps.tanggal,
+                                    mulai_acara: info.event.extendedProps.mulai_acara,
+                                    selesai_acara: info.event.extendedProps.selesai_acara,
+                                    lokasi: info.event.extendedProps.lokasi,
+                                    status_verifikasi: info.event.extendedProps.status_verifikasi,
+                                    catatan_pembina: info.event.extendedProps.catatan_pembina
+                                });
+                            }
+                        },
                         eventContent: function (arg) {
                             const div = document.createElement('div');
                             div.innerHTML = arg.event.title;
