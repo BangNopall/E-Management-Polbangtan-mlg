@@ -105,6 +105,8 @@ Route::middleware(['auth'])->group(function () {
         // design doc for the intended role matrix.
         Route::resource('ukm', UkmController::class)->except(['show']);
         Route::post('ukm/{ukm}/anggota', [UkmMemberController::class, 'store'])->name('ukm.anggota.store');
+        Route::patch('ukm/{ukm}/anggota/aktifkan-semua', [UkmMemberController::class, 'aktifkanSemua'])->name('ukm.anggota.aktifkanSemua');
+        Route::patch('ukm/{ukm}/anggota/{member}/aktifkan', [UkmMemberController::class, 'aktifkan'])->name('ukm.anggota.aktifkan');
         Route::delete('ukm/{ukm}/anggota/{member}', [UkmMemberController::class, 'destroy'])->name('ukm.anggota.destroy');
     });
     // ROUTE SINGGLE END
@@ -154,6 +156,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('ukm/{ukm}/jadwal', [UkmJadwalController::class, 'store'])->name('ukm.jadwal.store');
         Route::get('ukm/{ukm}/jadwal/events', [UkmJadwalController::class, 'events'])->name('ukm.jadwal.events');
         Route::patch('ukm/jadwal/{jadwal}/ajukan-verifikasi', [UkmJadwalController::class, 'ajukanVerifikasi'])->name('ukm.jadwal.ajukanVerifikasi');
+        Route::delete('ukm/jadwal/{jadwal}', [UkmJadwalController::class, 'destroy'])->name('ukm.jadwal.destroy');
         Route::get('kamera-ukm/{jadwal}', [UkmScanController::class, 'show'])->name('ukm.scan.show');
         Route::post('api/kamera-ukm/{jadwal}', [UkmScanController::class, 'store'])->name('ukm.scan.store');
 

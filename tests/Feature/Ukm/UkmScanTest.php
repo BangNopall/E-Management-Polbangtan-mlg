@@ -72,6 +72,10 @@ class UkmScanTest extends TestCase
             'mulai_acara' => $startTime,
             'selesai_acara' => $endTime,
             'lokasi' => 'Dojo Polbangtan',
+            // Isu #4: scanner hanya melayani jadwal 'disetujui'. Test-test di
+            // kelas ini menguji perilaku scan (QR expired, bukan anggota, dsb),
+            // bukan alur verifikasi — jadi fixture-nya dibuat sudah disetujui.
+            'status_verifikasi' => 'disetujui',
             'created_by' => $pelatih->id,
         ]);
 
@@ -148,6 +152,10 @@ class UkmScanTest extends TestCase
             'mulai_acara' => '16:00:00',
             'selesai_acara' => '18:00:00',
             'lokasi' => 'Dojo Polbangtan',
+            // Isu #4: scanner hanya melayani jadwal 'disetujui'. Test-test di
+            // kelas ini menguji perilaku scan (QR expired, bukan anggota, dsb),
+            // bukan alur verifikasi — jadi fixture-nya dibuat sudah disetujui.
+            'status_verifikasi' => 'disetujui',
             'created_by' => $pelatih->id,
         ]);
 
@@ -225,6 +233,61 @@ class UkmScanTest extends TestCase
 
         $response->assertRedirect(route('admin.ukm.scan.show', $jadwal->id));
         $response->assertSessionHas('error', 'Anda Sudah Melakukan Presensi');
+    }
+
+    /**
+     * Penyempurnaan Alur UKM — Isu #4a.
+     * `status_verifikasi` harus menjadi gerbang perilaku sistem, bukan sekadar
+     * badge dekoratif: scanner hanya boleh dibuka untuk jadwal 'disetujui'.
+     * Guard ditegakkan di server (bukan hanya menyembunyikan tombol) karena
+     * URL scanner bisa diketik langsung.
+     */
+    public function test_scanner_ditolak_untuk_jadwal_yang_belum_disetujui(): void
+    {
+        [$admin, $pelatih, $ukm, $jadwal] = $this->setupUkmJadwal();
+
+        foreach (['draft', 'menunggu', 'ditolak'] as $status) {
+            $jadwal->update(['status_verifikasi' => $status]);
+
+            $response = $this->actingAs($pelatih)->get(route('admin.ukm.scan.show', $jadwal->id));
+
+            $response->assertRedirect(route('admin.ukm.show', $jadwal->ukm_id));
+            $response->assertSessionHas('error');
+        }
+    }
+
+    public function test_scan_presensi_ditolak_untuk_jadwal_yang_belum_disetujui(): void
+    {
+        [$admin, $pelatih, $ukm, $jadwal, $mhsAnggota] = $this->setupUkmJadwal();
+        $jadwal->update(['status_verifikasi' => 'menunggu']);
+
+        $response = $this->actingAs($pelatih)->post(route('admin.ukm.scan.store', $jadwal->id), [
+            'user_id' => $mhsAnggota->id,
+            'date' => Carbon::now()->toDateString(),
+            'time' => Carbon::now()->format('H:i:s'),
+            'scanner' => 'absensi',
+        ]);
+
+        $response->assertSessionHas('error');
+
+        // Presensi tetap 'Alpha' — tidak ada presensi yang tercatat untuk
+        // kegiatan yang belum sah secara formal.
+        $this->assertDatabaseHas('ukm_presensis', [
+            'ukm_jadwal_id' => $jadwal->id,
+            'user_id' => $mhsAnggota->id,
+            'status_kehadiran' => 'Alpha',
+        ]);
+    }
+
+    public function test_scanner_bisa_dibuka_untuk_jadwal_disetujui(): void
+    {
+        [$admin, $pelatih, $ukm, $jadwal] = $this->setupUkmJadwal();
+        $jadwal->update(['status_verifikasi' => 'disetujui']);
+
+        $response = $this->actingAs($pelatih)->get(route('admin.ukm.scan.show', $jadwal->id));
+
+        $response->assertStatus(200);
+        $response->assertViewIs('admin.ukm.kamera-ukm');
     }
 
     public function test_pelatih_ukm_lain_tidak_bisa_scan_untuk_jadwal_ukm_bukan_binaannya(): void

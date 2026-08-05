@@ -27,7 +27,7 @@ class UkmController extends Controller
             });
         }
 
-        $ukms = $query->latest()->paginate(10);
+        $ukms = $query->latest()->paginate(20);
         $stafPelatih = User::whereIn('role_id', [User::PELATIH_ROLE_ID, User::PEMBINA_ROLE_ID])->get();
 
         if ($request->ajax()) {
@@ -41,7 +41,6 @@ class UkmController extends Controller
 
     public function store(StoreUkmRequest $request)
     {
-        dd($request->all());
         try {
             $validated = $request->validated();
             $validated['slug'] = Str::slug($validated['nama']);
@@ -58,7 +57,7 @@ class UkmController extends Controller
 
     public function show($id)
     {
-        $ukm = Ukm::with(['members.user', 'jadwals'])->findOrFail($id);
+        $ukm = Ukm::findOrFail($id);
 
         $user = Auth::user();
         if ($user->role_id !== User::ADMIN_ROLE_ID) {
@@ -71,10 +70,16 @@ class UkmController extends Controller
             abort_unless($isStaffOfThisUkm, 403, 'Anda tidak berhak melihat detail UKM ini.');
         }
 
+        // Isu #8: memaginasi 20 data per halaman dengan nama parameter terpisah
+        // ('anggota_page' & 'jadwal_page') supaya navigasi satu tabel tidak
+        // mereset tabel lain pada halaman detail UKM yang sama.
+        $anggotas = $ukm->members()->with('user')->paginate(20, ['*'], 'anggota_page');
+        $jadwals = $ukm->jadwals()->paginate(20, ['*'], 'jadwal_page');
+
         $mahasiswas = User::where('role_id', User::USER_ROLE_ID)->get();
         $staf = User::whereIn('role_id', [User::PELATIH_ROLE_ID, User::PEMBINA_ROLE_ID])->get();
 
-        return view('admin.ukm.show', compact('ukm', 'mahasiswas', 'staf'));
+        return view('admin.ukm.show', compact('ukm', 'anggotas', 'jadwals', 'mahasiswas', 'staf'));
     }
 
     public function update(UpdateUkmRequest $request, $id)

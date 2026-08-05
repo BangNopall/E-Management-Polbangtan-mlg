@@ -26,14 +26,23 @@
                             @if ($membership->ukm->jadwals->count() > 0)
                                 <ul class="space-y-2 text-xs">
                                     @foreach ($membership->ukm->jadwals->take(5) as $jadwal)
-                                        <li class="p-2 bg-gray-50 border rounded flex justify-between items-center">
-                                            <div>
+                                        <li class="p-2 bg-gray-50 border rounded">
+                                            <div class="flex justify-between items-start gap-2">
                                                 <div class="font-medium text-gray-900">{{ $jadwal->judul }}</div>
-                                                <div class="text-gray-500">
-                                                    {{ \Carbon\Carbon::parse($jadwal->tanggal)->format('d M Y') }} · {{ $jadwal->mulai_acara }}
-                                                </div>
+                                                <span class="text-gray-400 capitalize whitespace-nowrap">{{ str_replace('_', ' ', $jadwal->jenis) }}</span>
                                             </div>
-                                            <span class="text-gray-400 capitalize">{{ str_replace('_', ' ', $jadwal->jenis) }}</span>
+                                            <div class="text-gray-500 mt-1 flex items-center gap-1">
+                                                <i class="ri-calendar-line"></i>
+                                                {{ \Carbon\Carbon::parse($jadwal->tanggal)->format('d M Y') }}
+                                            </div>
+                                            <div class="text-gray-500 flex items-center gap-1">
+                                                <i class="ri-time-line"></i>
+                                                {{ $jadwal->mulai_acara }} - {{ $jadwal->selesai_acara }}
+                                            </div>
+                                            <div class="text-gray-500 flex items-center gap-1">
+                                                <i class="ri-map-pin-line"></i>
+                                                {{ $jadwal->lokasi ?? '-' }}
+                                            </div>
                                         </li>
                                     @endforeach
                                 </ul>

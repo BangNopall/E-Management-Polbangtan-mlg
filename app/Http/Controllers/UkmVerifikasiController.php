@@ -32,10 +32,14 @@ class UkmVerifikasiController extends Controller
             abort_unless($isPembinaOfThisUkm, 403, 'Anda tidak berhak memverifikasi UKM ini.');
         }
 
+        // Isu #3: jadwal 'draft' belum diajukan Pelatih, jadi tidak boleh masuk
+        // antrian Pembina. Alur wajib: draft -> (Ajukan Verifikasi) -> menunggu
+        // -> disetujui/ditolak.
         $jadwals = UkmJadwal::where('ukm_id', $ukm->id)
+            ->where('status_verifikasi', '!=', 'draft')
             ->with(['presensis.user', 'verifier'])
             ->latest('tanggal')
-            ->get();
+            ->paginate(20);
 
         return view('admin.ukm.verifikasi', compact('ukm', 'jadwals'));
     }
@@ -56,6 +60,14 @@ class UkmVerifikasiController extends Controller
                 ->exists();
 
             abort_unless($isPembinaOfThisUkm, 403, 'Anda tidak berhak memverifikasi UKM ini.');
+        }
+
+        // Isu #3: Pembina tidak boleh menyetujui/menolak jadwal yang belum
+        // diajukan Pelatih. Ditegakkan di server, bukan sekadar menyembunyikan
+        // tombol — form bisa di-submit langsung.
+        if ($jadwal->status_verifikasi === 'draft') {
+            return redirect()->route('admin.ukm.verifikasi.index', $ukm->id)
+                ->with('error', 'Jadwal "' . $jadwal->judul . '" belum diajukan untuk verifikasi oleh Pelatih.');
         }
 
         $request->validate([

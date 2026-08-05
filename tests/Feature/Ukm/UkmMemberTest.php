@@ -150,6 +150,75 @@ class UkmMemberTest extends TestCase
         $this->assertDatabaseMissing('ukm_members', ['id' => $member->id]);
     }
 
+    /**
+     * Penyempurnaan Alur UKM — Isu #1.
+     * Reaktivasi anggota (per-user & massal) diperbolehkan HANYA bila UKM-nya
+     * berstatus aktif (is_active = true). Jika UKM masih nonaktif, request
+     * ditolak untuk mencegah kondisi tidak konsisten (anggota aktif di UKM mati).
+     */
+    public function test_admin_bisa_mengaktifkan_kembali_anggota_nonaktif_saat_ukm_aktif(): void
+    {
+        $admin = $this->makeUser(User::ADMIN_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Badminton Test', 'slug' => 'ukm-badminton-test', 'is_active' => true]);
+        $mahasiswa = $this->makeUser(User::USER_ROLE_ID);
+
+        $member = UkmMember::create([
+            'ukm_id' => $ukm->id,
+            'user_id' => $mahasiswa->id,
+            'peran' => 'anggota',
+            'status' => 'nonaktif',
+        ]);
+
+        $response = $this->actingAs($admin)->patch(route('admin.ukm.anggota.aktifkan', [$ukm->id, $member->id]));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+        $this->assertDatabaseHas('ukm_members', [
+            'id' => $member->id,
+            'status' => 'aktif',
+        ]);
+    }
+
+    public function test_admin_bisa_mengaktifkan_semua_anggota_sekaligus(): void
+    {
+        $admin = $this->makeUser(User::ADMIN_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Tenis Test', 'slug' => 'ukm-tenis-test', 'is_active' => true]);
+
+        $mhs1 = $this->makeUser(User::USER_ROLE_ID);
+        $mhs2 = $this->makeUser(User::USER_ROLE_ID);
+
+        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $mhs1->id, 'peran' => 'anggota', 'status' => 'nonaktif']);
+        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $mhs2->id, 'peran' => 'anggota', 'status' => 'nonaktif']);
+
+        $response = $this->actingAs($admin)->patch(route('admin.ukm.anggota.aktifkanSemua', $ukm->id));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+        $this->assertEquals(2, UkmMember::where('ukm_id', $ukm->id)->where('status', 'aktif')->count());
+    }
+
+    public function test_reaktivasi_anggota_ditolak_jika_ukm_masih_nonaktif(): void
+    {
+        $admin = $this->makeUser(User::ADMIN_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Nonaktif Test', 'slug' => 'ukm-nonaktif-test', 'is_active' => false]);
+        $mahasiswa = $this->makeUser(User::USER_ROLE_ID);
+
+        $member = UkmMember::create([
+            'ukm_id' => $ukm->id,
+            'user_id' => $mahasiswa->id,
+            'peran' => 'anggota',
+            'status' => 'nonaktif',
+        ]);
+
+        $response = $this->actingAs($admin)->patch(route('admin.ukm.anggota.aktifkan', [$ukm->id, $member->id]));
+
+        $response->assertSessionHas('error');
+        $this->assertDatabaseHas('ukm_members', [
+            'id' => $member->id,
+            'status' => 'nonaktif',
+        ]);
+    }
+
     public function test_mahasiswa_tidak_bisa_menambah_anggota(): void
     {
         $mahasiswa = $this->makeUser(User::USER_ROLE_ID);

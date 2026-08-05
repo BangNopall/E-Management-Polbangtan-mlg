@@ -230,6 +230,29 @@ class UkmCrudTest extends TestCase
         $this->assertDatabaseMissing('ukm_members', ['ukm_id' => $ukm->id]);
     }
 
+    /**
+     * Penyempurnaan Alur UKM — Isu #8.
+     * Halaman index UKM harus memaginasi 20 data per halaman (sebelumnya 10).
+     */
+    public function test_daftar_ukm_memaginasi_20_data_per_halaman(): void
+    {
+        $admin = $this->makeUser(User::ADMIN_ROLE_ID);
+
+        for ($i = 1; $i <= 25; $i++) {
+            Ukm::create([
+                'nama' => 'UKM Paginasi ' . $i,
+                'slug' => 'ukm-paginasi-' . $i,
+            ]);
+        }
+
+        $response = $this->actingAs($admin)->get(route('admin.ukm.index'));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('ukms', function ($ukms) {
+            return $ukms->perPage() === 20 && $ukms->count() === 20 && $ukms->total() >= 25;
+        });
+    }
+
     public function test_pelatih_tidak_bisa_menghapus_ukm(): void
     {
         $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);

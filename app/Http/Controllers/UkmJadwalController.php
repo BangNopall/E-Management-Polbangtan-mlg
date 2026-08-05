@@ -89,6 +89,39 @@ class UkmJadwalController extends Controller
     }
 
     /**
+     * Penyempurnaan Alur UKM — Isu #7.
+     * Hapus jadwal berstatus 'draft'. Scoped ke Admin atau Pelatih UKM terkait.
+     * Jadwal yang sudah diajukan/disetujui/ditolak DITOLAK dari penghapusan
+     * untuk mempertahankan jejak audit kegiatan.
+     */
+    public function destroy(UkmJadwal $jadwal): RedirectResponse
+    {
+        $user = Auth::user();
+
+        if ($user->role_id !== User::ADMIN_ROLE_ID) {
+            $isPelatihOfThisUkm = UkmMember::where('ukm_id', $jadwal->ukm_id)
+                ->where('user_id', $user->id)
+                ->where('peran', 'pelatih')
+                ->where('status', 'aktif')
+                ->exists();
+
+            abort_unless($isPelatihOfThisUkm, 403, 'Anda tidak berhak menghapus jadwal UKM ini.');
+        }
+
+        if ($jadwal->status_verifikasi !== 'draft') {
+            return redirect()->route('admin.ukm.show', $jadwal->ukm_id)
+                ->with('error', 'Hanya jadwal berstatus draft yang dapat dihapus.');
+        }
+
+        $ukmId = $jadwal->ukm_id;
+        $judul = $jadwal->judul;
+        $jadwal->delete();
+
+        return redirect()->route('admin.ukm.show', $ukmId)
+            ->with('success', 'Jadwal "' . $judul . '" berhasil dihapus.');
+    }
+
+    /**
      * Return this UKM's schedules as FullCalendar-compatible JSON events for
      * the calendar tab on the detail page. Scoped identically to
      * UkmController::show() to prevent cross-UKM IDOR (admin bypass,

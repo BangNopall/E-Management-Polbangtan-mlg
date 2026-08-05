@@ -133,6 +133,77 @@ class UkmVerifikasiTest extends TestCase
         ]);
     }
 
+    /**
+     * Penyempurnaan Alur UKM — Isu #3.
+     * Alur yang benar: Pelatih buat jadwal (draft) -> Pelatih "Ajukan Verifikasi"
+     * (menunggu) -> Pembina setujui/tolak. Jadwal draft belum diajukan, jadi
+     * tidak boleh muncul di antrian Pembina.
+     */
+    public function test_jadwal_draft_tidak_muncul_di_antrian_verifikasi_pembina(): void
+    {
+        $pembina = $this->makeUser(User::PEMBINA_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Fotografi', 'slug' => 'ukm-fotografi']);
+
+        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pembina->id, 'peran' => 'pembina', 'status' => 'aktif']);
+
+        UkmJadwal::create([
+            'ukm_id' => $ukm->id,
+            'judul' => 'Hunting Foto Belum Diajukan',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-09-01',
+            'mulai_acara' => '06:00:00',
+            'selesai_acara' => '09:00:00',
+            'status_verifikasi' => 'draft',
+        ]);
+
+        UkmJadwal::create([
+            'ukm_id' => $ukm->id,
+            'judul' => 'Workshop Sudah Diajukan',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-09-02',
+            'mulai_acara' => '13:00:00',
+            'selesai_acara' => '16:00:00',
+            'status_verifikasi' => 'menunggu',
+        ]);
+
+        $response = $this->actingAs($pembina)->get(route('admin.ukm.verifikasi.index', $ukm->id));
+
+        $response->assertStatus(200);
+        $response->assertSee('Workshop Sudah Diajukan');
+        $response->assertDontSee('Hunting Foto Belum Diajukan');
+    }
+
+    public function test_menyetujui_jadwal_draft_ditolak_karena_belum_diajukan(): void
+    {
+        $pembina = $this->makeUser(User::PEMBINA_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Debat', 'slug' => 'ukm-debat']);
+
+        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pembina->id, 'peran' => 'pembina', 'status' => 'aktif']);
+
+        $jadwal = UkmJadwal::create([
+            'ukm_id' => $ukm->id,
+            'judul' => 'Latihan Debat',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-09-05',
+            'mulai_acara' => '15:00:00',
+            'selesai_acara' => '17:00:00',
+            'status_verifikasi' => 'draft',
+        ]);
+
+        $response = $this->actingAs($pembina)->patch(route('admin.ukm.verifikasi.update', $jadwal->id), [
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        $response->assertSessionHas('error');
+
+        // Status tidak berubah — draft tetap draft sampai Pelatih mengajukan.
+        $this->assertDatabaseHas('ukm_jadwals', [
+            'id' => $jadwal->id,
+            'status_verifikasi' => 'draft',
+            'verified_by' => null,
+        ]);
+    }
+
     public function test_admin_bisa_memverifikasi_jadwal_ukm_mana_saja(): void
     {
         $admin = $this->makeUser(User::ADMIN_ROLE_ID);

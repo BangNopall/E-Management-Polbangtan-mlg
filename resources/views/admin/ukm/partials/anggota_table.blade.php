@@ -1,4 +1,19 @@
 <div class="overflow-x-auto">
+    {{-- Isu #1: tombol 'Aktifkan Semua' massal di header tabel anggota.
+         Hanya aktif apabila UKM induknya berstatus aktif. --}}
+    @if ($ukm->is_active && $ukm->members->where('status', 'nonaktif')->count() > 0)
+        <div class="mb-3 flex justify-end">
+            <form action="{{ route('admin.ukm.anggota.aktifkanSemua', $ukm->id) }}" method="post" class="inline"
+                onsubmit="return confirm('Aktifkan kembali seluruh anggota nonaktif di UKM {{ $ukm->nama }}?')">
+                @csrf
+                @method('PATCH')
+                <button type="submit"
+                    class="text-xs font-medium px-3 py-1.5 rounded text-white bg-teal-600 hover:bg-teal-700 flex items-center gap-1">
+                    <i class="ri-checkbox-circle-line"></i> Aktifkan Semua Anggota
+                </button>
+            </form>
+        </div>
+    @endif
     <table class="w-full text-sm text-left text-gray-500">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
@@ -12,7 +27,7 @@
             </tr>
         </thead>
         <tbody>
-            @forelse ($ukm->members as $index => $member)
+            @forelse ($anggotas as $index => $member)
                 <tr class="bg-white border-b hover:bg-gray-50">
                     <td class="px-4 py-3 font-medium text-gray-900">{{ $loop->iteration }}</td>
                     <td class="px-4 py-3 font-medium text-gray-900">
@@ -41,7 +56,16 @@
                     <td class="px-4 py-3">
                         {{ $member->tanggal_bergabung ? \Carbon\Carbon::parse($member->tanggal_bergabung)->format('d M Y') : '-' }}
                     </td>
-                    <td class="px-4 py-3">
+                    <td class="px-4 py-3 flex items-center gap-2">
+                        @if ($member->status === 'nonaktif' && $ukm->is_active)
+                            <form action="{{ route('admin.ukm.anggota.aktifkan', [$ukm->id, $member->id]) }}" method="post" class="inline">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="text-xs text-teal-600 hover:text-teal-800 font-medium flex items-center gap-1">
+                                    <i class="ri-checkbox-circle-line"></i> Aktifkan
+                                </button>
+                            </form>
+                        @endif
                         <form action="{{ route('admin.ukm.anggota.destroy', [$ukm->id, $member->id]) }}" method="post"
                             onsubmit="return confirm('Keluarkan {{ $member->user->name ?? 'anggota' }} dari UKM ini?')">
                             @csrf
@@ -61,4 +85,7 @@
             @endforelse
         </tbody>
     </table>
+    <div class="mt-4">
+        {{ $anggotas->links() }}
+    </div>
 </div>

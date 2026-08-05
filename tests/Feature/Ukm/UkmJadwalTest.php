@@ -301,6 +301,112 @@ class UkmJadwalTest extends TestCase
         $response->assertJsonMissing(['title' => 'Jadwal B']);
     }
 
+    /**
+     * Penyempurnaan Alur UKM — Isu #7.
+     * Pelatih/Admin dapat menghapus jadwal HANYA jika status_verifikasi = 'draft'.
+     * Jadwal yang sudah diajukan/disetujui/ditolak dipertahankan sebagai jejak audit.
+     */
+    public function test_pelatih_bisa_menghapus_jadwal_berstatus_draft(): void
+    {
+        $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Robotik Hapus Test', 'slug' => 'ukm-robotik-hapus-test']);
+
+        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pelatih->id, 'peran' => 'pelatih', 'status' => 'aktif']);
+
+        $jadwal = UkmJadwal::create([
+            'ukm_id' => $ukm->id,
+            'judul' => 'Latihan Robotik Batal',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-09-10',
+            'mulai_acara' => '10:00:00',
+            'selesai_acara' => '12:00:00',
+            'status_verifikasi' => 'draft',
+        ]);
+
+        $response = $this->actingAs($pelatih)->delete(route('admin.ukm.jadwal.destroy', $jadwal->id));
+
+        $response->assertRedirect(route('admin.ukm.show', $ukm->id));
+        $response->assertSessionHas('success');
+        $this->assertDatabaseMissing('ukm_jadwals', ['id' => $jadwal->id]);
+    }
+
+    public function test_menghapus_jadwal_bukan_draft_ditolak(): void
+    {
+        $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM E-Sport Hapus Test', 'slug' => 'ukm-esport-hapus-test']);
+
+        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pelatih->id, 'peran' => 'pelatih', 'status' => 'aktif']);
+
+        $jadwal = UkmJadwal::create([
+            'ukm_id' => $ukm->id,
+            'judul' => 'Turnamen Resmi',
+            'jenis' => 'kegiatan_wajib',
+            'tanggal' => '2026-09-12',
+            'mulai_acara' => '13:00:00',
+            'selesai_acara' => '17:00:00',
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        $response = $this->actingAs($pelatih)->delete(route('admin.ukm.jadwal.destroy', $jadwal->id));
+
+        $response->assertSessionHas('error');
+        $this->assertDatabaseHas('ukm_jadwals', ['id' => $jadwal->id]);
+    }
+
+    public function test_pelatih_ukm_lain_ditolak_menghapus_jadwal_bukan_binaannya(): void
+    {
+        $pelatihA = $this->makeUser(User::PELATIH_ROLE_ID);
+        $pelatihB = $this->makeUser(User::PELATIH_ROLE_ID);
+
+        $ukmA = Ukm::create(['nama' => 'UKM A Hapus', 'slug' => 'ukm-a-hapus']);
+        $ukmB = Ukm::create(['nama' => 'UKM B Hapus', 'slug' => 'ukm-b-hapus']);
+
+        UkmMember::create(['ukm_id' => $ukmA->id, 'user_id' => $pelatihA->id, 'peran' => 'pelatih', 'status' => 'aktif']);
+        UkmMember::create(['ukm_id' => $ukmB->id, 'user_id' => $pelatihB->id, 'peran' => 'pelatih', 'status' => 'aktif']);
+
+        $jadwalA = UkmJadwal::create([
+            'ukm_id' => $ukmA->id,
+            'judul' => 'Jadwal A',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-09-15',
+            'mulai_acara' => '08:00:00',
+            'selesai_acara' => '10:00:00',
+            'status_verifikasi' => 'draft',
+        ]);
+
+        // Pelatih B tries to delete schedule of UKM A
+        $response = $this->actingAs($pelatihB)->delete(route('admin.ukm.jadwal.destroy', $jadwalA->id));
+
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('ukm_jadwals', ['id' => $jadwalA->id]);
+    }
+
+    /**
+     * Penyempurnaan Alur UKM — Isu #5.
+     * Catatan penolakan dari Pembina harus tampil di tabel jadwal halaman detail UKM.
+     */
+    public function test_detail_ukm_menampilkan_catatan_penolakan_pembina(): void
+    {
+        $admin = $this->makeUser(User::ADMIN_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Kategori Catatan', 'slug' => 'ukm-kategori-catatan']);
+
+        UkmJadwal::create([
+            'ukm_id' => $ukm->id,
+            'judul' => 'Latihan Ditolak Pembina',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-09-20',
+            'mulai_acara' => '15:00:00',
+            'selesai_acara' => '17:00:00',
+            'status_verifikasi' => 'ditolak',
+            'catatan_pembina' => 'Ruangan bentrok dengan kegiatan kampus.',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.ukm.show', $ukm->id));
+
+        $response->assertStatus(200);
+        $response->assertSee('Ruangan bentrok dengan kegiatan kampus.');
+    }
+
     public function test_pelatih_ukm_lain_ditolak_mengambil_events_jadwal_bukan_binaannya(): void
     {
         $pelatihUkmA = $this->makeUser(User::PELATIH_ROLE_ID);

@@ -97,6 +97,9 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="mt-4">
+                    {{ $jadwals->links() }}
+                </div>
             @else
                 <div class="py-6 text-center text-gray-500">
                     Belum ada kegiatan yang perlu diverifikasi untuk UKM ini.

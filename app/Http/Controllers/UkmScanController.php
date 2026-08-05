@@ -18,10 +18,15 @@ class UkmScanController extends Controller
     /**
      * Show generic QR camera scanner page for a specific UKM schedule.
      */
-    public function show(UkmJadwal $jadwal): View
+    public function show(UkmJadwal $jadwal): View|RedirectResponse
     {
         $user = Auth::user();
         abort_unless($this->isStaffOfUkm($user, $jadwal->ukm_id), 403, 'Anda tidak berhak membuka scanner UKM ini.');
+
+        if ($jadwal->status_verifikasi !== 'disetujui') {
+            return redirect()->route('admin.ukm.show', $jadwal->ukm_id)
+                ->with('error', $this->pesanBelumDisetujui($jadwal));
+        }
 
         $jadwal->load('ukm');
 
@@ -34,6 +39,11 @@ class UkmScanController extends Controller
     public function store(Request $request, UkmJadwal $jadwal): RedirectResponse
     {
         abort_unless($this->isStaffOfUkm(Auth::user(), $jadwal->ukm_id), 403, 'Anda tidak berhak melakukan scan untuk UKM ini.');
+
+        if ($jadwal->status_verifikasi !== 'disetujui') {
+            return redirect()->route('admin.ukm.show', $jadwal->ukm_id)
+                ->with('error', $this->pesanBelumDisetujui($jadwal));
+        }
 
         if ($request->input('scanner') !== 'absensi') {
             return redirect()->route('admin.ukm.scan.show', $jadwal->id)
@@ -114,6 +124,24 @@ class UkmScanController extends Controller
             return redirect()->route('admin.ukm.scan.show', $jadwal->id)
                 ->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Penyempurnaan Alur UKM — Isu #4.
+     * Pesan penolakan menyebut status jadwal saat ini DAN langkah yang perlu
+     * dilakukan, supaya Pelatih yang selama ini terbiasa scan tanpa menunggu
+     * persetujuan tahu apa yang harus dikerjakan — bukan sekadar "ditolak".
+     */
+    private function pesanBelumDisetujui(UkmJadwal $jadwal): string
+    {
+        $langkah = match ($jadwal->status_verifikasi) {
+            'draft' => 'Ajukan verifikasi terlebih dahulu, lalu tunggu persetujuan Pembina.',
+            'menunggu' => 'Jadwal sedang menunggu persetujuan Pembina.',
+            'ditolak' => 'Jadwal ini ditolak Pembina. Periksa catatan Pembina pada tabel jadwal.',
+            default => 'Jadwal harus disetujui Pembina terlebih dahulu.',
+        };
+
+        return 'Presensi untuk "' . $jadwal->judul . '" belum dapat dilakukan karena jadwal belum disetujui. ' . $langkah;
     }
 
     /**

@@ -70,6 +70,22 @@
     };
     let stafChoicesInstance = null;
     let stafChoicesAllOptions = [];
+    let mhsChoicesInstance = null;
+
+    function getMhsChoices() {
+        if (!mhsChoicesInstance) {
+            const mhsSelect = document.getElementById('user_id_mhs');
+            if (mhsSelect && typeof Choices !== 'undefined') {
+                mhsChoicesInstance = new Choices(mhsSelect, {
+                    searchEnabled: true,
+                    itemSelectText: '',
+                    placeholder: true,
+                    placeholderValue: '-- Cari Mahasiswa --',
+                });
+            }
+        }
+        return mhsChoicesInstance;
+    }
 
     function getStafChoices() {
         if (!stafChoicesInstance) {
@@ -103,6 +119,7 @@
             stafContainer.classList.add('hidden');
             mhsSelect.name = 'user_id';
             stafSelect.removeAttribute('name');
+            getMhsChoices();
             return;
         }
 
@@ -126,4 +143,9 @@
             true
         );
     }
+
+    // Inisialisasi Choices.js pada dropdown mahasiswa saat DOM siap
+    document.addEventListener('DOMContentLoaded', function () {
+        getMhsChoices();
+    });
 </script>
