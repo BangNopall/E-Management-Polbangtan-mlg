@@ -32,6 +32,18 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(RoleSeeder::class);
+
+        // Role 'pembina' untuk Epic 01 (Modul UKM Dinamis, §7.1 desain arsitektur).
+        // Ditambahkan di sini — bukan di RoleSeeder.php — supaya urutan ID benar
+        // di instalasi baru/DB tes: migrasi 2026_08_04_000005_add_pembina_role
+        // sengaja tidak bertindak di sini (tabel roles masih kosong saat migrasi
+        // jalan, sebelum seeder), jadi firstOrCreate() di bawah yang menjamin
+        // pembina mendapat id=5 setelah RoleSeeder mengisi id 1-4. Di produksi
+        // (roles sudah terisi), migrasi tadi yang menangani lewat updateOrInsert
+        // dan baris ini menjadi no-op (Role::firstOrCreate menemukan baris yang
+        // sudah ada).
+        Role::firstOrCreate(['name' => 'pembina']);
+
         $this->call(BlokRuanganSeeder::class);
         $this->call(ProdiSeeder::class);
         $this->call(KelasSeeder::class);
@@ -58,6 +70,13 @@ class DatabaseSeeder extends Seeder
             'email' => 'user@gmail.com',
             'password' => bcrypt('password'),
             'role_id' => 3,
+            // Profil dilengkapi (bukan null) supaya QRController::kodeqr() dan
+            // QRControllerHukum::qrhukum() tidak redirect ke /dashboard/profil
+            // saat suite tes berjalan di atas DB yang baru di-migrate:fresh --seed.
+            'blok_ruangan_id' => 1,
+            'kelas_id' => 1,
+            'prodi_id' => 1,
+            'no_kamar' => '01',
         ]);
         // User Development Only
         // User::factory()->create([
@@ -126,5 +145,7 @@ class DatabaseSeeder extends Seeder
         PresensiUpacara::factory(1000)->create();
         PresensiApel::factory(1000)->create();
         PresensiSenam::factory(1000)->create();
+
+        $this->call(UkmSeeder::class);
     }
 }

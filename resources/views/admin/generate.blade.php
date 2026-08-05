@@ -102,7 +102,7 @@
                     <button type="submit" name="submit" value="pdf"
                         class="bg-teal-900 hover:bg-teal-800 text-white p-2 rounded flex items-center w-full justify-center mb-2 text-md text-center">
                         <i class="ri-printer-fill mr-2"></i>
-                        Generate LAporan
+                        Generate Laporan
                     </button>
                 </form>
             </div>
@@ -175,6 +175,45 @@
                         Generate EXCEL
                     </button>
                 </form>
+            </div>
+            <!-- Export Laporan UKM Card -->
+            <div class="bg-white rounded-lg border-2 p-6 flex flex-col justify-between">
+                <div>
+                    <h2 class="font-semibold text-lg border-b-2 pb-2">Laporan Presensi UKM</h2>
+                    <div class="text-sm text-gray-700 mt-2">Export laporan presensi anggota UKM (PDF & Excel)</div>
+                    <form action="{{ route('admin.generateLaporanUkm') }}" method="post" class="mt-4">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="ukm_id" class="block text-sm font-medium text-gray-700 mb-1">Pilih UKM</label>
+                            <select name="ukm_id" id="ukm_id" class="w-full text-sm border-gray-300 rounded p-2 focus:ring-teal-600 focus:border-teal-600">
+                                <option value="all">-- Semua UKM --</option>
+                                @foreach ($ukms as $u)
+                                    <option value="{{ $u->id }}">{{ $u->nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mb-4">
+                            <div>
+                                <label for="start_date" class="block text-xs text-gray-600 mb-1">Tanggal Mulai</label>
+                                <input type="date" name="start_date" id="start_date" class="w-full text-xs border-gray-300 rounded p-2">
+                            </div>
+                            <div>
+                                <label for="end_date" class="block text-xs text-gray-600 mb-1">Tanggal Selesai</label>
+                                <input type="date" name="end_date" id="end_date" class="w-full text-xs border-gray-300 rounded p-2">
+                            </div>
+                        </div>
+                        <button type="submit" name="submit" value="pdf"
+                            class="bg-utama hover:bg-teal-700 text-white p-2 rounded flex items-center mb-2 w-full text-md justify-center text-center">
+                            <i class="ri-printer-fill mr-2"></i>
+                            Generate PDF
+                        </button>
+                        <button type="submit" name="submit" value="excel"
+                            class="bg-teal-900 hover:bg-teal-800 text-white p-2 rounded flex items-center mb-2 w-full text-md justify-center text-center">
+                            <i class="ri-printer-fill mr-2"></i>
+                            Generate EXCEL
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

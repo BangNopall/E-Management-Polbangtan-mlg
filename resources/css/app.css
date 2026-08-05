@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "flowbite/src/themes/default";
+@import "choices.js/public/assets/styles/choices.min.css";
 @plugin "flowbite/plugin";
 @source "../../node_modules/flowbite";
 

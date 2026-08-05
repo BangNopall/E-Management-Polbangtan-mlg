@@ -6,7 +6,7 @@
             <!-- Konten Pertama -->
             <div class="mx-auto py-[200px] hidden lg:block">
                 <div class="text-7xl text-utama font-semibold">Kode QR Absen</div>
-                <div class="text-gray-400 text-lg mt-3">Scan kode QR untuk presensi keluar asrama, apel, upacara, dan senam.
+                <div class="text-gray-400 text-lg mt-3">Scan kode QR untuk presensi keluar asrama, kegiatan wajib, dan UKM.
                 </div>
             </div>
             <!-- Konten Kedua -->
@@ -25,7 +25,7 @@
                 </div>
                 <div class="text-center mt-5">
                     <div class="text-xl font-medium">Kode QR</div>
-                    <div class="text-sm text-gray-200">Scan kode QR untuk presensi keluar asrama, apel, upacara, dan senam.
+                    <div class="text-sm text-gray-200">Scan kode QR untuk presensi keluar asrama, kegiatan wajib, dan UKM.
                     </div>
                 </div>
                 <div class="bg-teal-600 w-[95%] mx-auto rounded-lg mt-5 p-3">

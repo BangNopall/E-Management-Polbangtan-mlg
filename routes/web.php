@@ -15,6 +15,14 @@ use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\GenerateReportController;
 use App\Http\Controllers\kegiatanAsramaController;
+use App\Http\Controllers\UkmController;
+use App\Http\Controllers\UkmMemberController;
+use App\Http\Controllers\UkmJadwalController;
+use App\Http\Controllers\UkmScanController;
+use App\Http\Controllers\UkmVerifikasiController;
+use App\Http\Controllers\UkmLaporanController;
+
+use App\Http\Controllers\UkmMahasiswaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +66,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard/riwayat-aktivitas', [kegiatanAsramaController::class, 'riwayatAktivitasShow'])->name('riwayatAktivitasShow');
         Route::post('/dashboard/delete-foto/{user_id}', [ProfileController::class, 'deleteFotoProfile'])->name('deleteFotoProfile');
         Route::get('/handoff/konseling', [KonselingHandoffController::class, 'redirect'])->name('konseling');
+
+        // EPIC 01: MODUL UKM DINAMIS — Student Routes (US 1.3)
+        Route::get('/dashboard/ukm', [UkmMahasiswaController::class, 'index'])->name('ukm.index');
+        Route::get('/dashboard/ukm/riwayat', [UkmMahasiswaController::class, 'riwayat'])->name('ukm.riwayat');
+        Route::get('/dashboard/riwayat-ukm', [UkmMahasiswaController::class, 'riwayatUkm'])->name('ukm.riwayatAbsen');
     });
 
     Route::middleware('role:admin')->name('admin.')->group(function () {
@@ -83,11 +96,29 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/generate-laporan-pelanggaran', [GenerateReportController::class, 'generateLaporanPelanggaran'])->name('generateLaporanPelanggaran');
         Route::get('/generate-laporan-kegiatan', [GenerateReportController::class, 'generateLaporanKegiatan'])->name('generateLaporanKegiatan');
         Route::post('/generate-laporan-kegiatan-asrama', [GenerateReportController::class, 'generateLaporanPelanggaranKegiatanAsrama'])->name('generateLaporanPelanggaranKegiatanAsrama');
+        Route::post('/generate-laporan-ukm', [GenerateReportController::class, 'generateLaporanUkm'])->name('generateLaporanUkm');
+
+        // EPIC 01: MODUL UKM DINAMIS — Admin Routes (US 1.1 & US 1.0)
+        // 'show' is intentionally excluded here and registered instead in the
+        // broader role:admin,operator,pelatih,pembina group below — Pelatih
+        // and Pembina both need to reach the UKM detail page (jadwal form,
+        // "kembali ke detail" link from verifikasi) but the create/update/
+        // destroy/index actions stay admin-only. See §4 of the frontend
+        // design doc for the intended role matrix.
+        Route::resource('ukm', UkmController::class)->except(['show']);
+        Route::post('ukm/{ukm}/anggota', [UkmMemberController::class, 'store'])->name('ukm.anggota.store');
+        Route::patch('ukm/{ukm}/anggota/aktifkan-semua', [UkmMemberController::class, 'aktifkanSemua'])->name('ukm.anggota.aktifkanSemua');
+        Route::patch('ukm/{ukm}/anggota/{member}/aktifkan', [UkmMemberController::class, 'aktifkan'])->name('ukm.anggota.aktifkan');
+        Route::delete('ukm/{ukm}/anggota/{member}', [UkmMemberController::class, 'destroy'])->name('ukm.anggota.destroy');
     });
     // ROUTE SINGGLE END
 
     // ROUTE PIVOT START
-    Route::middleware('role:admin,operator,pelatih')->name('admin.')->group(function () {
+    // 'pembina' ditambahkan supaya EnsureUserHasRole tidak redirect-loop:
+    // authDashboard() mengarahkan role pembina ke admin.index — kalau grup ini
+    // menolaknya, middleware akan redirect balik ke admin.index tanpa akhir.
+    // Lihat Konflik 1 di .claude/plans/epic-01-ukm-dinamis.md.
+    Route::middleware('role:admin,operator,pelatih,pembina')->name('admin.')->group(function () {
         Route::get('/dashboard-admin', [DashboardController::class, 'index'])->name('index');
         Route::get('/getDataPresenceUserLast7Days', [DashboardController::class, 'getDataPresenceUserLast7Days'])->name('getDataPresenceUserLast7Days');
 
@@ -116,6 +147,25 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/kamera-pelatih', [QRControllerHukum::class, 'scanCamPelatih'])->name('scanCamPelatih');  //Done Survey
         Route::post('/kamera-pelatih', [QRControllerHukum::class, 'scanCamPelatihStore'])->name('scanCamPelatihStore');  //Done Survey
+
+        // EPIC 01: MODUL UKM DINAMIS — Pelatih & Admin Schedule Routes (US 1.2 & US 1.3)
+        // 'show' lives here (not in the admin-only resource group above) so
+        // Pelatih/Pembina can reach the UKM detail page (jadwal form, "Buka
+        // Scanner" links, "kembali ke detail" from verifikasi). Scoped
+        // in-controller: non-admin staff only see UKMs they are an active
+        // member of.
+        Route::get('ukm/{ukm}', [UkmController::class, 'show'])->name('ukm.show');
+        Route::post('ukm/{ukm}/jadwal', [UkmJadwalController::class, 'store'])->name('ukm.jadwal.store');
+        Route::get('ukm/{ukm}/jadwal/events', [UkmJadwalController::class, 'events'])->name('ukm.jadwal.events');
+        Route::patch('ukm/jadwal/{jadwal}/ajukan-verifikasi', [UkmJadwalController::class, 'ajukanVerifikasi'])->name('ukm.jadwal.ajukanVerifikasi');
+        Route::delete('ukm/jadwal/{jadwal}', [UkmJadwalController::class, 'destroy'])->name('ukm.jadwal.destroy');
+        Route::get('kamera-ukm/{jadwal}', [UkmScanController::class, 'show'])->name('ukm.scan.show');
+        Route::post('api/kamera-ukm/{jadwal}', [UkmScanController::class, 'store'])->name('ukm.scan.store');
+
+        // EPIC 01: MODUL UKM DINAMIS — Pembina & Admin Verification & Report Routes (US 1.4)
+        Route::get('ukm/{ukm}/verifikasi', [UkmVerifikasiController::class, 'index'])->name('ukm.verifikasi.index');
+        Route::patch('ukm/jadwal/{jadwal}/verifikasi', [UkmVerifikasiController::class, 'update'])->name('ukm.verifikasi.update');
+        Route::post('ukm/{ukm}/laporan/pdf', [UkmLaporanController::class, 'pdfReport'])->name('ukm.laporan.pdf');
 
         Route::get('/data-pelanggaran', [PelanggaranController::class, 'dataPelanggaran'])->name('dataPelanggaran');
         Route::post('/data-pelanggaran/searchdatapelanggaran', [PelanggaranController::class, 'searchDataPelanggaran'])->name('searchDataPelanggaran');

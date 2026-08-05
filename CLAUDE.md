@@ -60,24 +60,28 @@ php artisan cache:clear
 
 ### Role System
 
-Roles are stored in the `roles` table and referenced via `users.role_id`. Four roles exist with constants defined on the `User` model:
+Roles are stored in the `roles` table and referenced via `users.role_id`. Five roles exist with constants defined on the `User` model:
 
 | Constant | `role_id` | Name | Access |
 |---|---|---|---|
 | `ADMIN_ROLE_ID` | 1 | admin | Full access, reports, system settings |
 | `OPERATOR_ROLE_ID` | 2 | operator | Scanner, pelanggaran, jadwal |
-| `USER_ROLE_ID` | 3 | user | Student dashboard, own QR, own history |
-| `PELATIH_ROLE_ID` | 4 | pelatih | Scanner, pelanggaran |
+| `USER_ROLE_ID` | 3 | user | Student dashboard, own QR, own history, UKM Saya |
+| `PELATIH_ROLE_ID` | 4 | pelatih | Scanner, pelanggaran, UKM schedule & scanner |
+| `PEMBINA_ROLE_ID` | 5 | pembina | UKM schedule verification & reports |
 
-Access control is enforced by `EnsureUserHasRole` middleware, registered as the `role` alias. Routes use `middleware('role:admin')` or `middleware('role:admin,operator,pelatih')` for multi-role groups. On failure it redirects (not 403) to the appropriate dashboard based on the user's actual role.
+Access control is enforced by `EnsureUserHasRole` middleware, registered as the `role` alias. Routes use `middleware('role:admin')` or `middleware('role:admin,operator,pelatih,pembina')` for multi-role groups. On failure it redirects (not 403) to the appropriate dashboard based on the user's actual role.
 
-### Two Parallel Attendance Systems
+### Three Parallel Attendance Systems
 
 **System 1 — Gate Attendance (`Attendance` + `Presence`)**
 Tracks students leaving/entering the dormitory. The `Attendance` table holds a daily window (`start_time`/`end_time`, default 06:00–22:00). `Presence` records each scan event with `presence_masuk`, `presence_keluar`, `log_status` (`didalam`/`diluar`/`telat`), and `is_active`. `User.status` is also updated on each scan as a live cache of the student's current location state.
 
 **System 2 — Mandatory Activity Attendance (`PresensiApel`, `PresensiUpacara`, `PresensiSenam`)**
 Three separate tables, one per activity type. Keyed by `jadwalKegiatanAsrama_id` (from `jadwal_kegiatan_asramas`) and `user_id`. Activities are scheduled per blok (dormitory block) and have a `status_kehadiran` field.
+
+**System 3 — Dynamic Student Activity Club Attendance (`ukms`, `ukm_members`, `ukm_jadwals`, `ukm_presensis`)**
+Modul UKM Dinamis manages dynamic student clubs. Any number of UKMs can be created without schema changes. Schedule creation auto-fans out `Alpha` presensi rows for active student members. QR scanning by staff (`UkmScanController`) updates status to `Hadir`. Schedules require Pembina approval workflow (`draft` -> `menunggu` -> `disetujui`/`ditolak`). Per-UKM staff membership scoping is enforced across all management endpoints to prevent cross-UKM IDOR. PDF reports use `barryvdh/laravel-dompdf`.
 
 The two systems are completely independent — gate scans use `QRController::presense()`, activity scans use `QRControllerKegiatan`.
 
