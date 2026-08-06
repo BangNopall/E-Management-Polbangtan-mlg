@@ -172,3 +172,79 @@ degradation but no data loss. Warm the cache after deploy if needed.
 ## Seeder Order
 
 The `DatabaseSeeder` must seed in dependency order (roles before users, kelas/prodi/blok before students). Existing seeders cover: `RoleSeeder`, `ProdiSeeder`, `KelasSeeder`, `BlokRuanganSeeder`, `KategoriPelanggaranSeeder`, `JenisPelanggaranSeeder`.
+
+
+## Epic 03 — Modul Workflow Sistem Perizinan (SEDANG DIKERJAKAN)
+
+### Dokumen spesifikasi — WAJIB dibaca sebelum menulis kode Epic 03
+
+Urutan baca: `docs/design/DESIGN-Epic03-SystemFlow-Perizinan.md` (alur) →
+`docs/design/DESIGN-Epic03-Modul-Perizinan.md` (skema, ADR, keputusan) →
+`docs/design/DESIGN-Epic03-Frontend-Perizinan.md` (view, hanya saat kerja UI).
+
+**Dokumen desain adalah spesifikasi, bukan saran.** Jika sebuah instruksi bertentangan
+dengan dokumen desain, berhenti dan tanyakan — jangan diam-diam menyimpang. Jika Anda
+menemukan alasan kuat bahwa desainnya salah, katakan alasannya dan tunggu keputusan
+sebelum mengubah arah.
+
+### Aturan yang tidak boleh dilanggar (hard rules)
+
+1. **`app/Http/Controllers/QRController.php` adalah kode produksi harian.**
+   Satu-satunya perubahan yang diizinkan adalah **menyisipkan satu blok `if`** sebelum
+   logika penentuan `telat` yang sudah ada (lihat §4 SystemFlow). Dilarang: mengubah
+   urutan percabangan existing, mengganti nama variabel existing, "merapikan" kode,
+   mengekstrak method, atau memformat ulang berkas. Diff pada berkas ini harus bisa
+   dibaca dalam 30 detik.
+
+2. **Enum `izin` / `Izin` sudah ada di skema.** Dilarang membuat migrasi yang mengubah
+   enum pada `users`, `presences`, `presensi_apels`, `presensi_senams`,
+   `presensi_upacaras`, atau `ukm_presensis`. Nilainya sudah tersedia — pakai.
+
+3. **Semua transisi `pengajuan_izins.status` hanya lewat `PengajuanIzinService`.**
+   Dilarang menulis `$izin->update(['status' => ...])` di controller, job, atau
+   observer mana pun.
+
+4. **Dilarang membuat percabangan berdasarkan jenis izin di kode.**
+   Tidak ada `if ($jenis === 'IB')`, `switch ($izin->jenis_izin->kode)`, atau sejenisnya
+   di controller/service/Blade. Perbedaan perilaku antar jenis izin dibaca dari kolom
+   `jenis_izins` dan `izin_workflow_steps`. Ini inti ADR-006.
+
+5. **Dilarang menambah role baru ke tabel `roles` atau mengubah `users.role_id`.**
+   Penandatangan di-resolve lewat `pejabats` + `ApproverResolver` (ADR-007).
+
+6. **Dilarang menulis HMAC/kriptografi sendiri.** Verifikasi surat memakai
+   `URL::signedRoute` + middleware `signed` bawaan Laravel (ADR-008). Pola HMAC di
+   `KonselingTicketService` khusus untuk lintas-aplikasi ke E-Klinik — jangan disalin.
+
+7. **Rantai persetujuan di-resolve dan dibekukan saat submit**, bukan saat approval.
+   Pengecualian tunggal: langkah ber-`resolve_saat = 'langkah_aktif'`.
+
+8. **Otorisasi persetujuan berbasis kepemilikan langkah, bukan role.** Setiap endpoint
+   persetujuan wajib memuat tiga `abort` pengaman sesuai §2.3 SystemFlow.
+
+9. **Jangan pernah menjalankan `php artisan migrate:fresh` atau `db:seed --force`**
+   pada database mana pun selain sqlite in-memory milik test.
+
+### Konvensi yang harus diikuti (dari kode existing)
+
+- Model: `protected $guarded = ['id']` (ikuti `Ukm`, `UkmJadwal`), bukan `$fillable`.
+- Migrasi: `foreignId()->constrained()`, indeks eksplisit, penamaan `2026_08_xx_xxxxxx_*`.
+- Route: prefix nama `home.` untuk mahasiswa, `admin.` untuk staf.
+- Otorisasi halaman: middleware `role:` yang sudah ada; scoping data di dalam controller
+  dengan `abort_unless` (ikuti pola `UkmVerifikasiController::index()`).
+- View: `@extends('layouts.main')`, kartu `bg-white border-2 rounded-lg p-3`,
+  `@include('partials.alert')`, form tambah pakai accordion Flowbite.
+- Test: pola `tests/Feature/Ukm/*`.
+- PDF: `barryvdh/laravel-dompdf` + Blade di `resources/views/admin/generate/`.
+
+### Status milestone
+
+- [ ] M0 — `pejabats`, `kelas.dosen_pa_id`, UI Data Pejabat
+- [ ] M1 — 5 tabel, model, `ApproverResolver`, `PengajuanIzinService`, seeder
+- [ ] M2 — pengajuan mahasiswa, inbox approver, setujui/tolak
+- [ ] M3 — nomor surat, PDF, QR, verifikasi publik
+- [ ] M4 — integrasi gerbang, pembebasan presensi, pelanggaran keterlambatan
+- [ ] M5 — konfirmasi tiba, monitor, notifikasi, job terjadwal
+- [ ] M6 — CRUD jenis izin, laporan, hardening
+
+Perbarui centang di atas setiap kali satu milestone lolos gerbang kualitasnya.
