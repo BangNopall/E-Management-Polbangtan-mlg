@@ -9,7 +9,6 @@ use App\Models\PresensiSenam;
 use App\Models\PresensiUpacara;
 use App\Models\UkmJadwal;
 use App\Models\UkmPresensi;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 

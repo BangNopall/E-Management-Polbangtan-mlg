@@ -16,11 +16,6 @@ class IzinApproval extends Model
         'acted_at' => 'datetime',
     ];
 
-    public function pengajuanIzin()
-    {
-        return $this->belongsTo(PengajuanIzin::class, 'pengajuan_izin_id');
-    }
-
     public function pengajuan()
     {
         return $this->belongsTo(PengajuanIzin::class, 'pengajuan_izin_id');

@@ -352,33 +352,6 @@ class PengajuanIzinService
     }
 
     /**
-     * Generate unique consecutive serial number for approved permission letter.
-     */
-    private function generateNomorSurat(PengajuanIzin $pengajuan): string
-    {
-        $year = Carbon::now()->format('Y');
-        $monthRoman = $this->getRomanMonth((int) Carbon::now()->format('m'));
-
-        $count = PengajuanIzin::whereYear('disetujui_at', $year)->whereNotNull('nomor_surat')->count() + 1;
-        $sequence = str_pad((string) $count, 4, '0', STR_PAD_LEFT);
-
-        $kodeForm = $pengajuan->jenisIzin->kode_form ?? 'IZIN';
-
-        return "{$kodeForm}/{$sequence}/{$monthRoman}/{$year}";
-    }
-
-    private function getRomanMonth(int $month): string
-    {
-        $map = [
-            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
-            5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
-            9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII',
-        ];
-
-        return $map[$month] ?? 'I';
-    }
-
-    /**
      * Catat scan gerbang untuk mahasiswa yang memiliki izin aktif.
      * Menangani transisi status (disetujui -> berjalan -> selesai / terlambat)
      * serta auto-buat Pelanggaran jika kembali melebihi tenggat izin.
