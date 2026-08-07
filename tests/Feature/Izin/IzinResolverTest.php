@@ -187,12 +187,40 @@ class IzinResolverTest extends TestCase
         $this->assertEquals([$petugas1->id, $petugas2->id], $res['candidates']->pluck('id')->all());
     }
 
+    public function test_resolver_dosen_pa_fallback_ke_role_operator_jika_dosen_pa_id_null(): void
+    {
+        $operatorUser = User::factory()->create([
+            'name' => 'Staf Operator',
+            'role_id' => User::OPERATOR_ROLE_ID,
+        ]);
+
+        $kelas = Kelas::create([
+            'nama_kelas' => 'TRPL 1C',
+            'kelas' => 'TRPL 1C',
+            'prodi_id' => 1,
+            'level_kelas_id' => 1,
+            'dosen_pa_id' => null,
+        ]);
+
+        $student = User::factory()->create(['kelas_id' => $kelas->id]);
+
+        $step = new IzinWorkflowStep([
+            'resolver' => 'dosen_pa',
+            'fallback_resolver' => null,
+        ]);
+
+        $res = $this->resolver->resolve($step, ['user' => $student]);
+
+        $this->assertNotEmpty($res['candidates']);
+        $this->assertTrue($res['candidates']->contains('id', $operatorUser->id));
+    }
+
     public function test_resolver_kandidat_kosong_tanpa_fallback(): void
     {
         $student = User::factory()->create();
 
         $step = new IzinWorkflowStep([
-            'resolver' => 'dosen_pa',
+            'resolver' => 'pembina_ukm',
             'fallback_resolver' => null,
         ]);
 

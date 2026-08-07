@@ -38,8 +38,8 @@ class IzinMahasiswaController extends Controller
 
         $profileIncomplete = !$user->prodi_id ||
             !$user->kelas_id ||
-            !$user->blok_ruangan_id ||
-            !optional($user->kelas)->dosen_pa_id;
+            !$user->blok_ruangan_id;
+            // || !optional($user->kelas)->dosen_pa_id;
 
         $jenisIzins = JenisIzin::where('is_active', true)
             ->with(['steps' => fn ($q) => $q->orderBy('urutan', 'asc')])

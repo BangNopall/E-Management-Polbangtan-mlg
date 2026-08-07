@@ -150,7 +150,7 @@
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div x-show="showTolakModal" x-transition class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full p-6">
+            <div x-show="showTolakModal" x-transition class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-lg border border-gray-100 transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full p-6">
                 <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
                     <h3 class="text-lg font-bold text-rose-700 flex items-center" id="modal-title">
                         <i class="ri-error-warning-line mr-2 text-xl"></i> Tolak Pengajuan Izin

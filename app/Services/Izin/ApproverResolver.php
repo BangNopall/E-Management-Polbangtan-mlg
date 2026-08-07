@@ -129,18 +129,22 @@ class ApproverResolver
     }
 
     /**
-     * Resolve Dosen PA candidate from student class relation.
+     * Resolve Dosen PA candidate from student class relation, or fallback to Operator role users if null.
      */
     private function resolveDosenPa(?User $student): Collection
     {
-        if (!$student || !$student->kelas_id) {
-            return collect();
+        if ($student && $student->kelas_id) {
+            $student->loadMissing('kelas.dosenPa');
+            $dosenPa = optional($student->kelas)->dosenPa;
+
+            if ($dosenPa) {
+                return collect([$dosenPa]);
+            }
         }
 
-        $student->loadMissing('kelas.dosenPa');
-        $dosenPa = optional($student->kelas)->dosenPa;
-
-        return $dosenPa ? collect([$dosenPa]) : collect();
+        // Fallback: Jika kelas tidak memasangkan dosen_pa_id secara spesifik,
+        // resolve otomatis ke akun staf yang memiliki role Operator (role_id = 2).
+        return User::where('role_id', User::OPERATOR_ROLE_ID)->get();
     }
 
     /**
