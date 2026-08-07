@@ -81,7 +81,8 @@ class IzinGateIntegrationTest extends TestCase
      */
     public function test_regresi_mahasiswa_tanpa_izin_scan_didalam_diluar_telat_persis_seperti_semula(): void
     {
-        $now = Carbon::now();
+        $now = Carbon::parse('2026-08-08 10:00:00');
+        Carbon::setTestNow($now);
         $today = $now->toDateString();
 
         // Setup attendance window
@@ -89,22 +90,22 @@ class IzinGateIntegrationTest extends TestCase
             'title' => 'Absensi Harian',
             'date' => $today,
             'start_time' => '06:00:00',
-            'end_time' => $now->copy()->addMinutes(30)->format('H:i:s'),
+            'end_time' => '12:00:00',
         ]);
 
-        // Mahasiswa keluar dulu (dalam jam kerja)
+        // Mahasiswa keluar dulu (dalam jam kerja 10:05)
         $this->actingAs($this->admin)->post(route('admin.presense.api'), [
             'user_id' => $this->student->id,
-            'time' => $now->copy()->addMinutes(5)->format('H:i:s'),
+            'time' => '10:05:00',
             'date' => $today,
             'status' => 'diluar',
             'scanner' => 'absensi',
         ]);
 
-        // Mahasiswa masuk lagi di luar jam kerja (status awal: 'didalam')
+        // Mahasiswa masuk lagi di luar jam kerja (13:00)
         $this->actingAs($this->admin)->post(route('admin.presense.api'), [
             'user_id' => $this->student->id,
-            'time' => $now->copy()->addMinutes(60)->format('H:i:s'),
+            'time' => '13:00:00',
             'date' => $today,
             'status' => 'didalam',
             'scanner' => 'absensi',
@@ -115,6 +116,8 @@ class IzinGateIntegrationTest extends TestCase
         $this->assertEquals('telat', $presence->log_status);
         $this->assertEquals(1, $presence->is_late);
         $this->assertEquals('telat', $this->student->fresh()->status);
+
+        Carbon::setTestNow();
     }
 
     /**
@@ -122,7 +125,8 @@ class IzinGateIntegrationTest extends TestCase
      */
     public function test_scan_gerbang_dengan_izin_aktif_log_status_izin_dan_user_status_izin(): void
     {
-        $now = Carbon::now();
+        $now = Carbon::parse('2026-08-08 10:00:00');
+        Carbon::setTestNow($now);
         $today = $now->toDateString();
 
         // Buat izin disetujui yang mencakup sekarang
@@ -142,22 +146,22 @@ class IzinGateIntegrationTest extends TestCase
             'title' => 'Absensi Harian',
             'date' => $today,
             'start_time' => '06:00:00',
-            'end_time' => $now->copy()->addMinutes(30)->format('H:i:s'),
+            'end_time' => '12:00:00',
         ]);
 
-        // Mahasiswa keluar dulu (dalam jam kerja)
+        // Mahasiswa keluar dulu (dalam jam kerja 10:05)
         $this->actingAs($this->admin)->post(route('admin.presense.api'), [
             'user_id' => $this->student->id,
-            'time' => $now->copy()->addMinutes(5)->format('H:i:s'),
+            'time' => '10:05:00',
             'date' => $today,
             'status' => 'diluar',
             'scanner' => 'absensi',
         ]);
 
-        // Mahasiswa masuk lagi di luar jam kerja (seharusnya jadi 'telat' tapi ada izin aktif)
+        // Mahasiswa masuk lagi di luar jam kerja (13:00)
         $this->actingAs($this->admin)->post(route('admin.presense.api'), [
             'user_id' => $this->student->id,
-            'time' => $now->copy()->addMinutes(60)->format('H:i:s'),
+            'time' => '13:00:00',
             'date' => $today,
             'status' => 'didalam',
             'scanner' => 'absensi',
@@ -168,6 +172,8 @@ class IzinGateIntegrationTest extends TestCase
         $this->assertEquals('izin', $presence->log_status);
         $this->assertEquals(0, $presence->is_late);
         $this->assertEquals('izin', $this->student->fresh()->status);
+
+        Carbon::setTestNow();
     }
 
     /**

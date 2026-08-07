@@ -118,6 +118,13 @@
                             <span class="text-sm">Dashboard Admin</span>
                         </a>
                     </li>
+                    <li class="mb-1 group">
+                        <a href="{{ route('admin.izin.monitor') }}"
+                            class="{{ Request::is('admin/izin/monitor*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
+                            <i class="ri-dashboard-3-line mr-3 text-lg"></i>
+                            <span class="text-sm">Monitor Asrama</span>
+                        </a>
+                    </li>
                     {{-- <li class="mb-1 group">
                         <a href="{{ route('admin.absensiMahasiswa') }}"
                             class="{{ Request::is('absensi-mahasiswa') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">

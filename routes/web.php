@@ -40,6 +40,12 @@ use App\Http\Controllers\UkmMahasiswaController;
 Route::get('/verifikasi-izin/{qr_token}', [\App\Http\Controllers\VerifikasiIzinController::class, 'show'])
     ->middleware('signed')
     ->name('publik.verifikasi.izin');
+Route::get('/verifikasi-izin/{qr_token}/konfirmasi-tiba', [\App\Http\Controllers\KonfirmasiTibaController::class, 'show'])
+    ->middleware('signed')
+    ->name('publik.konfirmasi.tiba.show');
+Route::post('/verifikasi-izin/{qr_token}/konfirmasi-tiba', [\App\Http\Controllers\KonfirmasiTibaController::class, 'store'])
+    ->middleware('signed')
+    ->name('publik.konfirmasi.tiba.store');
 
 Route::middleware('guest')->group(function () {
     Route::get('/', function () {
@@ -240,6 +246,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/izin/persetujuan/{pengajuan}', [\App\Http\Controllers\IzinPersetujuanController::class, 'review'])->name('izin.persetujuan.review');
         Route::get('/admin/izin/persetujuan/{pengajuan}/pdf', [\App\Http\Controllers\IzinPersetujuanController::class, 'downloadPdf'])->name('izin.persetujuan.pdf');
         Route::post('/admin/izin/persetujuan/{pengajuan}', [\App\Http\Controllers\IzinPersetujuanController::class, 'putuskan'])->name('izin.persetujuan.putuskan');
+
+        // EPIC 03: MONITOR ASRAMA (M5 Dashboard Staff Routes)
+        Route::get('/admin/izin/monitor', [\App\Http\Controllers\IzinMonitorController::class, 'index'])->name('izin.monitor');
+        Route::get('/admin/izin/monitor/data', [\App\Http\Controllers\IzinMonitorController::class, 'data'])->name('izin.monitor.data');
     });
 
     // LOGOUT ROUTE
