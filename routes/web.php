@@ -161,6 +161,21 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/data-petugas/edit/{id}', [DashboardAdminController::class, 'editDataPetugas'])->name('editDataPetugas');
         Route::delete('/data-petugas/destroy/{id}', [DashboardAdminController::class, 'destroyDataPetugas'])->name('destroyPetugas');
 
+        // EPIC 03: MODUL PERIZINAN — Admin Management Routes (M6)
+        Route::resource('izin/jenis', \App\Http\Controllers\AdminJenisIzinController::class)->names([
+            'index' => 'jenis.index',
+            'create' => 'jenis.create',
+            'store' => 'jenis.store',
+            'show' => 'jenis.show',
+            'edit' => 'jenis.edit',
+            'update' => 'jenis.update',
+            'destroy' => 'jenis.destroy',
+        ]);
+        Route::get('/izin/data', [\App\Http\Controllers\AdminIzinDataController::class, 'index'])->name('izin.data.index');
+        Route::get('/izin/data-export/pdf', [\App\Http\Controllers\AdminIzinDataController::class, 'exportPdf'])->name('izin.data.pdf');
+        Route::get('/izin/data-export/excel', [\App\Http\Controllers\AdminIzinDataController::class, 'exportExcel'])->name('izin.data.excel');
+        Route::get('/izin/data/{pengajuan}', [\App\Http\Controllers\AdminIzinDataController::class, 'show'])->name('izin.data.show');
+
         Route::get('/piket-petugas/generate-jadwal-bulanan', [DashboardAdminController::class, 'piketPetugasGenerateJadwalBulanan'])->name('piketPetugasGenerateJadwalBulanan');
         Route::get('/piket-petugas/generate-jadwal-mingguan', [DashboardAdminController::class, 'piketPetugasGenerateJadwalMingguan'])->name('piketPetugasGenerateJadwalMingguan');
         Route::post('/piket-petugas/generate-jadwal', [DashboardAdminController::class, 'piketPetugasGenerateJadwal'])->name('piketPetugasGenerateJadwal');

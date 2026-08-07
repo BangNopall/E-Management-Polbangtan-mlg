@@ -334,6 +334,21 @@
                     </div>
 
                     <li class="mb-1 group">
+                        <a href="{{ route('admin.jenis.index') }}"
+                            class="{{ Request::is('admin/izin/jenis*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
+                            <i class="ri-settings-4-line mr-3 text-lg"></i>
+                            <span class="text-sm">Kelola Jenis Izin</span>
+                        </a>
+                    </li>
+                    <li class="mb-1 group">
+                        <a href="{{ route('admin.izin.data.index') }}"
+                            class="{{ Request::is('admin/izin/data*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
+                            <i class="ri-folder-user-line mr-3 text-lg"></i>
+                            <span class="text-sm">Data Perizinan</span>
+                        </a>
+                    </li>
+
+                    <li class="mb-1 group">
                         <a href="/data-mahasiswa"
                             class="{{ Request::is('data-mahasiswa') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
                             <i class="ri-database-2-line mr-3 text-lg"></i>
