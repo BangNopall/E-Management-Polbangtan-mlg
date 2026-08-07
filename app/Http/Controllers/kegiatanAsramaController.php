@@ -163,6 +163,9 @@ class kegiatanAsramaController extends Controller
                                 break;
                         }
                     }
+
+                    // Bebaskan presensi 'Alpha' -> 'Izin' untuk mahasiswa berizin aktif pada tanggal ini (M4)
+                    app(\App\Services\Izin\PembebasanPresensiService::class)->bebaskanUntukJadwalKegiatan($jadwal);
                 }
             }
             return redirect()->route('admin.jadwalKegiatanShow')->with('success', 'Berhasil menambahkan jadwal kegiatan asrama');

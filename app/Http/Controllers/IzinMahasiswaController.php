@@ -119,6 +119,15 @@ class IzinMahasiswaController extends Controller
         return view('izin.show', compact('pengajuan'));
     }
 
+    public function downloadPdf(PengajuanIzin $pengajuan)
+    {
+        abort_unless($pengajuan->user_id === auth()->id(), 403);
+        abort_unless(in_array($pengajuan->status, ['disetujui', 'berjalan', 'selesai']), 403, 'Surat izin belum disetujui.');
+
+        $pdfService = app(\App\Services\Izin\SuratIzinPdfService::class);
+        return $pdfService->generate($pengajuan);
+    }
+
     public function batal(PengajuanIzin $pengajuan)
     {
         abort_unless($pengajuan->user_id === auth()->id(), 403);

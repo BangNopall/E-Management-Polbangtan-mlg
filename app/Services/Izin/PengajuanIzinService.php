@@ -257,13 +257,17 @@ class PengajuanIzinService
                 }
             } else {
                 // All steps approved -> Approve permission request completely
+                $nomorSuratService = app(NomorSuratService::class);
                 $pengajuan->update([
                     'status' => 'disetujui',
                     'disetujui_at' => Carbon::now(),
                     'langkah_aktif' => null,
-                    'nomor_surat' => $this->generateNomorSurat($pengajuan),
+                    'nomor_surat' => $nomorSuratService->generateNext(Carbon::now()),
                     'qr_token' => Str::random(40),
                 ]);
+
+                // Bebaskan presensi kegiatan beririsan: 'Alpha' -> 'Izin'
+                app(PembebasanPresensiService::class)->bebaskanUntukPengajuan($pengajuan->fresh());
             }
 
             return $pengajuan->fresh(['approvals']);
@@ -372,5 +376,85 @@ class PengajuanIzinService
         ];
 
         return $map[$month] ?? 'I';
+    }
+
+    /**
+     * Catat scan gerbang untuk mahasiswa yang memiliki izin aktif.
+     * Menangani transisi status (disetujui -> berjalan -> selesai / terlambat)
+     * serta auto-buat Pelanggaran jika kembali melebihi tenggat izin.
+     */
+    public function catatScanGerbang(PengajuanIzin $izin, User $user, \Carbon\Carbon $now, string $statusTarget): PengajuanIzin
+    {
+        return DB::transaction(function () use ($izin, $user, $now, $statusTarget) {
+            $freshIzin = PengajuanIzin::whereKey($izin->id)->lockForUpdate()->firstOrFail();
+
+            // Mahasiswa melakukan scan KELUAR asrama
+            if ($statusTarget === 'diluar' && $freshIzin->status === 'disetujui') {
+                $freshIzin->update([
+                    'status' => 'berjalan',
+                    'keluar_at' => $now,
+                ]);
+
+                User::where('id', $user->id)->update(['status' => 'izin']);
+            }
+
+            // Mahasiswa melakukan scan MASUK kembali ke asrama
+            if ($statusTarget === 'didalam' && in_array($freshIzin->status, ['disetujui', 'berjalan'])) {
+                if ($now->gt($freshIzin->waktu_kembali)) {
+                    // TERLAMBAT kembali
+                    $freshIzin->update([
+                        'status' => 'terlambat',
+                        'kembali_at' => $now,
+                    ]);
+
+                    User::where('id', $user->id)->update(['status' => 'didalam']);
+
+                    // Auto-buat Pelanggaran berstatus 'submitted' (BUKAN 'Done')
+                    $this->buatPelanggaranKeterlambatan($freshIzin, $user, $now);
+                } else {
+                    // TEPAT WAKTU kembali
+                    $freshIzin->update([
+                        'status' => 'selesai',
+                        'kembali_at' => $now,
+                    ]);
+
+                    User::where('id', $user->id)->update(['status' => 'didalam']);
+                }
+            }
+
+            return $freshIzin->fresh();
+        });
+    }
+
+    /**
+     * Buat record Pelanggaran otomatis untuk keterlambatan kembali.
+     * Status: 'submitted' (BUKAN 'Done').
+     */
+    private function buatPelanggaranKeterlambatan(PengajuanIzin $izin, User $user, \Carbon\Carbon $now): void
+    {
+        // Cari jenis pelanggaran "Terlambat kembali dari izin resmi"
+        $jenisTerlambatIzin = \App\Models\JenisPelanggaran::where('jenis_pelanggaran', 'like', '%lambat kembali%')->first();
+
+        if (!$jenisTerlambatIzin) {
+            // Fallback: jika jenis belum ada, buat transparan
+            $jenisTerlambatIzin = \App\Models\JenisPelanggaran::firstOrCreate(
+                ['jenis_pelanggaran' => 'Terlambat kembali dari izin resmi'],
+                [
+                    'kategori_id' => 1,
+                    'poin' => 2,
+                    'sub_kategori' => 'Ringan',
+                ]
+            );
+        }
+
+        \App\Models\Pelanggaran::create([
+            'user_id' => $user->id,
+            'jenis_pelanggaran_id' => $jenisTerlambatIzin->id,
+            'date' => $now->toDateString(),
+            'time' => $now->toTimeString(),
+            'statusPelanggaran' => 'submitted',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
     }
 }

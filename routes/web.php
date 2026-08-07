@@ -36,6 +36,11 @@ use App\Http\Controllers\UkmMahasiswaController;
 |
 */
 
+// PUBLIC VERIFICATION ROUTE (EPIC 03 - ADR-008 LARAVEL SIGNED URL)
+Route::get('/verifikasi-izin/{qr_token}', [\App\Http\Controllers\VerifikasiIzinController::class, 'show'])
+    ->middleware('signed')
+    ->name('publik.verifikasi.izin');
+
 Route::middleware('guest')->group(function () {
     Route::get('/', function () {
         return redirect('/login');
@@ -79,6 +84,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard/izin/pratinjau-alur', [\App\Http\Controllers\IzinMahasiswaController::class, 'pratinjauAlur'])->name('izin.pratinjau-alur');
         Route::post('/dashboard/izin', [\App\Http\Controllers\IzinMahasiswaController::class, 'store'])->name('izin.store');
         Route::get('/dashboard/izin/{pengajuan}', [\App\Http\Controllers\IzinMahasiswaController::class, 'show'])->name('izin.show');
+        Route::get('/dashboard/izin/{pengajuan}/pdf', [\App\Http\Controllers\IzinMahasiswaController::class, 'downloadPdf'])->name('izin.pdf');
         Route::post('/dashboard/izin/{pengajuan}/batal', [\App\Http\Controllers\IzinMahasiswaController::class, 'batal'])->name('izin.batal');
     });
 
@@ -228,6 +234,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/data-absen-keluar', [AbsensiMahasiswa::class, 'dataAbsenKeluarShow'])->name('data-absen-keluar');
         Route::post ('/data-absen-keluar/search', [AbsensiMahasiswa::class, 'dataAbsenKeluarSearch'])->name('dataAbsenKeluarSearch');
         Route::get('/data-absen-keluar/detail/{id}', [AbsensiMahasiswa::class, 'dataAbsenKeluarDetail'])->name('detailAbsenKeluarDetail');
+
+        // EPIC 03: PERSETUJUAN PERIZINAN (M2b Approver Routes)
+        Route::get('/admin/izin/persetujuan', [\App\Http\Controllers\IzinPersetujuanController::class, 'inbox'])->name('izin.persetujuan.inbox');
+        Route::get('/admin/izin/persetujuan/{pengajuan}', [\App\Http\Controllers\IzinPersetujuanController::class, 'review'])->name('izin.persetujuan.review');
+        Route::get('/admin/izin/persetujuan/{pengajuan}/pdf', [\App\Http\Controllers\IzinPersetujuanController::class, 'downloadPdf'])->name('izin.persetujuan.pdf');
+        Route::post('/admin/izin/persetujuan/{pengajuan}', [\App\Http\Controllers\IzinPersetujuanController::class, 'putuskan'])->name('izin.persetujuan.putuskan');
     });
 
     // LOGOUT ROUTE

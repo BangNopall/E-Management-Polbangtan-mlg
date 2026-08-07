@@ -52,6 +52,9 @@ class UkmJadwalController extends Controller
             if (! empty($presensiData)) {
                 UkmPresensi::insert($presensiData);
             }
+
+            // Bebaskan presensi 'Alpha' -> 'Izin' untuk mahasiswa berizin aktif pada tanggal ini (M4)
+            app(\App\Services\Izin\PembebasanPresensiService::class)->bebaskanUntukJadwalUkm($jadwal);
         });
 
         return redirect()->route('admin.ukm.show', $ukm->id)

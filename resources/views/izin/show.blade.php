@@ -11,6 +11,11 @@
             <a href="{{ route('home.izin.index') }}" class="inline-flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition">
                 <i class="ri-arrow-left-line mr-1"></i> Kembali
             </a>
+            @if (in_array($pengajuan->status, ['disetujui', 'berjalan', 'selesai']))
+                <a href="{{ route('home.izin.pdf', $pengajuan->id) }}" target="_blank" class="inline-flex items-center px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-lg shadow-2xs transition">
+                    <i class="ri-file-pdf-line mr-1"></i> Cetak / Download PDF
+                </a>
+            @endif
             @if (in_array($pengajuan->status, ['draft', 'diajukan', 'menunggu']))
                 <form action="{{ route('home.izin.batal', $pengajuan->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengajuan izin ini?')">
                     @csrf

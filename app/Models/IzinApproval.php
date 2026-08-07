@@ -21,6 +21,11 @@ class IzinApproval extends Model
         return $this->belongsTo(PengajuanIzin::class, 'pengajuan_izin_id');
     }
 
+    public function pengajuan()
+    {
+        return $this->belongsTo(PengajuanIzin::class, 'pengajuan_izin_id');
+    }
+
     public function approver()
     {
         return $this->belongsTo(User::class, 'approver_user_id');
