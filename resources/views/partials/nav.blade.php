@@ -139,6 +139,15 @@
                             <span class="text-sm">Data Petugas</span>
                         </a>
                     </li>
+                    @if (Auth::user()->role_id == 1)
+                    <li class="mb-1 group">
+                        <a href="{{ route('admin.pejabat.index') }}"
+                            class="{{ Request::is('pejabat', 'pejabat/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
+                            <i class="ri-user-star-line mr-3 text-lg"></i>
+                            <span class="text-sm">Data Pejabat</span>
+                        </a>
+                    </li>
+                    @endif
                     <li class="mb-1 group">
                         <a href="{{ route('admin.piketPetugas') }}"
                             class="{{ Request::is('piket-petugas') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">

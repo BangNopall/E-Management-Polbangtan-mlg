@@ -21,6 +21,7 @@ use App\Http\Controllers\UkmJadwalController;
 use App\Http\Controllers\UkmScanController;
 use App\Http\Controllers\UkmVerifikasiController;
 use App\Http\Controllers\UkmLaporanController;
+use App\Http\Controllers\Admin\PejabatController;
 
 use App\Http\Controllers\UkmMahasiswaController;
 
@@ -110,6 +111,9 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('ukm/{ukm}/anggota/aktifkan-semua', [UkmMemberController::class, 'aktifkanSemua'])->name('ukm.anggota.aktifkanSemua');
         Route::patch('ukm/{ukm}/anggota/{member}/aktifkan', [UkmMemberController::class, 'aktifkan'])->name('ukm.anggota.aktifkan');
         Route::delete('ukm/{ukm}/anggota/{member}', [UkmMemberController::class, 'destroy'])->name('ukm.anggota.destroy');
+
+        // EPIC 03: MODUL WORKFLOW PERIZINAN — Milestone 0 (Admin Pejabat Routes)
+        Route::resource('pejabat', PejabatController::class);
     });
     // ROUTE SINGGLE END
 
