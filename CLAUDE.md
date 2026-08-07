@@ -239,8 +239,8 @@ sebelum mengubah arah.
 
 ### Status milestone
 
-- [ ] M0 — `pejabats`, `kelas.dosen_pa_id`, UI Data Pejabat
-- [ ] M1 — 5 tabel, model, `ApproverResolver`, `PengajuanIzinService`, seeder
+- [x] M0 — `pejabats`, `kelas.dosen_pa_id`, UI Data Pejabat
+- [x] M1 — 5 tabel, model, `ApproverResolver`, `PengajuanIzinService`, seeder
 - [ ] M2 — pengajuan mahasiswa, inbox approver, setujui/tolak
 - [ ] M3 — nomor surat, PDF, QR, verifikasi publik
 - [ ] M4 — integrasi gerbang, pembebasan presensi, pelanggaran keterlambatan

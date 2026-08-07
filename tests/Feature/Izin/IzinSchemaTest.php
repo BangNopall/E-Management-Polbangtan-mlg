@@ -27,16 +27,16 @@ class IzinSchemaTest extends TestCase
 
     public function test_kode_jenis_izin_harus_unik(): void
     {
-        JenisIzin::create(['kode' => 'IZIN_KELUAR', 'nama' => 'Izin Keluar Asrama']);
+        JenisIzin::create(['kode' => 'TEST_IZIN_1', 'nama' => 'Izin Keluar Asrama']);
 
         $this->expectException(QueryException::class);
 
-        JenisIzin::create(['kode' => 'IZIN_KELUAR', 'nama' => 'Izin Keluar Duplikat']);
+        JenisIzin::create(['kode' => 'TEST_IZIN_1', 'nama' => 'Izin Keluar Duplikat']);
     }
 
     public function test_urutan_step_harus_unik_per_jenis_izin(): void
     {
-        $jenis = JenisIzin::create(['kode' => 'IB', 'nama' => 'Izin Bermalam']);
+        $jenis = JenisIzin::create(['kode' => 'TEST_IB_1', 'nama' => 'Izin Bermalam']);
 
         IzinWorkflowStep::create([
             'jenis_izin_id' => $jenis->id,
@@ -91,7 +91,7 @@ class IzinSchemaTest extends TestCase
 
     public function test_urutan_approval_harus_unik_per_pengajuan_izin(): void
     {
-        $jenis = JenisIzin::create(['kode' => 'IZIN_KELUAR', 'nama' => 'Izin Keluar']);
+        $jenis = JenisIzin::create(['kode' => 'TEST_IZIN_2', 'nama' => 'Izin Keluar']);
         $user = $this->makeUser();
         $pengajuan = PengajuanIzin::create([
             'user_id' => $user->id,

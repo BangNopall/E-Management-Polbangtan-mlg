@@ -39,6 +39,13 @@
                         </a>
                     </li>
                     <li class="mb-1 group">
+                        <a href="{{ route('home.izin.index') }}"
+                            class="{{ Request::is('dashboard/izin*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
+                            <i class="ri-file-paper-2-line mr-3 text-lg"></i>
+                            <span class="text-sm">Izin Saya</span>
+                        </a>
+                    </li>
+                    <li class="mb-1 group">
                         <a href="{{ route('home.ukm.index') }}"
                             class="{{ Request::is('dashboard/ukm', 'dashboard/ukm/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
                             <i class="ri-team-line mr-3 text-lg"></i>

@@ -72,6 +72,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard/ukm', [UkmMahasiswaController::class, 'index'])->name('ukm.index');
         Route::get('/dashboard/ukm/riwayat', [UkmMahasiswaController::class, 'riwayat'])->name('ukm.riwayat');
         Route::get('/dashboard/riwayat-ukm', [UkmMahasiswaController::class, 'riwayatUkm'])->name('ukm.riwayatAbsen');
+
+        // EPIC 03: MODUL PERIZINAN — Student Routes (M2a)
+        Route::get('/dashboard/izin', [\App\Http\Controllers\IzinMahasiswaController::class, 'index'])->name('izin.index');
+        Route::get('/dashboard/izin/create', [\App\Http\Controllers\IzinMahasiswaController::class, 'create'])->name('izin.create');
+        Route::get('/dashboard/izin/pratinjau-alur', [\App\Http\Controllers\IzinMahasiswaController::class, 'pratinjauAlur'])->name('izin.pratinjau-alur');
+        Route::post('/dashboard/izin', [\App\Http\Controllers\IzinMahasiswaController::class, 'store'])->name('izin.store');
+        Route::get('/dashboard/izin/{pengajuan}', [\App\Http\Controllers\IzinMahasiswaController::class, 'show'])->name('izin.show');
+        Route::post('/dashboard/izin/{pengajuan}/batal', [\App\Http\Controllers\IzinMahasiswaController::class, 'batal'])->name('izin.batal');
     });
 
     Route::middleware('role:admin')->name('admin.')->group(function () {

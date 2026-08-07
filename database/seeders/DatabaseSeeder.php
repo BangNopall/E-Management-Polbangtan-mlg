@@ -147,5 +147,6 @@ class DatabaseSeeder extends Seeder
         PresensiSenam::factory(1000)->create();
 
         $this->call(UkmSeeder::class);
+        $this->call(JenisIzinSeeder::class);
     }
 }
