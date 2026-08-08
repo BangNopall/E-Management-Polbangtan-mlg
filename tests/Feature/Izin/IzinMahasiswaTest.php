@@ -282,4 +282,27 @@ class IzinMahasiswaTest extends TestCase
             'status' => 'dibatalkan',
         ]);
     }
+
+    public function test_pengajuan_izin_sukses_meskipun_kelas_belum_memiliki_dosen_pa(): void
+    {
+        $operator = User::factory()->create(['role_id' => \App\Models\User::OPERATOR_ROLE_ID, 'name' => 'Operator Staff']);
+
+        $this->student->kelas->update(['dosen_pa_id' => null]);
+
+        $payload = [
+            'jenis_izin_id' => $this->jenisBiasa->id,
+            'keperluan' => 'Izin ke apotek tanpa Dosen PA',
+            'tujuan_lokasi' => 'Apotek K-24',
+            'waktu_berangkat' => now()->addHours(3)->toDateTimeString(),
+            'waktu_kembali' => now()->addHours(6)->toDateTimeString(),
+        ];
+
+        $response = $this->actingAs($this->student)->post(route('home.izin.store'), $payload);
+
+        $pengajuan = PengajuanIzin::where('user_id', $this->student->id)->where('keperluan', 'Izin ke apotek tanpa Dosen PA')->first();
+        $this->assertNotNull($pengajuan);
+        $response->assertRedirect(route('home.izin.show', $pengajuan->id));
+
+        $this->assertEquals($operator->id, $pengajuan->approvals->first()->approver_user_id);
+    }
 }

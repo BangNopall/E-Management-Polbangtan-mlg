@@ -60,12 +60,11 @@ class StorePengajuanIzinRequest extends FormRequest
             if (
                 !$user->prodi_id ||
                 !$user->kelas_id ||
-                !$user->blok_ruangan_id ||
-                !optional($user->kelas)->dosen_pa_id
+                !$user->blok_ruangan_id
             ) {
                 $v->errors()->add(
                     'profil',
-                    'Profil Anda belum lengkap (Prodi, Kelas, Dosen PA, atau Blok Ruangan belum terdata). Silakan hubungi admin asrama.'
+                    'Profil Anda belum lengkap (Prodi, Kelas, atau Blok Ruangan belum terdata). Silakan hubungi admin asrama.'
                 );
                 return;
             }
