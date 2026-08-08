@@ -81,71 +81,6 @@
                                     </div>
                                 </td>
                             </tr>
-
-                            {{-- Modal Edit --}}
-                            <div id="editPejabatModal{{ $pejabat->id }}" tabindex="-1" aria-hidden="true"
-                                class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-                                <div class="relative p-4 w-full max-w-md max-h-full">
-                                    <div class="relative bg-white rounded-lg shadow">
-                                        <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
-                                            <h3 class="text-lg font-semibold text-gray-900">Edit Data Pejabat</h3>
-                                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="editPejabatModal{{ $pejabat->id }}">
-                                                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
-                                            </button>
-                                        </div>
-                                        <form action="{{ route('admin.pejabat.update', $pejabat->id) }}" method="POST" class="p-4 md:p-5">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="grid gap-4 mb-4 grid-cols-2">
-                                                <div class="col-span-2">
-                                                    <label for="user_id" class="block mb-2 text-sm font-medium text-gray-900">Pilih User Staf/Dosen</label>
-                                                    <select name="user_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required>
-                                                        @foreach ($users as $user)
-                                                            <option value="{{ $user->id }}" {{ $pejabat->user_id == $user->id ? 'selected' : '' }}>{{ $user->name }} ({{ $user->email }})</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="col-span-2">
-                                                    <label for="jabatan" class="block mb-2 text-sm font-medium text-gray-900">Jabatan</label>
-                                                    <select name="jabatan" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required>
-                                                        <option value="kaprodi" {{ $pejabat->jabatan == 'kaprodi' ? 'selected' : '' }}>Ketua Program Studi (Kaprodi)</option>
-                                                        <option value="kepala_asrama" {{ $pejabat->jabatan == 'kepala_asrama' ? 'selected' : '' }}>Kepala Asrama</option>
-                                                        <option value="unit_kemahasiswaan" {{ $pejabat->jabatan == 'unit_kemahasiswaan' ? 'selected' : '' }}>Unit Kemahasiswaan</option>
-                                                        <option value="wadir_kemahasiswaan" {{ $pejabat->jabatan == 'wadir_kemahasiswaan' ? 'selected' : '' }}>Wakil Direktur Kemahasiswaan</option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label for="lingkup" class="block mb-2 text-sm font-medium text-gray-900">Lingkup</label>
-                                                    <select name="lingkup" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required>
-                                                        <option value="global" {{ $pejabat->lingkup == 'global' ? 'selected' : '' }}>Global</option>
-                                                        <option value="prodi" {{ $pejabat->lingkup == 'prodi' ? 'selected' : '' }}>Prodi</option>
-                                                        <option value="blok" {{ $pejabat->lingkup == 'blok' ? 'selected' : '' }}>Blok Ruangan</option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label for="lingkup_id" class="block mb-2 text-sm font-medium text-gray-900">ID Lingkup (Opsional)</label>
-                                                    <input type="number" name="lingkup_id" value="{{ $pejabat->lingkup_id }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="ID Prodi/Blok">
-                                                </div>
-                                                <div>
-                                                    <label for="mulai_menjabat" class="block mb-2 text-sm font-medium text-gray-900">Mulai Menjabat</label>
-                                                    <input type="date" name="mulai_menjabat" value="{{ $pejabat->mulai_menjabat ? $pejabat->mulai_menjabat->format('Y-m-d') : '' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
-                                                </div>
-                                                <div>
-                                                    <label for="selesai_menjabat" class="block mb-2 text-sm font-medium text-gray-900">Selesai Menjabat</label>
-                                                    <input type="date" name="selesai_menjabat" value="{{ $pejabat->selesai_menjabat ? $pejabat->selesai_menjabat->format('Y-m-d') : '' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
-                                                </div>
-                                                <div class="col-span-2 flex items-center">
-                                                    <input type="checkbox" name="is_active" value="1" id="is_active{{ $pejabat->id }}" {{ $pejabat->is_active ? 'checked' : '' }} class="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500">
-                                                    <label for="is_active{{ $pejabat->id }}" class="ms-2 text-sm font-medium text-gray-900">Status Aktif Menjabat</label>
-                                                </div>
-                                            </div>
-                                            <button type="submit" class="text-white inline-flex items-center bg-utama hover:bg-teal-800 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                                                Simpan Perubahan
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
                         @empty
                             <tr>
                                 <td colspan="7" class="px-6 py-4 text-center text-gray-500">
@@ -158,6 +93,77 @@
             </div>
         </div>
     </div>
+
+    {{-- Modal Edit (Ditempatkan di luar tabel agar struktur HTML valid & padding Flowbite p-4 md:p-5 presisi) --}}
+    @foreach ($pejabats as $pejabat)
+        <div id="editPejabatModal{{ $pejabat->id }}" tabindex="-1" aria-hidden="true"
+            class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative p-4 w-full max-w-md max-h-full">
+                <div class="relative bg-white rounded-lg shadow">
+                    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                        <h3 class="text-lg font-semibold text-gray-900">Edit Data Pejabat</h3>
+                        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="editPejabatModal{{ $pejabat->id }}">
+                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
+                        </button>
+                    </div>
+                    <form action="{{ route('admin.pejabat.update', $pejabat->id) }}" method="POST" class="p-4 md:p-5">
+                        @csrf
+                        @method('PUT')
+                        <div class="grid gap-4 mb-4 grid-cols-2">
+                            <div class="col-span-2">
+                                <label for="user_id" class="block mb-2 text-sm font-medium text-gray-900">Pilih User Staf/Dosen</label>
+                                <select name="user_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required>
+                                    @foreach ($users as $user)
+                                        <option value="{{ $user->id }}" {{ $pejabat->user_id == $user->id ? 'selected' : '' }}>{{ $user->name }} ({{ $user->email }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-span-2">
+                                <label for="jabatan" class="block mb-2 text-sm font-medium text-gray-900">Jabatan</label>
+                                <select name="jabatan" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required>
+                                    <option value="kaprodi" {{ $pejabat->jabatan == 'kaprodi' ? 'selected' : '' }}>Ketua Program Studi (Kaprodi)</option>
+                                    <option value="kepala_asrama" {{ $pejabat->jabatan == 'kepala_asrama' ? 'selected' : '' }}>Kepala Asrama</option>
+                                    <option value="unit_kemahasiswaan" {{ $pejabat->jabatan == 'unit_kemahasiswaan' ? 'selected' : '' }}>Unit Kemahasiswaan</option>
+                                    <option value="wadir_kemahasiswaan" {{ $pejabat->jabatan == 'wadir_kemahasiswaan' ? 'selected' : '' }}>Wakil Direktur Kemahasiswaan</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="lingkup" class="block mb-1 text-sm font-medium text-gray-900">Lingkup</label>
+                                <select name="lingkup" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required>
+                                    <option value="global" {{ $pejabat->lingkup == 'global' ? 'selected' : '' }}>Global</option>
+                                    <option value="prodi" {{ $pejabat->lingkup == 'prodi' ? 'selected' : '' }}>Prodi</option>
+                                    <option value="blok" {{ $pejabat->lingkup == 'blok' ? 'selected' : '' }}>Blok Ruangan</option>
+                                </select>
+                                <p class="text-[10px] text-gray-500 mt-1">Wewenang: Global (seluruh kampus), Prodi (jurusan), atau Blok (asrama).</p>
+                            </div>
+                            <div>
+                                <label for="lingkup_id" class="block mb-1 text-sm font-medium text-gray-900">ID Lingkup (Opsional)</label>
+                                <input type="number" name="lingkup_id" value="{{ $pejabat->lingkup_id }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="ID Prodi/Blok">
+                                <p class="text-[10px] text-gray-500 mt-1">ID spesifik Prodi/Blok jika Lingkup bertipe Prodi/Blok.</p>
+                            </div>
+                            <div>
+                                <label for="mulai_menjabat" class="block mb-1 text-sm font-medium text-gray-900">Mulai Menjabat</label>
+                                <input type="date" name="mulai_menjabat" value="{{ $pejabat->mulai_menjabat ? $pejabat->mulai_menjabat->format('Y-m-d') : '' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+                                <p class="text-[10px] text-gray-500 mt-1">Tanggal awal resmi menjabat.</p>
+                            </div>
+                            <div>
+                                <label for="selesai_menjabat" class="block mb-1 text-sm font-medium text-gray-900">Selesai Menjabat</label>
+                                <input type="date" name="selesai_menjabat" value="{{ $pejabat->selesai_menjabat ? $pejabat->selesai_menjabat->format('Y-m-d') : '' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+                                <p class="text-[10px] text-gray-500 mt-1">Kosongkan jika masih aktif menjabat saat ini.</p>
+                            </div>
+                            <div class="col-span-2 flex items-center">
+                                <input type="checkbox" name="is_active" value="1" id="is_active{{ $pejabat->id }}" {{ $pejabat->is_active ? 'checked' : '' }} class="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500">
+                                <label for="is_active{{ $pejabat->id }}" class="ms-2 text-sm font-medium text-gray-900">Status Aktif Menjabat</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="text-white inline-flex items-center bg-utama hover:bg-teal-800 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                            Simpan Perubahan
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
     {{-- Modal Tambah --}}
     <div id="tambahPejabatModal" tabindex="-1" aria-hidden="true"
@@ -193,24 +199,28 @@
                             </select>
                         </div>
                         <div>
-                            <label for="lingkup" class="block mb-2 text-sm font-medium text-gray-900">Lingkup</label>
+                            <label for="lingkup" class="block mb-1 text-sm font-medium text-gray-900">Lingkup</label>
                             <select name="lingkup" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required>
                                 <option value="global">Global</option>
                                 <option value="prodi">Prodi</option>
                                 <option value="blok">Blok Ruangan</option>
                             </select>
+                            <p class="text-[10px] text-gray-500 mt-1">Wewenang: Global (seluruh kampus), Prodi (jurusan), atau Blok (asrama).</p>
                         </div>
                         <div>
-                            <label for="lingkup_id" class="block mb-2 text-sm font-medium text-gray-900">ID Lingkup (Opsional)</label>
+                            <label for="lingkup_id" class="block mb-1 text-sm font-medium text-gray-900">ID Lingkup (Opsional)</label>
                             <input type="number" name="lingkup_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="ID Prodi/Blok">
+                            <p class="text-[10px] text-gray-500 mt-1">ID spesifik Prodi/Blok jika Lingkup bertipe Prodi/Blok.</p>
                         </div>
                         <div>
-                            <label for="mulai_menjabat" class="block mb-2 text-sm font-medium text-gray-900">Mulai Menjabat</label>
+                            <label for="mulai_menjabat" class="block mb-1 text-sm font-medium text-gray-900">Mulai Menjabat</label>
                             <input type="date" name="mulai_menjabat" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+                            <p class="text-[10px] text-gray-500 mt-1">Tanggal awal resmi menjabat.</p>
                         </div>
                         <div>
-                            <label for="selesai_menjabat" class="block mb-2 text-sm font-medium text-gray-900">Selesai Menjabat</label>
+                            <label for="selesai_menjabat" class="block mb-1 text-sm font-medium text-gray-900">Selesai Menjabat</label>
                             <input type="date" name="selesai_menjabat" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
+                            <p class="text-[10px] text-gray-500 mt-1">Kosongkan jika masih aktif menjabat saat ini.</p>
                         </div>
                         <div class="col-span-2 flex items-center">
                             <input type="checkbox" name="is_active" value="1" id="is_active_new" checked class="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500">
