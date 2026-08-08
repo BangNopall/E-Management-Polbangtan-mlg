@@ -23,6 +23,8 @@ use Database\Seeders\ProdiSeeder;
 use Database\Seeders\BlokRuanganSeeder;
 use Database\Seeders\KategoriPelanggaranSeeder;
 use Database\Seeders\JenisPelanggaranSeeder;
+use Database\Seeders\StaffSeeder;
+use Database\Seeders\PejabatSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -148,5 +150,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call(UkmSeeder::class);
         $this->call(JenisIzinSeeder::class);
+        $this->call(StaffSeeder::class);
+        $this->call(PejabatSeeder::class);
     }
 }

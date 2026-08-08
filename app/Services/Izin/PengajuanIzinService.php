@@ -124,7 +124,7 @@ class PengajuanIzinService
                 'kelas_snapshot' => optional($student->kelas)->nama_kelas,
                 'prodi_snapshot' => optional($student->prodi)->prodi,
                 'no_kamar_snapshot' => ($student->blok ? $student->blok->name . ' / ' : '') . $student->no_kamar,
-                'no_hp_snapshot' => $student->phone,
+                'no_hp_snapshot' => $student->no_hp,
 
                 'status' => 'diajukan',
                 'langkah_aktif' => 1,
