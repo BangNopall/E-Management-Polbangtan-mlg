@@ -19,7 +19,7 @@ services:
       - .:/var/www/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - app
+      - asrama-app
 
   asrama-db:
     image: mysql:8.0
