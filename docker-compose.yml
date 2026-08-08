@@ -1,6 +1,5 @@
-version: '3.8'
 services:
-  app:
+  asrama-app:
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,7 +9,7 @@ services:
       - ./.env:/var/www/html/.env
       - ./storage:/var/www/html/storage
 
-  web:
+  asrama-web:
     image: nginx:alpine
     container_name: polbangtan_web
     restart: unless-stopped
@@ -22,7 +21,7 @@ services:
     depends_on:
       - app
 
-  db:
+  asrama-db:
     image: mysql:8.0
     container_name: polbangtan_db
     restart: unless-stopped
