@@ -19,7 +19,7 @@
             <div class="flex items-center font-bold mb-1">
                 <i class="ri-error-warning-line text-lg mr-2 text-amber-600"></i> Profil Belum Lengkap!
             </div>
-            <p>Data Prodi, Kelas, Dosen PA, atau Blok Ruangan Anda belum terdaftar lengkap di sistem. Anda tidak dapat mengirimkan pengajuan izin sebelum data profil Anda dilengkapi oleh admin asrama.</p>
+            <p>Data Prodi, Kelas, atau Blok Ruangan Anda belum terdaftar lengkap di sistem. Anda tidak dapat mengirimkan pengajuan izin sebelum data profil Anda dilengkapi oleh admin asrama.</p>
         </div>
     @endif
 

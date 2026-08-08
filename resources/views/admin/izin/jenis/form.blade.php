@@ -115,11 +115,14 @@
                                 <div class="md:col-span-1">
                                     <label class="block font-bold text-gray-800 mb-1">Resolver Penandatangan</label>
                                     <select :name="'steps[' + index + '][resolver]'" x-model="step.resolver" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs" required>
-                                        <option value="dosen_pa">Dosen PA Mahasiswa</option>
+                                        <option value="dosen_pa">Dosen PA Mahasiswa (Fallback: Operator)</option>
                                         <option value="pembina_ukm">Pembina UKM Terkait</option>
-                                        <option value="petugas_jaga">Petugas Jaga / Piket</option>
+                                        <option value="petugas_jaga">Petugas Jaga / Piket (Fallback: Pelatih/Operator)</option>
                                         <option value="pejabat">Pejabat Berdasarkan Jabatan</option>
                                     </select>
+                                    <p x-show="step.resolver === 'dosen_pa'" class="text-[10px] text-gray-500 mt-1">
+                                        ℹ️ Memilih Dosen PA mahasiswa. Jika kelas belum diset Dosen PA, otomatis dialihkan ke akun staf Operator.
+                                    </p>
                                 </div>
 
                                 <div class="md:col-span-1">
