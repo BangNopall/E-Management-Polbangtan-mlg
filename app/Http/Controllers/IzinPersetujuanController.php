@@ -37,7 +37,7 @@ class IzinPersetujuanController extends Controller
                   ->whereIn('pengajuan_izins.status', ['diajukan', 'menunggu']);
             })
             ->latest('dibuka_at')
-            ->paginate(10);
+            ->paginate(20);
 
         return view('admin.izin.inbox', compact('approvals'));
     }

@@ -173,7 +173,7 @@
         <tr>
             <td class="info-label">Blok / Ruangan Kamar</td>
             <td class="info-colon">:</td>
-            <td class="info-value">{{ $pengajuan->blok_snapshot ?? '-' }}</td>
+            <td class="info-value">{{ $pengajuan->no_kamar_snapshot ?? '-' }}</td>
         </tr>
         <tr>
             <td class="info-label">Jenis Perizinan</td>

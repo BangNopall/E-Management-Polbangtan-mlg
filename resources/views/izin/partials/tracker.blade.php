@@ -39,7 +39,11 @@
                 <p class="text-xs text-gray-600 mt-0.5">
                     Penandatangan:
                     <span class="font-semibold text-gray-800">
-                        {{ optional($approval->approver)->name ?? $approval->approver_nama_snapshot ?? 'Belum Ditentukan' }}
+                        @if (optional($approval->approver)->name ?? $approval->approver_nama_snapshot)
+                            {{ optional($approval->approver)->name ?? $approval->approver_nama_snapshot }}
+                        @else
+                            <span class="italic text-gray-500">(Ditentukan otomatis saat langkah aktif)</span>
+                        @endif
                     </span>
                 </p>
 

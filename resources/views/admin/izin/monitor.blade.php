@@ -71,6 +71,7 @@
                 <form action="{{ route('admin.izin.monitor') }}" method="GET" class="flex items-center space-x-2">
                     <select name="status" class="text-xs bg-gray-50 border border-gray-300 rounded-lg p-2" onchange="this.form.submit()">
                         <option value="">-- Semua Status --</option>
+                        <option value="diajukan" {{ request('status') == 'diajukan' ? 'selected' : '' }}>Diajukan</option>
                         <option value="berjalan" {{ request('status') == 'berjalan' ? 'selected' : '' }}>Berjalan</option>
                         <option value="terlambat" {{ request('status') == 'terlambat' ? 'selected' : '' }}>Terlambat</option>
                         <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
@@ -125,6 +126,7 @@
                             <td class="px-4 py-3">
                                 @php
                                     $badgeStyle = [
+                                        'diajukan' => 'bg-purple-100 text-purple-800 border-purple-300',
                                         'berjalan' => 'bg-sky-100 text-sky-800 border-sky-300',
                                         'terlambat' => 'bg-rose-100 text-rose-800 border-rose-300',
                                         'disetujui' => 'bg-emerald-100 text-emerald-800 border-emerald-300',
@@ -136,7 +138,7 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-right">
-                                <a href="{{ route('admin.izin.persetujuan.review', $item->id) }}" class="inline-flex items-center px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-[11px] rounded-lg transition">
+                                <a href="{{ route('admin.izin.data.show', $item->id) }}" class="inline-flex items-center px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-[11px] rounded-lg transition">
                                     <i class="ri-search-eye-line mr-1"></i> Detail
                                 </a>
                             </td>

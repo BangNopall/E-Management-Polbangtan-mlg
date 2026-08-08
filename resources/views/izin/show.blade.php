@@ -122,7 +122,7 @@
                     </div>
                     <div>
                         <span class="text-gray-400 block">Blok / Kamar</span>
-                        <span class="font-bold text-gray-800">{{ $pengajuan->blok_snapshot ?? '-' }}</span>
+                        <span class="font-bold text-gray-800">{{ $pengajuan->no_kamar_snapshot ?? '-' }}</span>
                     </div>
                     <div>
                         <span class="text-gray-400 block">No. HP / WA</span>

@@ -14,7 +14,7 @@ class IzinMonitorController extends Controller
     public function index(Request $request)
     {
         $stats = $this->getStatsData();
-        $izins = $this->getMonitorQuery($request)->paginate(15);
+        $izins = $this->getMonitorQuery($request)->paginate(20);
 
         return view('admin.izin.monitor', compact('stats', 'izins'));
     }
@@ -42,7 +42,7 @@ class IzinMonitorController extends Controller
                 'status_raw' => $item->status,
                 'tiba_at' => $item->tiba_at ? $item->tiba_at->format('d/m/Y H:i') : null,
                 'tiba_oleh' => $item->tiba_dikonfirmasi_oleh,
-                'review_url' => route('admin.izin.persetujuan.review', $item->id),
+                'review_url' => route('admin.izin.data.show', $item->id),
             ];
         });
 
@@ -76,7 +76,7 @@ class IzinMonitorController extends Controller
     private function getMonitorQuery(Request $request)
     {
         $query = PengajuanIzin::with(['user', 'jenisIzin', 'ukm'])
-            ->whereIn('status', ['disetujui', 'berjalan', 'terlambat']);
+            ->whereIn('status', ['diajukan', 'disetujui', 'berjalan', 'terlambat']);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);

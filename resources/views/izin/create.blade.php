@@ -14,6 +14,19 @@
 
     @include('partials.alert')
 
+    @if ($errors->any())
+        <div class="p-4 mb-4 text-sm text-rose-800 rounded-lg bg-rose-50 border border-rose-200" role="alert">
+            <div class="flex items-center font-bold mb-1">
+                <i class="ri-error-warning-line text-lg mr-2 text-rose-600"></i> Gagal Mengirim Pengajuan!
+            </div>
+            <ul class="list-disc list-inside mt-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     @if ($profileIncomplete)
         <div class="p-4 mb-4 text-sm text-amber-800 rounded-lg bg-amber-50 border border-amber-200" role="alert">
             <div class="flex items-center font-bold mb-1">
