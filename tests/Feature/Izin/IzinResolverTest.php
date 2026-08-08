@@ -187,6 +187,29 @@ class IzinResolverTest extends TestCase
         $this->assertEquals([$petugas1->id, $petugas2->id], $res['candidates']->pluck('id')->all());
     }
 
+    public function test_resolver_petugas_jaga_fallback_ke_role_pelatih_dan_operator_jika_jadwal_null(): void
+    {
+        $pelatih = User::factory()->create([
+            'name' => 'Pelatih Asrama',
+            'role_id' => User::PELATIH_ROLE_ID,
+        ]);
+
+        $student = User::factory()->create();
+
+        $step = new IzinWorkflowStep([
+            'resolver' => 'petugas_jaga',
+        ]);
+
+        // Tidak ada JadwalPetugas untuk tanggal ini
+        $res = $this->resolver->resolve($step, [
+            'user' => $student,
+            'waktu_berangkat' => '2026-08-15',
+        ]);
+
+        $this->assertNotEmpty($res['candidates']);
+        $this->assertTrue($res['candidates']->contains('id', $pelatih->id));
+    }
+
     public function test_resolver_dosen_pa_fallback_ke_role_operator_jika_dosen_pa_id_null(): void
     {
         $operatorUser = User::factory()->create([

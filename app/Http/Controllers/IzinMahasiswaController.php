@@ -105,6 +105,7 @@ class IzinMahasiswaController extends Controller
     {
         $pengajuan = $this->pengajuanService->ajukan(auth()->user(), $request->validated());
 
+
         return redirect()
             ->route('home.izin.show', $pengajuan->id)
             ->with('success', 'Pengajuan izin berhasil dibuat.');

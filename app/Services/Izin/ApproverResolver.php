@@ -23,9 +23,17 @@ class ApproverResolver
     {
         $student = $context instanceof PengajuanIzin ? $context->user : ($context['user'] ?? null);
         $ukmId = $context instanceof PengajuanIzin ? $context->ukm_id : ($context['ukm_id'] ?? null);
-        $date = $context instanceof PengajuanIzin
-            ? optional($context->waktu_berangkat)->format('Y-m-d')
-            : ($context['waktu_berangkat'] ?? null);
+
+        $date = null;
+        if ($context instanceof PengajuanIzin && $context->waktu_berangkat) {
+            $date = $context->waktu_berangkat->format('Y-m-d');
+        } elseif (is_array($context) && !empty($context['waktu_berangkat'])) {
+            try {
+                $date = \Carbon\Carbon::parse($context['waktu_berangkat'])->format('Y-m-d');
+            } catch (\Throwable $e) {
+                $date = null;
+            }
+        }
 
         // 1. Run primary resolver strategy
         $candidates = $this->resolveStrategy(
@@ -166,26 +174,28 @@ class ApproverResolver
     }
 
     /**
-     * Resolve duty officers (petugas_jaga) for a specific date.
+     * Resolve duty officers (petugas_jaga) for a specific date, or fallback to Pelatih & Operator users if no duty officer scheduled.
      */
     private function resolvePetugasJaga(?string $date): Collection
     {
-        if (!$date) {
-            return collect();
+        if ($date) {
+            $jadwal = JadwalPetugas::where('date', $date)
+                ->with(['petugas1', 'petugas2'])
+                ->first();
+
+            if ($jadwal) {
+                $officers = collect([$jadwal->petugas1, $jadwal->petugas2])
+                    ->filter()
+                    ->values();
+
+                if ($officers->isNotEmpty()) {
+                    return $officers;
+                }
+            }
         }
 
-        $jadwal = JadwalPetugas::where('date', $date)
-            ->with(['petugas1', 'petugas2'])
-            ->first();
-
-        if (!$jadwal) {
-            return collect();
-        }
-
-        $officers = collect([$jadwal->petugas1, $jadwal->petugas2])
-            ->filter()
-            ->values();
-
-        return $officers;
+        // Fallback: Jika jadwal petugas piket pada tanggal keberangkatan belum dibuat oleh admin,
+        // resolve otomatis ke akun staf ber-role Pelatih (4) atau Operator (2).
+        return User::whereIn('role_id', [User::PELATIH_ROLE_ID, User::OPERATOR_ROLE_ID])->get();
     }
 }
