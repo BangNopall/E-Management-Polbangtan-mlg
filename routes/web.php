@@ -21,6 +21,7 @@ use App\Http\Controllers\UkmJadwalController;
 use App\Http\Controllers\UkmScanController;
 use App\Http\Controllers\UkmVerifikasiController;
 use App\Http\Controllers\UkmLaporanController;
+use App\Http\Controllers\Admin\PejabatController;
 
 use App\Http\Controllers\UkmMahasiswaController;
 
@@ -34,6 +35,17 @@ use App\Http\Controllers\UkmMahasiswaController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+// PUBLIC VERIFICATION ROUTE (EPIC 03 - ADR-008 LARAVEL SIGNED URL)
+Route::get('/verifikasi-izin/{qr_token}', [\App\Http\Controllers\VerifikasiIzinController::class, 'show'])
+    ->middleware('signed')
+    ->name('publik.verifikasi.izin');
+Route::get('/verifikasi-izin/{qr_token}/konfirmasi-tiba', [\App\Http\Controllers\KonfirmasiTibaController::class, 'show'])
+    ->middleware('signed')
+    ->name('publik.konfirmasi.tiba.show');
+Route::post('/verifikasi-izin/{qr_token}/konfirmasi-tiba', [\App\Http\Controllers\KonfirmasiTibaController::class, 'store'])
+    ->middleware('signed')
+    ->name('publik.konfirmasi.tiba.store');
 
 Route::middleware('guest')->group(function () {
     Route::get('/', function () {
@@ -71,6 +83,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard/ukm', [UkmMahasiswaController::class, 'index'])->name('ukm.index');
         Route::get('/dashboard/ukm/riwayat', [UkmMahasiswaController::class, 'riwayat'])->name('ukm.riwayat');
         Route::get('/dashboard/riwayat-ukm', [UkmMahasiswaController::class, 'riwayatUkm'])->name('ukm.riwayatAbsen');
+
+        // EPIC 03: MODUL PERIZINAN — Student Routes (M2a)
+        Route::get('/dashboard/izin', [\App\Http\Controllers\IzinMahasiswaController::class, 'index'])->name('izin.index');
+        Route::get('/dashboard/izin/create', [\App\Http\Controllers\IzinMahasiswaController::class, 'create'])->name('izin.create');
+        Route::get('/dashboard/izin/pratinjau-alur', [\App\Http\Controllers\IzinMahasiswaController::class, 'pratinjauAlur'])->name('izin.pratinjau-alur');
+        Route::post('/dashboard/izin', [\App\Http\Controllers\IzinMahasiswaController::class, 'store'])->name('izin.store');
+        Route::get('/dashboard/izin/{pengajuan}', [\App\Http\Controllers\IzinMahasiswaController::class, 'show'])->name('izin.show');
+        Route::get('/dashboard/izin/{pengajuan}/pdf', [\App\Http\Controllers\IzinMahasiswaController::class, 'downloadPdf'])->name('izin.pdf');
+        Route::post('/dashboard/izin/{pengajuan}/batal', [\App\Http\Controllers\IzinMahasiswaController::class, 'batal'])->name('izin.batal');
     });
 
     Route::middleware('role:admin')->name('admin.')->group(function () {
@@ -110,6 +131,9 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('ukm/{ukm}/anggota/aktifkan-semua', [UkmMemberController::class, 'aktifkanSemua'])->name('ukm.anggota.aktifkanSemua');
         Route::patch('ukm/{ukm}/anggota/{member}/aktifkan', [UkmMemberController::class, 'aktifkan'])->name('ukm.anggota.aktifkan');
         Route::delete('ukm/{ukm}/anggota/{member}', [UkmMemberController::class, 'destroy'])->name('ukm.anggota.destroy');
+
+        // EPIC 03: MODUL WORKFLOW PERIZINAN — Milestone 0 (Admin Pejabat Routes)
+        Route::resource('pejabat', PejabatController::class);
     });
     // ROUTE SINGGLE END
 
@@ -136,6 +160,21 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/data-petugas/{id}', [DashboardAdminController::class, 'editDataPetugasShow'])->name('editDataPetugasShow');
         Route::post('/data-petugas/edit/{id}', [DashboardAdminController::class, 'editDataPetugas'])->name('editDataPetugas');
         Route::delete('/data-petugas/destroy/{id}', [DashboardAdminController::class, 'destroyDataPetugas'])->name('destroyPetugas');
+
+        // EPIC 03: MODUL PERIZINAN — Admin Management Routes (M6)
+        Route::resource('izin/jenis', \App\Http\Controllers\AdminJenisIzinController::class)->names([
+            'index' => 'jenis.index',
+            'create' => 'jenis.create',
+            'store' => 'jenis.store',
+            'show' => 'jenis.show',
+            'edit' => 'jenis.edit',
+            'update' => 'jenis.update',
+            'destroy' => 'jenis.destroy',
+        ]);
+        Route::get('/izin/data', [\App\Http\Controllers\AdminIzinDataController::class, 'index'])->name('izin.data.index');
+        Route::get('/izin/data-export/pdf', [\App\Http\Controllers\AdminIzinDataController::class, 'exportPdf'])->name('izin.data.pdf');
+        Route::get('/izin/data-export/excel', [\App\Http\Controllers\AdminIzinDataController::class, 'exportExcel'])->name('izin.data.excel');
+        Route::get('/izin/data/{pengajuan}', [\App\Http\Controllers\AdminIzinDataController::class, 'show'])->name('izin.data.show');
 
         Route::get('/piket-petugas/generate-jadwal-bulanan', [DashboardAdminController::class, 'piketPetugasGenerateJadwalBulanan'])->name('piketPetugasGenerateJadwalBulanan');
         Route::get('/piket-petugas/generate-jadwal-mingguan', [DashboardAdminController::class, 'piketPetugasGenerateJadwalMingguan'])->name('piketPetugasGenerateJadwalMingguan');
@@ -216,6 +255,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/data-absen-keluar', [AbsensiMahasiswa::class, 'dataAbsenKeluarShow'])->name('data-absen-keluar');
         Route::post ('/data-absen-keluar/search', [AbsensiMahasiswa::class, 'dataAbsenKeluarSearch'])->name('dataAbsenKeluarSearch');
         Route::get('/data-absen-keluar/detail/{id}', [AbsensiMahasiswa::class, 'dataAbsenKeluarDetail'])->name('detailAbsenKeluarDetail');
+
+        // EPIC 03: PERSETUJUAN PERIZINAN (M2b Approver Routes)
+        Route::get('/admin/izin/persetujuan', [\App\Http\Controllers\IzinPersetujuanController::class, 'inbox'])->name('izin.persetujuan.inbox');
+        Route::get('/admin/izin/persetujuan/{pengajuan}', [\App\Http\Controllers\IzinPersetujuanController::class, 'review'])->name('izin.persetujuan.review');
+        Route::get('/admin/izin/persetujuan/{pengajuan}/pdf', [\App\Http\Controllers\IzinPersetujuanController::class, 'downloadPdf'])->name('izin.persetujuan.pdf');
+        Route::post('/admin/izin/persetujuan/{pengajuan}', [\App\Http\Controllers\IzinPersetujuanController::class, 'putuskan'])->name('izin.persetujuan.putuskan');
+
+        // EPIC 03: MONITOR ASRAMA (M5 Dashboard Staff Routes)
+        Route::get('/admin/izin/monitor', [\App\Http\Controllers\IzinMonitorController::class, 'index'])->name('izin.monitor');
+        Route::get('/admin/izin/monitor/data', [\App\Http\Controllers\IzinMonitorController::class, 'data'])->name('izin.monitor.data');
     });
 
     // LOGOUT ROUTE

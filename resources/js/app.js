@@ -11,6 +11,10 @@ window.Popper = Popper;
 import Choices from 'choices.js';
 window.Choices = Choices;
 
+import Alpine from 'alpinejs';
+window.Alpine = Alpine;
+Alpine.start();
+
 import { initFlowbite } from 'flowbite';
 
 document.addEventListener('DOMContentLoaded', () => {

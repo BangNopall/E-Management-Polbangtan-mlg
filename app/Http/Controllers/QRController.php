@@ -136,6 +136,21 @@ class QRController extends Controller
                                 return redirect(route('admin.kamera'))->with('error', 'Anda Belum Melakukan Absensi hari ini pada jam kerja system');
                             }
                             if ($cariPresence) {
+                                $izinAktif = app(\App\Services\Izin\IzinGateResolver::class)->aktifUntuk($request->user_id, Carbon::now());
+                                if ($izinAktif) {
+                                    app(\App\Services\Izin\PengajuanIzinService::class)->catatScanGerbang($izinAktif, User::find($request->user_id), Carbon::now(), $getStatus);
+                                    $presenceData = [
+                                        'user_id' => $request->user_id,
+                                        'attendance_id' => $attendance->id,
+                                        'presence_date' => $request->date,
+                                        'is_late' => 0,
+                                        'log_status' => 'izin',
+                                        'presence_masuk' => $request->time,
+                                    ];
+                                    Presence::where('id', $cariPresence->id)->update($presenceData);
+                                    User::where('id', $request->user_id)->update(['status' => 'izin']);
+                                    return redirect(route('admin.kamera'))->with('success', 'Absensi izin berhasil tercatat');
+                                }
                                 $getStatus = 'telat';
                                 $presenceData = [
                                     'user_id' => $request->user_id,

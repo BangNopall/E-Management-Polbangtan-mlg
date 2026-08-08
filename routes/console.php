@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,8 @@ use Illuminate\Support\Facades\Artisan;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+// EPIC 03: SCHEDULED JOBS (M5 Scheduled Tasks)
+Schedule::command('izin:tandai-kadaluarsa')->hourly();
+Schedule::command('izin:periksa-keterlambatan')->everyFifteenMinutes();
+Schedule::command('izin:ingatkan-approver')->dailyAt('08:00');

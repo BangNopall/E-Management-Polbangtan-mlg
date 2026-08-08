@@ -39,6 +39,13 @@
                         </a>
                     </li>
                     <li class="mb-1 group">
+                        <a href="{{ route('home.izin.index') }}"
+                            class="{{ Request::is('dashboard/izin*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
+                            <i class="ri-file-paper-2-line mr-3 text-lg"></i>
+                            <span class="text-sm">Izin Saya</span>
+                        </a>
+                    </li>
+                    <li class="mb-1 group">
                         <a href="{{ route('home.ukm.index') }}"
                             class="{{ Request::is('dashboard/ukm', 'dashboard/ukm/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
                             <i class="ri-team-line mr-3 text-lg"></i>
@@ -111,6 +118,13 @@
                             <span class="text-sm">Dashboard Admin</span>
                         </a>
                     </li>
+                    <li class="mb-1 group">
+                        <a href="{{ route('admin.izin.monitor') }}"
+                            class="{{ Request::is('admin/izin/monitor*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
+                            <i class="ri-dashboard-3-line mr-3 text-lg"></i>
+                            <span class="text-sm">Monitor Asrama</span>
+                        </a>
+                    </li>
                     {{-- <li class="mb-1 group">
                         <a href="{{ route('admin.absensiMahasiswa') }}"
                             class="{{ Request::is('absensi-mahasiswa') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
@@ -118,6 +132,32 @@
                             <span class="text-sm">Absensi Mahasiswa</span>
                         </a>
                     </li> --}}
+                    <li class="mb-1 group">
+                        @php
+                            $pendingApprovalsCount = 0;
+                            if (Auth::check()) {
+                                $pendingApprovalsCount = \App\Models\IzinApproval::where('approver_user_id', Auth::id())
+                                    ->where('status', 'menunggu')
+                                    ->whereHas('pengajuan', function ($q) {
+                                        $q->whereColumn('pengajuan_izins.langkah_aktif', 'izin_approvals.urutan')
+                                          ->whereIn('pengajuan_izins.status', ['diajukan', 'menunggu']);
+                                    })
+                                    ->count();
+                            }
+                        @endphp
+                        <a href="{{ route('admin.izin.persetujuan.inbox') }}"
+                            class="{{ Request::is('admin/izin/persetujuan*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center justify-between px-3 py-1">
+                            <div class="flex items-center">
+                                <i class="ri-inbox-archive-line mr-3 text-lg"></i>
+                                <span class="text-sm">Inbox Perizinan</span>
+                            </div>
+                            @if ($pendingApprovalsCount > 0)
+                                <span class="px-2 py-0.5 text-xs font-bold bg-rose-600 text-white rounded-full">
+                                    {{ $pendingApprovalsCount }}
+                                </span>
+                            @endif
+                        </a>
+                    </li>
                     <li class="mb-1 group">
                         <a href="/data-absen-keluar"
                         class="{{ Request::is('data-absen-keluar', 'data-absen-keluar/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
@@ -139,6 +179,15 @@
                             <span class="text-sm">Data Petugas</span>
                         </a>
                     </li>
+                    @if (Auth::user()->role_id == 1)
+                    <li class="mb-1 group">
+                        <a href="{{ route('admin.pejabat.index') }}"
+                            class="{{ Request::is('pejabat', 'pejabat/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
+                            <i class="ri-user-star-line mr-3 text-lg"></i>
+                            <span class="text-sm">Data Pejabat</span>
+                        </a>
+                    </li>
+                    @endif
                     <li class="mb-1 group">
                         <a href="{{ route('admin.piketPetugas') }}"
                             class="{{ Request::is('piket-petugas') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
@@ -283,6 +332,21 @@
                             Admin Privilege Pages
                         </h6>
                     </div>
+
+                    <li class="mb-1 group">
+                        <a href="{{ route('admin.jenis.index') }}"
+                            class="{{ Request::is('admin/izin/jenis*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
+                            <i class="ri-settings-4-line mr-3 text-lg"></i>
+                            <span class="text-sm">Kelola Jenis Izin</span>
+                        </a>
+                    </li>
+                    <li class="mb-1 group">
+                        <a href="{{ route('admin.izin.data.index') }}"
+                            class="{{ Request::is('admin/izin/data*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
+                            <i class="ri-folder-user-line mr-3 text-lg"></i>
+                            <span class="text-sm">Data Perizinan</span>
+                        </a>
+                    </li>
 
                     <li class="mb-1 group">
                         <a href="/data-mahasiswa"

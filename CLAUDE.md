@@ -239,12 +239,12 @@ sebelum mengubah arah.
 
 ### Status milestone
 
-- [ ] M0 — `pejabats`, `kelas.dosen_pa_id`, UI Data Pejabat
-- [ ] M1 — 5 tabel, model, `ApproverResolver`, `PengajuanIzinService`, seeder
-- [ ] M2 — pengajuan mahasiswa, inbox approver, setujui/tolak
-- [ ] M3 — nomor surat, PDF, QR, verifikasi publik
-- [ ] M4 — integrasi gerbang, pembebasan presensi, pelanggaran keterlambatan
-- [ ] M5 — konfirmasi tiba, monitor, notifikasi, job terjadwal
-- [ ] M6 — CRUD jenis izin, laporan, hardening
+- [x] M0 — `pejabats`, `kelas.dosen_pa_id`, UI Data Pejabat
+- [x] M1 — 5 tabel, model, `ApproverResolver`, `PengajuanIzinService`, seeder
+- [x] M2 — pengajuan mahasiswa, inbox approver, setujui/tolak
+- [x] M3 — nomor surat, PDF, QR, verifikasi publik
+- [x] M4 — integrasi gerbang, pembebasan presensi, pelanggaran keterlambatan
+- [x] M5 — konfirmasi tiba, monitor, notifikasi, job terjadwal
+- [x] M6 — CRUD jenis izin, laporan, hardening
 
 Perbarui centang di atas setiap kali satu milestone lolos gerbang kualitasnya.

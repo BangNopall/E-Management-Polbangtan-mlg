@@ -20,4 +20,9 @@ class Kelas extends Model
     {
         return $this->belongsTo(LevelKelas::class, 'level_kelas_id');
     }
+
+    public function dosenPa()
+    {
+        return $this->belongsTo(User::class, 'dosen_pa_id');
+    }
 }
