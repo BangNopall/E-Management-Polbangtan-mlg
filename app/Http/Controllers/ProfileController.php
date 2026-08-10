@@ -88,20 +88,15 @@ class ProfileController extends Controller
             // script baru 
             $cariKelas = kelas::where('id', $request->kelas_id)->first();
             if ($cariKelas->prodi_id == $request->prodi_id) {
-                // script lama
-                foreach ($user->getAttributes() as $attribute => $value) {
-                    // Hanya perbarui atribut jika datanya kosong di database dan tidak kosong di request
-                    if ($value === null && $request->has($attribute)) {
-                        $user->{$attribute} = $request->{$attribute};
-                    }
-                }
-                // Simpan perubahan jika ada yang diubah
-                if ($user->isDirty()) {
-                    $user->save();
-                    return redirect()->route('home.profilshow', $user->id)->with('success', 'Profil berhasil diperbarui.');
-                } else {
-                    return redirect()->back()->with('error', 'AKSES DITOLAK! Hubungi admin untuk melakukan perubahan data.');
-                }
+                $user->nim = $request->nim;
+                $user->name = $request->name;
+                $user->prodi_id = $request->prodi_id;
+                $user->kelas_id = $request->kelas_id;
+                $user->blok_ruangan_id = $request->blok_ruangan_id;
+                $user->no_kamar = $request->no_kamar;
+                $user->asal_daerah = $request->asal_daerah;
+                $user->save();
+                return redirect()->route('home.profilshow', $user->id)->with('success', 'Profil berhasil diperbarui.');
             } else {
                 return redirect()->back()->with('error', 'Prodi dan Kelas tidak sesuai.');
             }

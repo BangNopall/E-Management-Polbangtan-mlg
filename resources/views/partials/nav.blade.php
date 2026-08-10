@@ -226,27 +226,31 @@
                             @endif
                             @if (Auth::user()->role_id == 4)
                                 @php
-                                    $pelatihUkm = \App\Models\UkmMember::where('user_id', Auth::id())->where('peran', 'pelatih')->where('status', 'aktif')->first();
+                                    $pelatihUkms = \App\Models\UkmMember::where('user_id', Auth::id())->where('peran', 'pelatih')->where('status', 'aktif')->with('ukm')->get();
                                 @endphp
-                                @if ($pelatihUkm)
+                                @foreach($pelatihUkms as $member)
+                                    @if($member->ukm)
                                     <li>
-                                        <a href="{{ route('admin.ukm.show', $pelatihUkm->ukm_id) }}"
-                                            class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm/*', 'kamera-ukm*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                            Jadwal & Scan</a>
+                                        <a href="{{ route('admin.ukm.show', $member->ukm_id) }}"
+                                            class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm/'.$member->ukm_id.'*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                            {{ $member->ukm->nama }}</a>
                                     </li>
-                                @endif
+                                    @endif
+                                @endforeach
                             @endif
                             @if (Auth::user()->role_id == 5)
                                 @php
-                                    $pembinaUkm = \App\Models\UkmMember::where('user_id', Auth::id())->where('peran', 'pembina')->where('status', 'aktif')->first();
+                                    $pembinaUkms = \App\Models\UkmMember::where('user_id', Auth::id())->where('peran', 'pembina')->where('status', 'aktif')->with('ukm')->get();
                                 @endphp
-                                @if ($pembinaUkm)
+                                @foreach($pembinaUkms as $member)
+                                    @if($member->ukm)
                                     <li>
-                                        <a href="{{ route('admin.ukm.verifikasi.index', $pembinaUkm->ukm_id) }}"
-                                            class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm/*/verifikasi') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                            Verifikasi Kegiatan</a>
+                                        <a href="{{ route('admin.ukm.verifikasi.index', $member->ukm_id) }}"
+                                            class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm/'.$member->ukm_id.'/verifikasi*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                            {{ $member->ukm->nama }} (Verifikasi)</a>
                                     </li>
-                                @endif
+                                    @endif
+                                @endforeach
                             @endif
                         </ul>
                     </li>

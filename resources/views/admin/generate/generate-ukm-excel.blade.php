@@ -10,6 +10,11 @@
                 Politeknik Pembangunan Pertanian Malang - Tanggal Cetak: {{ date('d/m/Y') }}
             </th>
         </tr>
+        <tr>
+            <th colspan="7" style="text-align: center;">
+                Rentang Tanggal: {{ $startDateStr }} s/d {{ $endDateStr }}
+            </th>
+        </tr>
         <tr></tr>
         <tr style="background-color: #e5e7eb; font-weight: bold;">
             <th>No</th>
@@ -29,7 +34,7 @@
                 <td>{{ $p->user->nim ?? '-' }}</td>
                 <td>{{ $p->jadwal->judul ?? '-' }}</td>
                 <td>{{ $p->jadwal->tanggal ? \Carbon\Carbon::parse($p->jadwal->tanggal)->format('d/m/Y') : '-' }}</td>
-                <td>{{ $p->jam_scan ? \Carbon\Carbon::parse($p->jam_scan)->format('H:i') : '-' }}</td>
+                <td>{{ $p->jam_kehadiran ? \Carbon\Carbon::parse($p->jam_kehadiran)->format('H:i') : '-' }}</td>
                 <td>{{ $p->status_kehadiran }}</td>
             </tr>
         @empty

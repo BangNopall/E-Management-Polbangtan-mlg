@@ -60,9 +60,6 @@
             <div class="flex justify-between items-center">
                 <h1 class="font-semibold text-lg mdtext-xl text-gray-800 uppercase mb-6 mt-3">
                     <i class="ri-account-box-line text-xl md:text-2xl mr-1 md:mr-2"></i>Pengaturan Profil
-                    @if ($user->role_id == 3)
-                        <div class="text-red-500 text-xs font-medium">*Kesempatan merubah profil hanya berlaku 1x.</div>
-                    @endif
                 </h1>
                 @include('partials.modals.profil')
                 <button type="button"

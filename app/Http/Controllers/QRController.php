@@ -184,6 +184,11 @@ class QRController extends Controller
                     if ($currentTime >= $attendance->start_time && $currentTime <= $attendance->end_time) {
                         $getStatus = $request->status;
 
+                        $izinAktif = app(\App\Services\Izin\IzinGateResolver::class)->aktifUntuk($request->user_id, Carbon::now());
+                        if ($izinAktif) {
+                            app(\App\Services\Izin\PengajuanIzinService::class)->catatScanGerbang($izinAktif, User::find($request->user_id), Carbon::now(), $getStatus);
+                        }
+
                         $presenceData = [
                             'user_id' => $request->user_id,
                             'attendance_id' => $attendance->id,
@@ -191,7 +196,7 @@ class QRController extends Controller
                         ];
 
                         $userData = [
-                            'status' => $getStatus,
+                            'status' => ($izinAktif && $getStatus == 'diluar') ? 'izin' : $getStatus,
                         ];
 
                         $cariPresence = Presence::where('user_id', $request->user_id)
@@ -210,7 +215,7 @@ class QRController extends Controller
                                 if ($checkOnePresence->presence_masuk != null) {
                                     $presenceData['presence_keluar'] = $request->time;
                                     $presenceData['presence_masuk'] = null;
-                                    $presenceData['log_status'] = 'diluar';
+                                    $presenceData['log_status'] = ($izinAktif ?? false) ? 'izin' : 'diluar';
                                     $is_active = [
                                         'is_active' => 0,
                                     ];
@@ -221,7 +226,7 @@ class QRController extends Controller
                                 }
                                 if ($checkOnePresence->presence_masuk == null) {
                                     $presenceData['presence_keluar'] = $request->time;
-                                    $presenceData['log_status'] = 'diluar';
+                                    $presenceData['log_status'] = ($izinAktif ?? false) ? 'izin' : 'diluar';
                                     Presence::where('id', $cariPresence->id)->update($presenceData);
                                     User::where('id', $request->user_id)->update($userData);
                                     return redirect(route('admin.kamera'))->with('success', 'Anda Berhasil Melakukan Presensi Keluar Asrama Lagi Hari Ini');
@@ -250,7 +255,7 @@ class QRController extends Controller
                             if ($getStatus == 'diluar') {
                                 $presenceData['presence_masuk'] = null;
                                 $presenceData['presence_keluar'] = $request->time;
-                                $presenceData['log_status'] = 'diluar';
+                                $presenceData['log_status'] = ($izinAktif ?? false) ? 'izin' : 'diluar';
                                 Presence::create($presenceData);
                                 User::where('id', $request->user_id)->update($userData);
                                 return redirect(route('admin.kamera'))->with('success', 'Anda Berhasil Melakukan Presensi Keluar Asrama');

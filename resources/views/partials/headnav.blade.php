@@ -24,7 +24,6 @@
                         class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-utama hover:bg-gray-50">Profil</a>
                 </li>
 
-                @if (auth()->user()->role_id == 1 || auth()->user()->role_id == 2 || auth()->user()->role_id == 4 || auth()->user()->role_id == 5)
                     <li>
                         <form action="{{ route('auth.logout') }}" method="post"
                             class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-utama hover:bg-gray-50">
@@ -33,7 +32,6 @@
                             <button>Logout</button>
                         </form>
                     </li>
-                @endif
             </ul>
         </li>
     </ul>

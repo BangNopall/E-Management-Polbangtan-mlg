@@ -49,7 +49,7 @@
                                 @endif
                             </td>
                             <td class="px-4 py-2 whitespace-nowrap">
-                                {{ $presensi->jam_scan ? \Carbon\Carbon::parse($presensi->jam_scan)->format('H:i:s') : '-' }}
+                                {{ $presensi->jam_kehadiran ? \Carbon\Carbon::parse($presensi->jam_kehadiran)->format('H:i:s') : '-' }}
                             </td>
                         </tr>
                     @empty

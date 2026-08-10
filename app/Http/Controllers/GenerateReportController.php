@@ -707,10 +707,13 @@ class GenerateReportController extends Controller
             });
         }
 
+        $startDateStr = $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->translatedFormat('d F Y') : '-';
+        $endDateStr = $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->translatedFormat('d F Y') : '-';
+
         $presensis = $query->get();
 
         if ($request->submit === 'pdf') {
-            $pdf = Pdf::loadView('admin.generate.generate-ukm-pdf', compact('presensis', 'ukmNama'))->setPaper('a4', 'portrait');
+            $pdf = Pdf::loadView('admin.generate.generate-ukm-pdf', compact('presensis', 'ukmNama', 'startDateStr', 'endDateStr'))->setPaper('a4', 'portrait');
             $fileName = 'Laporan-Presensi-UKM-' . \Illuminate\Support\Str::slug($ukmNama) . '.pdf';
             $storagePath = public_path('pdf');
 
@@ -724,7 +727,7 @@ class GenerateReportController extends Controller
 
         if ($request->submit === 'excel') {
             $fileName = 'Laporan-Presensi-UKM-' . \Illuminate\Support\Str::slug($ukmNama) . '.xlsx';
-            Excel::store(new \App\Exports\LaporanUkmExport($presensis, $ukmNama), $fileName, 'publicnew', ExcelExcel::XLSX);
+            Excel::store(new \App\Exports\LaporanUkmExport($presensis, $ukmNama, $startDateStr, $endDateStr), $fileName, 'publicnew', ExcelExcel::XLSX);
             return redirect(asset('excel/' . $fileName));
         }
 

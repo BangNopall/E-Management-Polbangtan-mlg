@@ -19,6 +19,7 @@
     <div class="header">
         <h2>LAPORAN PRESENSI UKM</h2>
         <p>UKM: {{ $ukmNama }} | Politeknik Pembangunan Pertanian Malang</p>
+        <p>Rentang Tanggal: {{ $startDateStr }} s/d {{ $endDateStr }}</p>
         <p>Tanggal Cetak: {{ date('d F Y') }}</p>
     </div>
 
@@ -42,7 +43,7 @@
                     <td>{{ $p->user->nim ?? '-' }}</td>
                     <td>{{ $p->jadwal->judul ?? '-' }}</td>
                     <td>{{ $p->jadwal->tanggal ? \Carbon\Carbon::parse($p->jadwal->tanggal)->format('d/m/Y') : '-' }}</td>
-                    <td>{{ $p->jam_scan ? \Carbon\Carbon::parse($p->jam_scan)->format('H:i') : '-' }}</td>
+                    <td>{{ $p->jam_kehadiran ? \Carbon\Carbon::parse($p->jam_kehadiran)->format('H:i') : '-' }}</td>
                     <td>
                         @if ($p->status_kehadiran === 'Hadir')
                             <span class="badge-hadir">Hadir</span>

@@ -127,11 +127,6 @@ Route::middleware(['auth'])->group(function () {
         // destroy/index actions stay admin-only. See §4 of the frontend
         // design doc for the intended role matrix.
         Route::resource('ukm', UkmController::class)->except(['show']);
-        Route::post('ukm/{ukm}/anggota', [UkmMemberController::class, 'store'])->name('ukm.anggota.store');
-        Route::patch('ukm/{ukm}/anggota/aktifkan-semua', [UkmMemberController::class, 'aktifkanSemua'])->name('ukm.anggota.aktifkanSemua');
-        Route::patch('ukm/{ukm}/anggota/{member}/aktifkan', [UkmMemberController::class, 'aktifkan'])->name('ukm.anggota.aktifkan');
-        Route::delete('ukm/{ukm}/anggota/{member}', [UkmMemberController::class, 'destroy'])->name('ukm.anggota.destroy');
-
         // EPIC 03: MODUL WORKFLOW PERIZINAN — Milestone 0 (Admin Pejabat Routes)
         Route::resource('pejabat', PejabatController::class);
     });
@@ -200,6 +195,10 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('ukm/jadwal/{jadwal}', [UkmJadwalController::class, 'destroy'])->name('ukm.jadwal.destroy');
         Route::get('kamera-ukm/{jadwal}', [UkmScanController::class, 'show'])->name('ukm.scan.show');
         Route::post('api/kamera-ukm/{jadwal}', [UkmScanController::class, 'store'])->name('ukm.scan.store');
+        Route::post('ukm/{ukm}/anggota', [UkmMemberController::class, 'store'])->name('ukm.anggota.store');
+        Route::patch('ukm/{ukm}/anggota/aktifkan-semua', [UkmMemberController::class, 'aktifkanSemua'])->name('ukm.anggota.aktifkanSemua');
+        Route::patch('ukm/{ukm}/anggota/{member}/aktifkan', [UkmMemberController::class, 'aktifkan'])->name('ukm.anggota.aktifkan');
+        Route::delete('ukm/{ukm}/anggota/{member}', [UkmMemberController::class, 'destroy'])->name('ukm.anggota.destroy');
 
         // EPIC 01: MODUL UKM DINAMIS — Pembina & Admin Verification & Report Routes (US 1.4)
         Route::get('ukm/{ukm}/verifikasi', [UkmVerifikasiController::class, 'index'])->name('ukm.verifikasi.index');
