@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\prodi;
-use App\Models\Kelas;
 use App\Models\blokRuangan;
-use Illuminate\Support\Str;
+use App\Models\Kelas;
+use App\Models\prodi;
+use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
@@ -27,37 +25,36 @@ class ProfileController extends Controller
             return redirect()->route('home.profilshow', $user->id);
         }
     }
+
     public function profil()
     {
         $user = auth()->user();
-        $blocks = BlokRuangan::all();
+        $blocks = blokRuangan::all();
         $prodis = prodi::all();
-        $kelas = kelas::all();
+        $kelas = Kelas::all();
 
-        $title = "Profil";
+        $title = 'Profil';
 
         return view('profil', compact('user', 'blocks', 'prodis', 'kelas', 'title'));
     }
 
     public function editProfile(Request $request, $id)
     {
-        // dd($request->all());
         // Validasi data dari formulir
         $request->validate([
-            'nim' => 'required|numeric|min:11|unique:users,nim,' . $id , 
+            'nim' => 'required|numeric|min:11|unique:users,nim,'.$id,
             'name' => 'required|string|max:255',
             'prodi_id' => 'required',
             'kelas_id' => 'required|exists:kelas,id',
             'blok_ruangan_id' => 'required|exists:blok_ruangans,id',
             'no_kamar' => 'required|numeric',
             'asal_daerah' => 'required|string|max:255',
-            'foto-profil' => 'nullable|image|mimes:jpeg,png,jpg',
+            'foto-profil' => 'nullable|image|mimes:jpeg,png,jpg,webp,heic|max:5120',
             // Tambahkan aturan validasi lainnya sesuai kebutuhan
         ]);
 
         // Temukan pengguna berdasarkan ID
         $user = User::find($id);
-
 
         $existingUser = User::where('nim', $request->nim)->first();
         if ($existingUser && $existingUser->id != $user->id) {
@@ -69,7 +66,7 @@ class ProfileController extends Controller
         }
 
         // Periksa apakah pengguna ditemukan
-        if (!$user) {
+        if (! $user) {
             return redirect()->back()->with('error', 'Pengguna tidak ditemukan.');
         }
 
@@ -83,10 +80,11 @@ class ProfileController extends Controller
             $user->no_kamar = $request->no_kamar;
             $user->asal_daerah = $request->asal_daerah;
             $user->save();
+
             return redirect()->route('admin.profil', $user->id)->with('success', 'Profil berhasil diperbarui.');
         } elseif ($user->isUser()) {
-            // script baru 
-            $cariKelas = kelas::where('id', $request->kelas_id)->first();
+            // script baru
+            $cariKelas = Kelas::where('id', $request->kelas_id)->first();
             if ($cariKelas->prodi_id == $request->prodi_id) {
                 $user->nim = $request->nim;
                 $user->name = $request->name;
@@ -96,6 +94,7 @@ class ProfileController extends Controller
                 $user->no_kamar = $request->no_kamar;
                 $user->asal_daerah = $request->asal_daerah;
                 $user->save();
+
                 return redirect()->route('home.profilshow', $user->id)->with('success', 'Profil berhasil diperbarui.');
             } else {
                 return redirect()->back()->with('error', 'Prodi dan Kelas tidak sesuai.');
@@ -109,27 +108,48 @@ class ProfileController extends Controller
     {
         // Hapus foto lama
         if ($user->image) {
-            Storage::delete('/public/images/' . $user->image);
+            Storage::delete('/public/images/'.$user->image);
         }
 
         // Upload file foto baru ke storage
-        $file = $request->file('foto-profil');
-        $filename = Str::random(10) . '-' . $file->getClientOriginalName();
-        $file->storeAs('images', $filename, 'public');
+        try {
+            $file = $request->file('foto-profil');
 
-        // Perbarui URL foto di database
-        $user->image = $filename;
+            // Generasi nama file yang unik dan aman
+            // Menggunakan GUID untuk menjamin keunikan
+            $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+
+            // Simpan file ke storage/app/public/images
+            $path = $file->storeAs('images', $filename, 'public');
+
+            if (! $path) {
+                throw new \RuntimeException('Gagal menyimpan file foto.');
+            }
+
+            // Perbarui URL foto di database
+            $user->image = $filename;
+        } catch (\Throwable $th) {
+            // Tangkap semua kemungkinan error saat upload
+            throw new \RuntimeException('Gagal memperbarui foto profil: ' . $th->getMessage(), 0, $th);
+        }
+
+        // $file = $request->file('foto-profil');
+        // $filename = Str::random(10).'-'.$file->getClientOriginalName();
+        // $file->storeAs('images', $filename, 'public');
+
+        // // Perbarui URL foto di database
+        // $user->image = $filename;
     }
 
     public function editProfileGmail(Request $request, $id)
     {
         try {
             $request->validate([
-                'no_hp' => 'required|numeric|digits_between:10,13|unique:users,no_hp,' . $id,
+                'no_hp' => 'required|numeric|digits_between:10,13|unique:users,no_hp,'.$id,
                 'email' => [
                     'required',
                     'email:dns',
-                    'unique:users,email,' . $id,
+                    'unique:users,email,'.$id,
                 ],
                 'password' => 'min:5|nullable',
             ]);
@@ -141,14 +161,17 @@ class ProfileController extends Controller
                 return redirect()->back()->with('error', 'Nomor HP sudah digunakan oleh pengguna lain.');
             }
 
-            if (!$user) {
+            if (! $user) {
                 return redirect()->back()->with('error', 'Pengguna tidak ditemukan.');
             }
 
             $user->no_hp = $request->no_hp;
             $user->email = $request->email;
-            // jika password nullable, gunakan password lama
-            $user->password = Hash::make($request->password);
+
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
+            }
+
             $user->save();
 
             if ($user->isAdmin() || $user->isOperator() || $user->isPelatih() || $user->isPembina()) {
@@ -171,9 +194,10 @@ class ProfileController extends Controller
         // dd($id);
         $user = User::find($id);
         if ($user->image) {
-            Storage::delete('/public/images/' . $user->image);
+            Storage::delete('/public/images/'.$user->image);
             $user->image = null;
             $user->save();
+
             return redirect()->back()->with('success', 'Foto profil berhasil dihapus.');
         } else {
             return redirect()->back()->with('error', 'Foto profil tidak ditemukan.');

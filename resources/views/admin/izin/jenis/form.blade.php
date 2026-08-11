@@ -115,9 +115,9 @@
                                 <div class="md:col-span-1">
                                     <label class="block font-bold text-gray-800 mb-1">Resolver Penandatangan</label>
                                     <select :name="'steps[' + index + '][resolver]'" x-model="step.resolver" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs" required>
-                                        <option value="dosen_pa">Dosen PA Mahasiswa (Fallback: Operator)</option>
+                                        <option value="dosen_pa">Dosen PA Mahasiswa (Operator)</option>
                                         <option value="pembina_ukm">Pembina UKM Terkait</option>
-                                        <option value="petugas_jaga">Petugas Jaga / Piket (Fallback: Pelatih/Operator)</option>
+                                        <option value="petugas_jaga">Petugas Jaga / Piket (Pelatih/Operator)</option>
                                         <option value="pejabat">Pejabat Berdasarkan Jabatan</option>
                                     </select>
                                     <p x-show="step.resolver === 'dosen_pa'" class="text-[10px] text-gray-500 mt-1">
@@ -139,24 +139,20 @@
                                 <label class="block font-bold text-gray-800">Target Jabatan Pejabat <span class="text-rose-500">*</span></label>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2 bg-white p-2.5 rounded-lg border border-gray-200">
                                     <label class="flex items-center space-x-1.5">
-                                        <input type="checkbox" :name="'steps[' + index + '][jabatan][]'" value="direktur" x-model="step.jabatan" class="rounded text-teal-600">
-                                        <span>Direktur</span>
-                                    </label>
-                                    <label class="flex items-center space-x-1.5">
-                                        <input type="checkbox" :name="'steps[' + index + '][jabatan][]'" value="wadir_1" x-model="step.jabatan" class="rounded text-teal-600">
-                                        <span>Wadir 1</span>
-                                    </label>
-                                    <label class="flex items-center space-x-1.5">
-                                        <input type="checkbox" :name="'steps[' + index + '][jabatan][]'" value="wadir_3" x-model="step.jabatan" class="rounded text-teal-600">
-                                        <span>Wadir 3</span>
-                                    </label>
-                                    <label class="flex items-center space-x-1.5">
                                         <input type="checkbox" :name="'steps[' + index + '][jabatan][]'" value="kaprodi" x-model="step.jabatan" class="rounded text-teal-600">
                                         <span>Kaprodi</span>
                                     </label>
                                     <label class="flex items-center space-x-1.5">
                                         <input type="checkbox" :name="'steps[' + index + '][jabatan][]'" value="kepala_asrama" x-model="step.jabatan" class="rounded text-teal-600">
                                         <span>Kepala Asrama</span>
+                                    </label>
+                                    <label class="flex items-center space-x-1.5">
+                                        <input type="checkbox" :name="'steps[' + index + '][jabatan][]'" value="unit_kemahasiswaan" x-model="step.jabatan" class="rounded text-teal-600">
+                                        <span>Unit Kemahasiswaan</span>
+                                    </label>
+                                    <label class="flex items-center space-x-1.5">
+                                        <input type="checkbox" :name="'steps[' + index + '][jabatan][]'" value="wadir_kemahasiswaan" x-model="step.jabatan" class="rounded text-teal-600">
+                                        <span>Wadir Kemahasiswaan</span>
                                     </label>
                                 </div>
                                 <input type="hidden" :name="'steps[' + index + '][mode]'" value="any">

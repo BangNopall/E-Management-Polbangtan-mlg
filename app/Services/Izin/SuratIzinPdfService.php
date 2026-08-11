@@ -22,14 +22,18 @@ class SuratIzinPdfService
         // Generate QR Code base64 image (PNG)
         $qrBase64 = null;
         try {
-            $pngQr = QrCode::format('png')->size(120)->margin(1)->generate($signedUrl);
-            $qrBase64 = 'data:image/png;base64,' . base64_encode($pngQr);
+            $pngQr = QrCode::format('png')->size(1000)->margin(1)->generate($signedUrl);
+            $qrBase64 = 'data:image/png;base64,'.base64_encode($pngQr);
         } catch (\Throwable $e) {
             // Fallback jika ekstensi GD / BaconQrCode mengalami kendala
             $qrBase64 = null;
         }
 
-        $pdf = Pdf::loadView('admin.generate.generate-izin', [
+        $pdf = Pdf::setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'chroot' => public_path(), // Mengizinkan DomPDF membaca folder public
+        ])->loadView('admin.generate.generate-izin', [
             'pengajuan' => $pengajuan,
             'signedUrl' => $signedUrl,
             'qrBase64' => $qrBase64,
@@ -37,7 +41,7 @@ class SuratIzinPdfService
 
         $pdf->setPaper('A4', 'portrait');
 
-        $fileName = 'Surat_Izin_' . str_replace('/', '_', $pengajuan->nomor_surat ?? 'DRAFT') . '.pdf';
+        $fileName = 'Surat_Izin_'.str_replace('/', '_', $pengajuan->nomor_surat ?? 'DRAFT').'.pdf';
 
         return $pdf->stream($fileName);
     }

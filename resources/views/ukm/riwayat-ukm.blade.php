@@ -32,7 +32,7 @@
                                     {{ $presensi->jadwal->tanggal ? \Carbon\Carbon::parse($presensi->jadwal->tanggal)->format('d M Y') : '-' }}
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap">
-                                    {{ $presensi->jam_scan ? \Carbon\Carbon::parse($presensi->jam_scan)->format('H:i') : '-' }}
+                                    {{ $presensi->jam_kehadiran ? \Carbon\Carbon::parse($presensi->jam_kehadiran)->format('H:i') : '-' }}
                                 </td>
                                 <td class="px-4 py-3">
                                     @if ($presensi->status_kehadiran === 'Hadir')

@@ -134,7 +134,8 @@
     <table class="header-table">
         <tr>
             <td class="header-logo">
-                <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents(public_path('img/logo-asrama2.jpeg'))) }}" width="60" alt="Logo">
+                {{-- <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents(public_path('img/logo-asrama2.jpeg'))) }}" width="60" alt=""> --}}
+                <img src="data:image/jpeg;base64,{!! base64_encode(file_get_contents(public_path('img/logo-asrama2.jpeg'))) !!}" width="60" alt="">
             </td>
             <td class="header-text">
                 <h3>KEMENTERIAN PERTANIAN</h3>
@@ -241,7 +242,8 @@
             <tr>
                 <td style="width: 40%; text-align: center; vertical-align: middle;">
                     @if ($qrBase64)
-                        <img src="{{ $qrBase64 }}" width="110" height="110" alt="QR Verifikasi">
+                        {{-- <img src="{{ $qrBase64 }}" width="110" height="110" alt=""> --}}
+                        <img src="{!! $qrBase64 !!}" width="110" height="110" alt="">
                         <p style="margin: 4px 0 0 0; font-size: 7.5pt; color: #555;">Pindai QR ini untuk verifikasi keabsahan surat resmi</p>
                     @endif
                 </td>

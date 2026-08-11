@@ -23,7 +23,7 @@ class QRController extends Controller
     {
         $user = Auth::user();
         $status = Auth::user()->status;
-        if ($status == 'diluar') {
+        if ($status == 'diluar' || $status == 'izin') {
             $editStatus = 'didalam';
         } elseif ($status == 'didalam') {
             $editStatus = 'diluar';
@@ -120,11 +120,11 @@ class QRController extends Controller
                     }
                 }
                 if ($attendance) {
-                    if ($currentTime <= $attendance->start_time) {
-                        return redirect(route('admin.kamera'))->with('error', 'Absensi Belum di buka');
-                    }
+                    // BYPASS: if ($currentTime <= $attendance->start_time) {
+                    //    return redirect(route('admin.kamera'))->with('error', 'Absensi Belum di buka');
+                    // }
 
-                    if ($currentTime >= $attendance->end_time) {
+                    if (false /* BYPASS: $currentTime >= $attendance->end_time */) {
                         $getStatus = $request->status;
                         if ($getStatus == 'didalam') {
                             $cariPresence = Presence::where('user_id', $request->user_id)
@@ -181,7 +181,7 @@ class QRController extends Controller
                         }
                     }
 
-                    if ($currentTime >= $attendance->start_time && $currentTime <= $attendance->end_time) {
+                    if (true /* BYPASS: $currentTime >= $attendance->start_time && $currentTime <= $attendance->end_time */) {
                         $getStatus = $request->status;
 
                         $izinAktif = app(\App\Services\Izin\IzinGateResolver::class)->aktifUntuk($request->user_id, Carbon::now());
