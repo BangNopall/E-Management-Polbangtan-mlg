@@ -6,10 +6,7 @@ const qrCodeSuccessCallback = (e, t) => {
     let a = JSON.parse(e);
     beepSound.play(),
         qrCodeReader.stop(),
-        (document.getElementById("user_id").value = a.user_id),
-        (document.getElementById("date").value = a.date),
-        (document.getElementById("time").value = a.time),
-        (document.getElementById("scanner").value = a.scanner),
+        (document.getElementById("payload").value = a.payload),
         document.getElementById("form").submit();
 };
 qrCodeReader.start({ facingMode: "user" }, config, qrCodeSuccessCallback),

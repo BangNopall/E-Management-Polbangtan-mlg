@@ -42,20 +42,21 @@ class AuthController extends Controller
         try {
             if ($user->role_id == 3) {
                 $LoginPermission = LoginPermission::firstOrNew(['user_id' => $user->id]);
-                if (!$LoginPermission->exists) {
-                    $LoginPermission->is_login = 1;
-                    $LoginPermission->expiry_date = now()->startOfMonth()->addYears(1);
-                    $LoginPermission->save();
+                
+                if ($LoginPermission->exists && $LoginPermission->is_login == 1) {
+                    // Cek jika belum expire
+                    if (now()->lessThan($LoginPermission->expiry_date)) {
+                        return back()->with('error', 'Akun sedang digunakan di perangkat lain. Silahkan logout dari perangkat sebelumnya.');
+                    }
+                }
 
-                    if (Auth::attempt($credentials)) {
-                        $user = auth()->user();
-                        return redirect()->route('home.index');
-                    }
-                } else {
-                    if (Auth::attempt($credentials)) {
-                        $user = auth()->user();
-                        return redirect()->route('home.index');
-                    }
+                $LoginPermission->is_login = 1;
+                $LoginPermission->is_logout = 0;
+                $LoginPermission->expiry_date = now()->addHours(12); // Kadaluarsa sesi 12 jam agar tidak stuck permanen jika lupa logout
+                $LoginPermission->save();
+
+                if (Auth::attempt($credentials)) {
+                    return redirect()->route('home.index');
                 }
             }
 
@@ -86,11 +87,11 @@ class AuthController extends Controller
                 ->where('is_login', true)
                 ->first();
 
-            // Jika ada, atur is_login menjadi true
+            // Jika ada, atur is_login menjadi false
             if ($LoginPermission) {
-                $LoginPermission->is_login = true;
-                $LoginPermission->is_logout = true;
-                $LoginPermission->desc_logout = 'Siswa melakukan Logout secara paksa dari perangkat pada tanggal ' . now()->format('d-m-Y') . '';
+                $LoginPermission->is_login = 0;
+                $LoginPermission->is_logout = 1;
+                $LoginPermission->desc_logout = 'Siswa melakukan Logout secara mandiri dari perangkat pada tanggal ' . now()->format('d-m-Y H:i') . '';
                 $LoginPermission->save();
             }
 

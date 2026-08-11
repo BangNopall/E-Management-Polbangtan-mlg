@@ -41,7 +41,20 @@ class QRController extends Controller
 
         $title = "Kode QR";
 
-        $json = json_encode($validateQR);
+        $jsonRaw = json_encode($validateQR);
+        $encryptedPayload = Crypt::encryptString($jsonRaw);
+        
+        $payloadWrapper = [
+            'payload' => $encryptedPayload,
+            // Fallback fields mostly left empty for legacy scanners
+            'user_id' => null,
+            'date' => null,
+            'time' => null,
+            'status' => null,
+            'scanner' => null
+        ];
+
+        $json = json_encode($payloadWrapper);
         $QrCode = QrCode::size(400)->eye('circle')->generate($json);
 
         $getJadwalKegiatan = jadwalKegiatanAsrama::where('tanggal_kegiatan', Carbon::now()->format('Y-m-d'))
@@ -82,6 +95,20 @@ class QRController extends Controller
     // optimalisasi admin.kamera()
     public function presense(Request $request)
     {
+        if ($request->payload) {
+            try {
+                $decryptedJson = Crypt::decryptString($request->payload);
+                $payloadData = json_decode($decryptedJson, true);
+                if (is_array($payloadData)) {
+                    $request->merge($payloadData);
+                } else {
+                    return redirect(route('admin.kamera'))->with('error', 'Format QR Code tidak valid.');
+                }
+            } catch (\Exception $e) {
+                return redirect(route('admin.kamera'))->with('error', 'Kode QR tidak valid atau sudah kadaluarsa (Gagal Dekripsi).');
+            }
+        }
+
         if ($request->scanner == 'pelanggaran') {
             return redirect(route('admin.kamera'))->with('error', 'Anda Tidak Dapat Melakukan Pelanggaran Pada Scanner Presensi keluar masuk asrama');
         } else {
@@ -91,7 +118,7 @@ class QRController extends Controller
 
             $timeNow = Carbon::now();
             $timeDifference = $timeNow->diffInSeconds($parsedTime);
-            $maxDifference = 30000;
+            $maxDifference = 30;
 
             if ($timeDifference <= $maxDifference) {
                 $request = $oldRequest;
@@ -371,6 +398,20 @@ class QRController extends Controller
 
     public function presense2(Request $request)
     {
+        if ($request->payload) {
+            try {
+                $decryptedJson = Crypt::decryptString($request->payload);
+                $payloadData = json_decode($decryptedJson, true);
+                if (is_array($payloadData)) {
+                    $request->merge($payloadData);
+                } else {
+                    return redirect(route('admin.kamera'))->with('error', 'Format QR Code tidak valid.');
+                }
+            } catch (\Exception $e) {
+                return redirect(route('admin.kamera'))->with('error', 'Kode QR tidak valid atau sudah kadaluarsa (Gagal Dekripsi).');
+            }
+        }
+
         if ($request->scanner == 'pelanggaran') {
             return redirect(route('admin.kamera'))->with('error', 'Anda Tidak Dapat Melakukan Pelanggaran Pada Scanner Presensi keluar masuk asrama');
         } else {

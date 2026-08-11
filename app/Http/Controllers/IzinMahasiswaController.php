@@ -125,8 +125,13 @@ class IzinMahasiswaController extends Controller
         abort_unless($pengajuan->user_id === auth()->id(), 403);
         abort_unless(in_array($pengajuan->status, ['disetujui', 'berjalan', 'selesai']), 403, 'Surat izin belum disetujui.');
 
-        $pdfService = app(\App\Services\Izin\SuratIzinPdfService::class);
-        return $pdfService->generate($pengajuan);
+        $fileName = 'Surat_Izin_'.str_replace('/', '_', $pengajuan->nomor_surat ?? 'DRAFT').'.pdf';
+        
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists('izins/'.$fileName)) {
+            return response()->file(storage_path('app/public/izins/'.$fileName));
+        }
+
+        return back()->with('info', 'File Surat Izin sedang diproses oleh sistem (Background Job). Silakan tunggu beberapa saat dan coba lagi.');
     }
 
     public function batal(PengajuanIzin $pengajuan)
