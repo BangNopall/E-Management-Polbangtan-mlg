@@ -177,7 +177,7 @@
                 </form>
             </div>
             <!-- Export Laporan UKM Card -->
-            <div class="bg-white rounded-lg border-2 p-6 flex flex-col justify-between">
+            <div class="bg-white rounded-lg border-2 p-3 flex flex-col mt-5 justify-between w-full mx-auto sm:w-[90%]">
                 <div>
                     <h2 class="font-semibold text-lg border-b-2 pb-2">Laporan Presensi UKM</h2>
                     <div class="text-sm text-gray-700 mt-2">Export laporan presensi anggota UKM (PDF & Excel)</div>
@@ -203,7 +203,7 @@
                             </div>
                         </div>
                         <button type="submit" name="submit" value="pdf"
-                            class="bg-utama hover:bg-teal-700 text-white p-2 rounded flex items-center mb-2 w-full text-md justify-center text-center">
+                            class="bg-teal-900 hover:bg-teal-800 text-white p-2 rounded flex items-center w-full justify-center mb-2 text-md text-center">
                             <i class="ri-printer-fill mr-2"></i>
                             Generate PDF
                         </button>
