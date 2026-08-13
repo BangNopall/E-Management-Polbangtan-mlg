@@ -50,7 +50,6 @@ class ProfileController extends Controller
             'no_kamar' => 'required|numeric',
             'asal_daerah' => 'required|string|max:255',
             'foto-profil' => 'nullable|image|mimes:jpeg,png,jpg,webp,heic|max:5120',
-            // Tambahkan aturan validasi lainnya sesuai kebutuhan
         ]);
 
         // Temukan pengguna berdasarkan ID
