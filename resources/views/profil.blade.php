@@ -60,9 +60,6 @@
             <div class="flex justify-between items-center">
                 <h1 class="font-semibold text-lg mdtext-xl text-gray-800 uppercase mb-6 mt-3">
                     <i class="ri-account-box-line text-xl md:text-2xl mr-1 md:mr-2"></i>Pengaturan Profil
-                    @if ($user->role_id == 3)
-                        <div class="text-red-500 text-xs font-medium">*Kesempatan merubah profil hanya berlaku 1x.</div>
-                    @endif
                 </h1>
                 @include('partials.modals.profil')
                 <button type="button"
@@ -76,6 +73,7 @@
                 <div class="text-md text-gray-600 font-medium w-auto md:w-[400px]">
                     Foto Anda
                     <div class="text-sm font-normal text-gray-500">Akan ditampilkan di profil Anda</div>
+                    <div class="text-xs text-red-500">Ukuran Maksimum Foto <span class="font-bold">2MB</span></div>
                 </div>
                 <div class="flex flex-col items-center justify-center mt-3 md:mt-0">
                     <label for="foto-profil" class="cursor-pointer">
@@ -104,14 +102,14 @@
                 <div class="text-md text-gray-600 font-medium w-auto md:w-[400px]">
                     Nomor Induk Mahasiswa
                 </div>
-                <div class="flex flex-col md:flex-row w-auto md:w-[500px] mt-1 md:mt-0">
+                <div class="flex flex-col md:flex-row w-auto md:w-[500px] mt-1 md:mt-0 cursor-not-allowed">
                     <span
                         class="inline-flex items-center w-10 md:w-auto px-3 text-sm text-white bg-teal-900 border border-r-1 md:border-r-0 border-utama md:rounded-tl-md md:rounded-t-none rounded-t-md md:rounded-l-md">
                         <div class="text-text-md">ID</div>
                     </span>
-                    <input type="number" id="nim" name="nim"
+                    <input type="text" id="nim" name="nim"
                         class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5"
-                        placeholder="012143" value="{{ $user->nim }}">
+                        placeholder="012143" value="{{ $user->nim }}" {{ auth()->user()->role_id == 3 ? 'readonly' : '' }}>
                 </div>
             </div>
             <div class="border-b border-gray-300 my-3"></div>
@@ -140,14 +138,15 @@
                 <div class="text-md text-gray-600 font-medium w-auto md:w-[400px]">
                     Program Studi
                 </div>
-                <div class="flex flex-col md:flex-row w-auto md:w-[500px] mt-1 md:mt-0">
+                <div class="flex flex-col md:flex-row w-auto md:w-[500px] mt-1 md:mt-0 cursor-not-allowed">
                     <span
                         class="inline-flex items-center w-10 md:w-auto px-3 text-sm text-white bg-teal-900 border border-r-1 md:border-r-0 border-utama md:rounded-tl-md md:rounded-t-none rounded-t-md md:rounded-l-md">
                         <i class="ri-bookmark-line text-md text-white"></i>
                     </span>
-                    <select id="prodi_id" name="prodi_id"
-                        class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5">
-                        <option selected hidden>Pilih Program Studi</option>
+                    <select id="prodi_id" name="prodi_id_select"
+                        class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5"
+                        {{ auth()->user()->role_id == 3 ? 'disabled' : '' }}>
+                        <option hidden>Pilih Program Studi</option>
                         @foreach ($prodis as $prodi)
                             <option value="{{ $prodi->id }}"
                                 {{ old('prodi_id', $user->prodi_id) === $prodi->id ? 'selected' : '' }}>
@@ -321,7 +320,7 @@
                     </span>
                     <input type="number" id="no_hp" name="no_hp"
                         class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5"
-                        placeholder="08xxxx" value="{{ $user->no_hp }}">
+                        placeholder="08xxxx" required value="{{ $user->no_hp }}">
                 </div>
 
             </div>
@@ -340,7 +339,7 @@
                     </span>
                     <input type="email" id="email" name="email"
                         class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5"
-                        placeholder="example@gmail.com" value="{{ $user->email }}">
+                        placeholder="example@gmail.com" required value="{{ $user->email }}">
                 </div>
             </div>
 

@@ -29,12 +29,12 @@ class DashboardAdminController extends Controller
         $role_id = auth()->user()->role_id;
 
         if ($role_id == 2) {
-            $petugas = User::whereIn('role_id', [1, 2, 4])
+            $petugas = User::whereIn('role_id', [1, 2, 4, 5])
                 ->orderBy('role_id', 'asc')
                 ->select('id', 'name', 'email', 'role_id', 'image')
                 ->get();
         } else {
-            $petugas = User::whereIn('role_id', [1, 2, 4])
+            $petugas = User::whereIn('role_id', [1, 2, 4, 5])
                 ->with([
                     'roleId' => function ($query) {
                         $query->select('id', 'name');
@@ -383,7 +383,11 @@ class DashboardAdminController extends Controller
     public function downloadExcelTemplate()
     {
         $fileTemplate = public_path('excel/datauser-template.xlsx');
-        return response()->download($fileTemplate);
+        return response()->download($fileTemplate, 'datauser-template.xlsx', [
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0'
+        ]);
     }
 
     // { START OF UPGRADE CLASS SISTEM ADMIN }

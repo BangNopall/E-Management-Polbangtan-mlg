@@ -489,6 +489,57 @@
                 </div>
 
                 <div class="bg-white rounded-lg p-3 border-2 mt-3">
+                    <div class="text-lg font-medium mb-1">Riwayat Presensi UKM</div>
+                    <div class="text-xs text-gray-500 mb-2">Daftar kehadiran mahasiswa pada kegiatan UKM dinamis</div>
+                    <div class="border-b border-gray-300 my-1"></div>
+                    <div class="relative overflow-x-auto rounded mt-2">
+                        <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-teal-50 border-b">
+                                <tr>
+                                    <th scope="col" class="px-3 py-2">No</th>
+                                    <th scope="col" class="px-3 py-2">Nama UKM</th>
+                                    <th scope="col" class="px-3 py-2">Judul Kegiatan</th>
+                                    <th scope="col" class="px-3 py-2">Tanggal</th>
+                                    <th scope="col" class="px-3 py-2">Jam Scan</th>
+                                    <th scope="col" class="px-3 py-2">Status Kehadiran</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($presensiUkm as $pUkm)
+                                    <tr class="bg-white border-b hover:bg-gray-50">
+                                        <td class="px-3 py-2 font-medium text-gray-900">{{ $loop->iteration }}</td>
+                                        <td class="px-3 py-2 font-medium text-gray-900">{{ $pUkm->jadwal->ukm->nama ?? '-' }}</td>
+                                        <td class="px-3 py-2">{{ $pUkm->jadwal->judul ?? '-' }}</td>
+                                        <td class="px-3 py-2 whitespace-nowrap">
+                                            {{ $pUkm->jadwal->tanggal ? \Carbon\Carbon::parse($pUkm->jadwal->tanggal)->format('d M Y') : '-' }}
+                                        </td>
+                                        <td class="px-3 py-2 whitespace-nowrap">
+                                            {{ $pUkm->jam_scan ? \Carbon\Carbon::parse($pUkm->jam_scan)->format('H:i') : '-' }}
+                                        </td>
+                                        <td class="px-3 py-2">
+                                            @if ($pUkm->status_kehadiran === 'Hadir')
+                                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">Hadir</span>
+                                            @else
+                                                <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded">Alpha</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="px-3 py-4 text-center text-gray-500 text-xs">
+                                            Belum ada riwayat presensi UKM tercatat untuk mahasiswa ini.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-2">
+                        {{ $presensiUkm->links() }}
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-3 border-2 mt-3">
                     <div class="text-lg font-medium">Jumlah Kehadiran</div>
                     <div class="border-b border-gray-300 my-1"></div>
                     <div class="relative overflow-x-auto rounded mt-2">

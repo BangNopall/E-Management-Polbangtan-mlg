@@ -31,4 +31,22 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Konseling (E-Klinik SSO Handoff)
+    |--------------------------------------------------------------------------
+    |
+    | E-Management berperan sebagai Identity Provider untuk modul konseling
+    | yang tetap dijalankan di E-Klinik (lihat docs/adr/ADR-004). "url" adalah
+    | base URL E-Klinik, dan "secret" adalah kunci HMAC-SHA256 bersama untuk
+    | menandatangani tiket SSO. Keduanya wajib diisi lewat .env, tidak pernah
+    | di dalam kode.
+    |
+    */
+
+    'konseling' => [
+        'url' => env('KONSELING_URL'),
+        'secret' => env('KONSELING_SSO_SECRET'),
+    ],
+
 ];

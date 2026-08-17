@@ -1,0 +1,85 @@
+# Session: 2026-07-08
+
+**Started:** ~earlier
+**Last Updated:** now
+**Project:** E-Management Polbangtan-mlg (Laravel dormitory management system)
+**Topic:** Codebase analysis, CLAUDE.md creation, Laravel 12→13 upgrade research
+
+---
+
+## What We Are Building
+
+**E-Management Polbangtan-mlg** is a Laravel-based dormitory management system for Politeknik Pembangunan Pertanian Malang. It handles student dormitory attendance via QR code scanning, mandatory activity tracking (Apel, Senam, Upacara), disciplinary violation management, and staff duty scheduling.
+
+This session had three goals:
+1. Analyze the codebase and create a comprehensive `CLAUDE.md` for future Claude Code instances
+2. Research the Laravel 12 → 13 upgrade path using deep research workflows
+3. Save research results to `/tmp/research.md`
+
+---
+
+## What WORKED (with evidence)
+
+- **CLAUDE.md created** — confirmed by: file written at project root with full architecture documentation including role system, two parallel attendance systems, QR code flow, violation workflow, model relationships, frontend stack, and environment setup
+- **Deep research workflow completed** — confirmed by: workflow `wkh1mtrh9` finished with 100 agents, ~4.2M tokens consumed, 1038 tool uses, 7 high-confidence findings verified 3-0 via adversarial verification
+- **Research saved to `/tmp/research.md`** — confirmed by: file written with all findings, breaking changes, upgrade steps, and package compatibility analysis
+
+---
+
+## What Did NOT Work (and why)
+
+- No failed approaches this session — all tasks completed successfully on first attempt.
+
+---
+
+## What Has NOT Been Tried Yet
+
+- **Actual Laravel 12 → 13 upgrade** — researched but not executed. User still needs to run `composer update` with changed dependencies and update CSRF middleware references.
+- **PHP 8.3 environment check** — project requires `^8.2.20`, upgrade to L13 needs PHP 8.3 minimum. Need to verify the server environment.
+
+---
+
+## Current State of Files
+
+| File | Status | Notes |
+| --- | --- | --- |
+| `CLAUDE.md` | PASS: Complete | Full project architecture documentation for future Claude Code sessions |
+| `/tmp/research.md` | PASS: Complete | Laravel 12→13 upgrade research with sources, breaking changes, and compatibility matrix |
+| `composer.json` | Not Started | Needs `laravel/framework` from `^12.0` to `^13.0`, `laravel/tinker` to `^3.0`, etc. |
+| `bootstrap/app.php` | Not Started | Needs CSRF middleware rename if `VerifyCsrfToken` is referenced |
+
+---
+
+## Decisions Made
+
+- **Deep research over web search** — reason: Laravel 13 was released very recently (March 2026), so multi-source verification with adversarial fact-checking was warranted to avoid outdated or incorrect upgrade advice
+- **Research first, upgrade later** — reason: understanding breaking changes before touching production dependencies reduces risk
+
+---
+
+## Blockers & Open Questions
+
+- PHP 8.3 requirement: is the current development/production environment running PHP ≥ 8.3?
+- `maatwebsite/excel` compatibility with Laravel 13 needs verification during composer update
+- `nunomaduro/collision` version compatibility may need bumping
+
+---
+
+## Exact Next Step
+
+Run the Laravel 13 upgrade:
+1. Update `composer.json`: `laravel/framework` to `^13.0`, `laravel/tinker` to `^3.0`
+2. Check CSRF middleware in `bootstrap/app.php` or `app/Http/Middleware/VerifyCsrfToken.php` for the rename to `PreventRequestForgery`
+3. Run `composer update`
+4. Run `php artisan test` to verify nothing broke
+5. Commit changes
+
+---
+
+## Environment & Setup Notes
+
+Standard Laravel setup:
+- `composer.json` specifies PHP `^8.2.20`
+- MySQL database required
+- Vite-based frontend build with Tailwind CSS v4
+- Session lifetime set to 525,600 minutes (1 year) intentionally

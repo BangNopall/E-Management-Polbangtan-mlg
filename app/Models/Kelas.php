@@ -9,7 +9,7 @@ class Kelas extends Model
 {
     use HasFactory;
 
-    protected $protected = ['id'];
+    protected $guarded = ['id'];
 
     public function Prodi()
     {
@@ -19,5 +19,10 @@ class Kelas extends Model
     public function levelKelas()
     {
         return $this->belongsTo(LevelKelas::class, 'level_kelas_id');
+    }
+
+    public function dosenPa()
+    {
+        return $this->belongsTo(User::class, 'dosen_pa_id');
     }
 }

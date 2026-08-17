@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class LevelKelas extends Model
 {
     use HasFactory;
+
+    protected $guarded = ['id'];
 }

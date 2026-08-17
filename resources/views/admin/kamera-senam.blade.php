@@ -87,6 +87,7 @@
     </div>
     <form action="{{ route('admin.kameraKegiatanSenamApi') }}" method="post" id="form">
         @csrf
+        <input type="hidden" name="payload" id="payload">
         <input type="hidden" name="user_id" id="user_id">
         <input type="hidden" name="date" id="date">
         <input type="hidden" name="time" id="time">

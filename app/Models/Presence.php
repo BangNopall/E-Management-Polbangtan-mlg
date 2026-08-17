@@ -9,7 +9,6 @@ class Presence extends Model
 {
     use HasFactory;
 
-    protected $guarded = [''];
     // fillable
     protected $fillable = ['user_id', 'attendance_id', 'presence_date', 'presence_masuk', 'presence_keluar', 'log_status'];
 

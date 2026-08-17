@@ -4,12 +4,13 @@ namespace App\Imports;
 
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Illuminate\Support\Facades\Hash;
 
-class UsersImport implements ToModel
+class UsersImport implements ToModel, WithBatchInserts, WithChunkReading, WithStartRow
 {
-    private $row = 0; // Counter to track the row number
-
     /**
      * @param array $row
      *
@@ -17,20 +18,34 @@ class UsersImport implements ToModel
      */
     public function model(array $row)
     {
-        $this->row++; // Increment the row counter
+        if (empty($row[0])) return null;
 
-        // Skip the first row
-        if ($this->row === 1) {
-            return null;
-        }
+        $nim = $row[0];
+        $email = !empty($row[3]) ? $row[3] : str_replace('.', '', $nim) . '@ganti.email';
 
         return new User([
-            'name' => $row[0], // Assuming the first column is 'name'
-            'email' => $row[1], // Assuming the second column is 'email'
-            'password' => Hash::make("password"), // Assuming the third column is 'password'
-            'role_id' => 3, // Assuming the fourth column is 'role
-            'status' => 'didalam', // Assuming the fifth column is 'status
-            // Add more attributes as needed based on your Excel columns
+            'nim' => $nim,
+            'name' => $row[1] ?? 'Unknown',
+            'prodi_id' => $row[2] ?? null,
+            'email' => $email,
+            'password' => Hash::make("password"), 
+            'role_id' => 3, 
+            'status' => 'didalam',
         ]);
+    }
+
+    public function batchSize(): int
+    {
+        return 100;
+    }
+
+    public function chunkSize(): int
+    {
+        return 100;
+    }
+
+    public function startRow(): int
+    {
+        return 2;
     }
 }

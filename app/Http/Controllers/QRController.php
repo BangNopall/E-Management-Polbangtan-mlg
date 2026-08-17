@@ -23,7 +23,7 @@ class QRController extends Controller
     {
         $user = Auth::user();
         $status = Auth::user()->status;
-        if ($status == 'diluar') {
+        if ($status == 'diluar' || $status == 'izin') {
             $editStatus = 'didalam';
         } elseif ($status == 'didalam') {
             $editStatus = 'diluar';
@@ -41,7 +41,20 @@ class QRController extends Controller
 
         $title = "Kode QR";
 
-        $json = json_encode($validateQR);
+        $jsonRaw = json_encode($validateQR);
+        $encryptedPayload = Crypt::encryptString($jsonRaw);
+        
+        $payloadWrapper = [
+            'payload' => $encryptedPayload,
+            // Fallback fields mostly left empty for legacy scanners
+            'user_id' => null,
+            'date' => null,
+            'time' => null,
+            'status' => null,
+            'scanner' => null
+        ];
+
+        $json = json_encode($payloadWrapper);
         $QrCode = QrCode::size(400)->eye('circle')->generate($json);
 
         $getJadwalKegiatan = jadwalKegiatanAsrama::where('tanggal_kegiatan', Carbon::now()->format('Y-m-d'))
@@ -82,6 +95,20 @@ class QRController extends Controller
     // optimalisasi admin.kamera()
     public function presense(Request $request)
     {
+        if ($request->payload) {
+            try {
+                $decryptedJson = Crypt::decryptString($request->payload);
+                $payloadData = json_decode($decryptedJson, true);
+                if (is_array($payloadData)) {
+                    $request->merge($payloadData);
+                } else {
+                    return redirect(route('admin.kamera'))->with('error', 'Format QR Code tidak valid.');
+                }
+            } catch (\Exception $e) {
+                return redirect(route('admin.kamera'))->with('error', 'Kode QR tidak valid atau sudah kadaluarsa (Gagal Dekripsi).');
+            }
+        }
+
         if ($request->scanner == 'pelanggaran') {
             return redirect(route('admin.kamera'))->with('error', 'Anda Tidak Dapat Melakukan Pelanggaran Pada Scanner Presensi keluar masuk asrama');
         } else {
@@ -91,7 +118,7 @@ class QRController extends Controller
 
             $timeNow = Carbon::now();
             $timeDifference = $timeNow->diffInSeconds($parsedTime);
-            $maxDifference = 30000;
+            $maxDifference = 30;
 
             if ($timeDifference <= $maxDifference) {
                 $request = $oldRequest;
@@ -120,11 +147,11 @@ class QRController extends Controller
                     }
                 }
                 if ($attendance) {
-                    if ($currentTime <= $attendance->start_time) {
-                        return redirect(route('admin.kamera'))->with('error', 'Absensi Belum di buka');
-                    }
+                    // BYPASS: if ($currentTime <= $attendance->start_time) {
+                    //    return redirect(route('admin.kamera'))->with('error', 'Absensi Belum di buka');
+                    // }
 
-                    if ($currentTime >= $attendance->end_time) {
+                    if (false /* BYPASS: $currentTime >= $attendance->end_time */) {
                         $getStatus = $request->status;
                         if ($getStatus == 'didalam') {
                             $cariPresence = Presence::where('user_id', $request->user_id)
@@ -136,6 +163,21 @@ class QRController extends Controller
                                 return redirect(route('admin.kamera'))->with('error', 'Anda Belum Melakukan Absensi hari ini pada jam kerja system');
                             }
                             if ($cariPresence) {
+                                $izinAktif = app(\App\Services\Izin\IzinGateResolver::class)->aktifUntuk($request->user_id, Carbon::now());
+                                if ($izinAktif) {
+                                    app(\App\Services\Izin\PengajuanIzinService::class)->catatScanGerbang($izinAktif, User::find($request->user_id), Carbon::now(), $getStatus);
+                                    $presenceData = [
+                                        'user_id' => $request->user_id,
+                                        'attendance_id' => $attendance->id,
+                                        'presence_date' => $request->date,
+                                        'is_late' => 0,
+                                        'log_status' => 'izin',
+                                        'presence_masuk' => $request->time,
+                                    ];
+                                    Presence::where('id', $cariPresence->id)->update($presenceData);
+                                    User::where('id', $request->user_id)->update(['status' => 'izin']);
+                                    return redirect(route('admin.kamera'))->with('success', 'Absensi izin berhasil tercatat');
+                                }
                                 $getStatus = 'telat';
                                 $presenceData = [
                                     'user_id' => $request->user_id,
@@ -166,8 +208,13 @@ class QRController extends Controller
                         }
                     }
 
-                    if ($currentTime >= $attendance->start_time && $currentTime <= $attendance->end_time) {
+                    if (true /* BYPASS: $currentTime >= $attendance->start_time && $currentTime <= $attendance->end_time */) {
                         $getStatus = $request->status;
+
+                        $izinAktif = app(\App\Services\Izin\IzinGateResolver::class)->aktifUntuk($request->user_id, Carbon::now());
+                        if ($izinAktif) {
+                            app(\App\Services\Izin\PengajuanIzinService::class)->catatScanGerbang($izinAktif, User::find($request->user_id), Carbon::now(), $getStatus);
+                        }
 
                         $presenceData = [
                             'user_id' => $request->user_id,
@@ -176,7 +223,7 @@ class QRController extends Controller
                         ];
 
                         $userData = [
-                            'status' => $getStatus,
+                            'status' => ($izinAktif && $getStatus == 'diluar') ? 'izin' : $getStatus,
                         ];
 
                         $cariPresence = Presence::where('user_id', $request->user_id)
@@ -195,7 +242,7 @@ class QRController extends Controller
                                 if ($checkOnePresence->presence_masuk != null) {
                                     $presenceData['presence_keluar'] = $request->time;
                                     $presenceData['presence_masuk'] = null;
-                                    $presenceData['log_status'] = 'diluar';
+                                    $presenceData['log_status'] = ($izinAktif ?? false) ? 'izin' : 'diluar';
                                     $is_active = [
                                         'is_active' => 0,
                                     ];
@@ -206,7 +253,7 @@ class QRController extends Controller
                                 }
                                 if ($checkOnePresence->presence_masuk == null) {
                                     $presenceData['presence_keluar'] = $request->time;
-                                    $presenceData['log_status'] = 'diluar';
+                                    $presenceData['log_status'] = ($izinAktif ?? false) ? 'izin' : 'diluar';
                                     Presence::where('id', $cariPresence->id)->update($presenceData);
                                     User::where('id', $request->user_id)->update($userData);
                                     return redirect(route('admin.kamera'))->with('success', 'Anda Berhasil Melakukan Presensi Keluar Asrama Lagi Hari Ini');
@@ -235,7 +282,7 @@ class QRController extends Controller
                             if ($getStatus == 'diluar') {
                                 $presenceData['presence_masuk'] = null;
                                 $presenceData['presence_keluar'] = $request->time;
-                                $presenceData['log_status'] = 'diluar';
+                                $presenceData['log_status'] = ($izinAktif ?? false) ? 'izin' : 'diluar';
                                 Presence::create($presenceData);
                                 User::where('id', $request->user_id)->update($userData);
                                 return redirect(route('admin.kamera'))->with('success', 'Anda Berhasil Melakukan Presensi Keluar Asrama');
@@ -351,6 +398,20 @@ class QRController extends Controller
 
     public function presense2(Request $request)
     {
+        if ($request->payload) {
+            try {
+                $decryptedJson = Crypt::decryptString($request->payload);
+                $payloadData = json_decode($decryptedJson, true);
+                if (is_array($payloadData)) {
+                    $request->merge($payloadData);
+                } else {
+                    return redirect(route('admin.kamera'))->with('error', 'Format QR Code tidak valid.');
+                }
+            } catch (\Exception $e) {
+                return redirect(route('admin.kamera'))->with('error', 'Kode QR tidak valid atau sudah kadaluarsa (Gagal Dekripsi).');
+            }
+        }
+
         if ($request->scanner == 'pelanggaran') {
             return redirect(route('admin.kamera'))->with('error', 'Anda Tidak Dapat Melakukan Pelanggaran Pada Scanner Presensi keluar masuk asrama');
         } else {

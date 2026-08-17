@@ -6,24 +6,21 @@ const qrCodeSuccessCallback = (e, t) => {
     let a = JSON.parse(e);
     beepSound.play(),
         qrCodeReader.stop(),
-        (document.getElementById("user_id").value = a.user_id),
-        (document.getElementById("date").value = a.date),
-        (document.getElementById("time").value = a.time),
-        (document.getElementById("scanner").value = a.scanner),
-        (document.getElementById("status").value = a.status),
+        (document.getElementById("payload").value = a.payload),
         document.getElementById("form").submit();
 };
 qrCodeReader.start({ facingMode: "user" }, config, qrCodeSuccessCallback),
     Html5Qrcode.getCameras()
         .then((e) => {
             e &&
-                e.length > 1 &&
+                e.length > 0 &&
                 (e.forEach((e) => {
                     let t = document.createElement("option");
                     (t.value = e.id),
                         (t.text = e.label || `Camera ${e.id}`),
                         cameraSelect.appendChild(t);
                 }),
+                (cameraSelect.disabled = !1),
                 cameraSelect.addEventListener("change", function () {
                     let e = cameraSelect.value;
                     btnstop.classList.remove("bg-gray-500"),

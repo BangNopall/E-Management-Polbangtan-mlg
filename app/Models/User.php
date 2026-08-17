@@ -23,6 +23,7 @@ class User extends Authenticatable
     const OPERATOR_ROLE_ID = 2;
     const USER_ROLE_ID = 3;
     const PELATIH_ROLE_ID = 4;
+    const PEMBINA_ROLE_ID = 5;
 
     /**
      * The attributes that are mass assignable.
@@ -45,6 +46,7 @@ class User extends Authenticatable
         'point',
         'kelas_id',
         'blok_ruangan_id',
+        'prodi_id',
     ];
 
     /**
@@ -141,5 +143,22 @@ class User extends Authenticatable
     public function isPelatih()
     {
         return $this->role_id === self::PELATIH_ROLE_ID;
+    }
+
+    public function isPembina()
+    {
+        return $this->role_id === self::PEMBINA_ROLE_ID;
+    }
+
+    public function ukmMemberships()
+    {
+        return $this->hasMany(UkmMember::class);
+    }
+
+    public function ukms()
+    {
+        return $this->belongsToMany(Ukm::class, 'ukm_members')
+            ->withPivot('peran', 'status')
+            ->withTimestamps();
     }
 }

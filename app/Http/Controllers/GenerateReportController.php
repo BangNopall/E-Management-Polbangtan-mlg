@@ -42,12 +42,11 @@ class GenerateReportController extends Controller
             'Apel',
             'Senam',
         ];
-
-        // dd($kelas);
+        $ukms = \App\Models\Ukm::where('is_active', true)->get();
 
         $title = "Generate Report";
 
-        return view('admin.generate', compact('blok', 'title', 'kelas', 'prodi', 'kegiatanAsrama'));
+        return view('admin.generate', compact('blok', 'title', 'kelas', 'prodi', 'kegiatanAsrama', 'ukms'));
     }
 
     public function pdfReport(Request $request)
@@ -675,5 +674,63 @@ class GenerateReportController extends Controller
                 });
             });
         return $getPresensiSenam;
+    }
+
+    public function generateLaporanUkm(Request $request)
+    {
+        $request->validate([
+            'ukm_id' => 'required',
+            'submit' => 'required|in:pdf,excel',
+        ]);
+
+        $ukmId = $request->ukm_id;
+        $ukmNama = 'Semua UKM';
+
+        $query = \App\Models\UkmPresensi::with(['user.kelas', 'user.prodi', 'jadwal.ukm'])
+            ->whereHas('jadwal', function ($q) use ($ukmId) {
+                $q->where('status_verifikasi', 'disetujui');
+                if ($ukmId !== 'all') {
+                    $q->where('ukm_id', $ukmId);
+                }
+            });
+
+        if ($ukmId !== 'all') {
+            $targetUkm = \App\Models\Ukm::find($ukmId);
+            if ($targetUkm) {
+                $ukmNama = $targetUkm->nama;
+            }
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereHas('jadwal', function ($q) use ($request) {
+                $q->whereBetween('tanggal', [$request->start_date, $request->end_date]);
+            });
+        }
+
+        $startDateStr = $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->translatedFormat('d F Y') : '-';
+        $endDateStr = $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->translatedFormat('d F Y') : '-';
+
+        $presensis = $query->get();
+
+        if ($request->submit === 'pdf') {
+            $pdf = Pdf::loadView('admin.generate.generate-ukm-pdf', compact('presensis', 'ukmNama', 'startDateStr', 'endDateStr'))->setPaper('a4', 'portrait');
+            $fileName = 'Laporan-Presensi-UKM-' . \Illuminate\Support\Str::slug($ukmNama) . '.pdf';
+            $storagePath = public_path('pdf');
+
+            if (!file_exists($storagePath)) {
+                mkdir($storagePath, 0777, true);
+            }
+
+            $pdf->save($storagePath . '/' . $fileName);
+            return redirect(asset('pdf/' . $fileName));
+        }
+
+        if ($request->submit === 'excel') {
+            $fileName = 'Laporan-Presensi-UKM-' . \Illuminate\Support\Str::slug($ukmNama) . '.xlsx';
+            Excel::store(new \App\Exports\LaporanUkmExport($presensis, $ukmNama, $startDateStr, $endDateStr), $fileName, 'publicnew', ExcelExcel::XLSX);
+            return redirect(asset('excel/' . $fileName));
+        }
+
+        return redirect()->back()->with('error', 'Format ekspor tidak valid.');
     }
 }

@@ -1,3 +1,49 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "flowbite/src/themes/default";
+@import "choices.js/public/assets/styles/choices.min.css";
+@plugin "flowbite/plugin";
+@source "../../node_modules/flowbite";
+
+@source "../**/*.blade.php";
+@source "../**/*.js";
+@source "../**/*.vue";
+
+/* 2. Pengganti 'theme.extend' */
+@theme {
+  /* Font Family */
+  --font-roboto: 'Roboto';
+  --font-inter: 'Poppins', sans-serif;
+
+  /* Colors */
+  --color-utama: #277471;
+
+  /* Background Images */
+  --background-image-select-arrow: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTExLjk5OTcgMTMuMTcxNEwxNi45NDk1IDguMjIxNjhMMTguMzYzNyA5LjYzNTg5TDExLjk5OTcgMTUuOTk5OUw1LjYzNTc0IDkuNjM1ODlMNy4wNDk5NiA4LjIyMTY4TDExLjk5OTcgMTMuMTcxNFoiIGZpbGw9InJnYmEoMTU2LDE2MywxNzUsMSkiPjwvcGF0aD48L3N2Zz4=");
+}
+/* Custom Styles from main.css */
+.inner-sdw {
+    box-shadow: inset 0 0 15px #153c3b;
+}
+
+.div-shadow-kodeqr {
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.75);
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 5px;
+    background: #9f9f9f;
+    border-radius: 12px;
+}
+::-webkit-scrollbar-track {
+    background: #9f9f9f;
+    border-radius: 15px;
+}
+::-webkit-scrollbar-thumb {
+    background: #153c3b;
+    border-radius: 10px;
+}
+
+video {
+    width: 500px;
+}
