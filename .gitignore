@@ -21,3 +21,4 @@ yarn-error.log
 laravel_releases.html
 datauserpolbangtan.xlsx
 datauserpolbangtan.sql
+.env.prod

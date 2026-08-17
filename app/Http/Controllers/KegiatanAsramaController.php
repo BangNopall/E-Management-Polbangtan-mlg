@@ -14,7 +14,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use App\Models\jadwalKegiatanAsrama;
 
-class kegiatanAsramaController extends Controller
+class KegiatanAsramaController extends Controller
 {
 
     public function jadwalKegiatanShow()
