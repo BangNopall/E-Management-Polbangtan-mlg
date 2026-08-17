@@ -319,7 +319,7 @@
                     </span>
                     <input type="number" id="no_hp" name="no_hp"
                         class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5"
-                        placeholder="08xxxx" value="{{ $user->no_hp }}">
+                        placeholder="08xxxx" required value="{{ $user->no_hp }}">
                 </div>
 
             </div>
@@ -338,7 +338,7 @@
                     </span>
                     <input type="email" id="email" name="email"
                         class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5"
-                        placeholder="example@gmail.com" value="{{ $user->email }}">
+                        placeholder="example@gmail.com" required value="{{ $user->email }}">
                 </div>
             </div>
 
