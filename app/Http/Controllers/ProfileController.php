@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\blokRuangan;
+use App\Models\BlokRuangan;
 use App\Models\Kelas;
-use App\Models\prodi;
+use App\Models\Prodi;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -29,8 +29,8 @@ class ProfileController extends Controller
     public function profil()
     {
         $user = auth()->user();
-        $blocks = blokRuangan::all();
-        $prodis = prodi::all();
+        $blocks = BlokRuangan::all();
+        $prodis = Prodi::all();
         $kelas = Kelas::all();
 
         $title = 'Profil';

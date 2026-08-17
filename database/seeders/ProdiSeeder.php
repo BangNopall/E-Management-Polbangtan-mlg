@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\prodi;
+use App\Models\Prodi;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -16,13 +16,13 @@ class ProdiSeeder extends Seeder
      */
     public function run()
     {
-        prodi::create([
+        Prodi::create([
             'prodi' => 'PPB',
         ]);
-        prodi::create([
+        Prodi::create([
             'prodi' => 'PPKH',
         ]);
-        prodi::create([
+        Prodi::create([
             'prodi' => 'Agrinak',
         ]);
     }

@@ -6,7 +6,7 @@ use LDAP\Result;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Kelas;
-use App\Models\blokRuangan;
+use App\Models\BlokRuangan;
 use App\Models\Pelanggaran;
 use Illuminate\Http\Request;
 use App\Models\JenisPelanggaran;
@@ -561,7 +561,7 @@ class PelanggaranController extends Controller
     public function laporanPelanggaranOpen($id)
     {
         $data = Pelanggaran::where('id', $id)->first();
-        $blok = blokRuangan::where('id', $data->user->blok_ruangan_id)
+        $blok = BlokRuangan::where('id', $data->user->blok_ruangan_id)
             ->select('name')
             ->first();
         if ($blok == null) {

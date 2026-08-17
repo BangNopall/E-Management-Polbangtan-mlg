@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\blokRuangan;
+use App\Models\BlokRuangan;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -16,19 +16,19 @@ class BlokRuanganSeeder extends Seeder
      */
     public function run()
     {
-        blokRuangan::create([
+        BlokRuangan::create([
             'name' => 'A',
         ]);
-        blokRuangan::create([
+        BlokRuangan::create([
             'name' => 'B',
         ]);
-        blokRuangan::create([
+        BlokRuangan::create([
             'name' => 'C',
         ]);
-        blokRuangan::create([
+        BlokRuangan::create([
             'name' => 'D',
         ]);
-        blokRuangan::create([
+        BlokRuangan::create([
             'name' => 'E',
         ]);
     }

@@ -3,12 +3,12 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\jadwalKegiatanAsrama;
+use App\Models\JadwalKegiatanAsrama;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\jadwalKegiatanAsrama>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\JadwalKegiatanAsrama>
  */
-class jadwalKegiatanAsramaFactory extends Factory
+class JadwalKegiatanAsramaFactory extends Factory
 {
     /**
      * Define the model's default state.

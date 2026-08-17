@@ -13,7 +13,7 @@ class PresensiSenam extends Model
 
     public function jadwalKegiatanAsrama()
     {
-        return $this->belongsTo(jadwalKegiatanAsrama::class , 'jadwalKegiatanAsrama_id');
+        return $this->belongsTo(JadwalKegiatanAsrama::class , 'jadwalKegiatanAsrama_id');
     }
 
     public function user()

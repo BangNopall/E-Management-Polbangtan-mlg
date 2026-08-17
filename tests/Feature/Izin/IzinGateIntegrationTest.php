@@ -5,7 +5,7 @@ namespace Tests\Feature\Izin;
 use App\Models\Attendance;
 use App\Models\BlokRuangan;
 use App\Models\IzinWorkflowStep;
-use App\Models\jadwalKegiatanAsrama;
+use App\Models\JadwalKegiatanAsrama;
 use App\Models\JenisIzin;
 use App\Models\JenisPelanggaran;
 use App\Models\Kelas;
@@ -195,7 +195,7 @@ class IzinGateIntegrationTest extends TestCase
         $studentAlpha = $this->student;
 
         // Buat jadwal kegiatan wajib Apel untuk besok
-        $jadwal = jadwalKegiatanAsrama::create([
+        $jadwal = JadwalKegiatanAsrama::create([
             'blok_id' => $this->blok->id,
             'jenis_kegiatan' => 'Apel',
             'tanggal_kegiatan' => $now->copy()->addDay()->toDateString(),

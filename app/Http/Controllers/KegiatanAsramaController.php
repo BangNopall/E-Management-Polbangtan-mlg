@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\User;
-use App\Models\blokRuangan;
+use App\Models\BlokRuangan;
 use Illuminate\Support\Arr;
 use App\Models\PresensiApel;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ use App\Models\PresensiSenam;
 use App\Models\PresensiUpacara;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
-use App\Models\jadwalKegiatanAsrama;
+use App\Models\JadwalKegiatanAsrama;
 
 class KegiatanAsramaController extends Controller
 {
@@ -26,7 +26,7 @@ class KegiatanAsramaController extends Controller
         $daftarJadwalKegiatanAsrama->each(function ($kegiatan) {
             $kegiatan->formatted_date = Carbon::parse($kegiatan->tanggal_kegiatan)->format('d F Y');
         });
-        $blokRuangan = blokRuangan::all();
+        $blokRuangan = BlokRuangan::all();
         $kegiatanAsrama = ['Apel', 'Upacara', 'Senam'];
         $statusKehadiran = ['Hadir', 'Izin', 'Alpha'];
 
@@ -610,7 +610,7 @@ class KegiatanAsramaController extends Controller
             'jenis_kegiatan' => 'required',
             'checkBoxIDJadwalKegiatan' => 'nullable'
         ]);
-        $dataFilterKegiatanByBlok = jadwalKegiatanAsrama::where('tanggal_kegiatan', $request->tanggal_kegiatan)
+        $dataFilterKegiatanByBlok = JadwalKegiatanAsrama::where('tanggal_kegiatan', $request->tanggal_kegiatan)
             ->Where('blok_id', $request->blok_id)
             ->Where('jenis_kegiatan', $request->jenis_kegiatan)
             ->get();
@@ -652,7 +652,7 @@ class KegiatanAsramaController extends Controller
             } elseif ($request->jenis_kegiatan == 'Senam') {
                 $selectdb = 'presensi_senams';
             }
-            $getJadwal = jadwalKegiatanAsrama::where('tanggal_kegiatan', $request->tanggal_kegiatan)
+            $getJadwal = JadwalKegiatanAsrama::where('tanggal_kegiatan', $request->tanggal_kegiatan)
                 ->where('blok_id', $request->blok_id)
                 ->where('jenis_kegiatan', $request->jenis_kegiatan)
                 ->with('blokRuangan')
@@ -682,7 +682,7 @@ class KegiatanAsramaController extends Controller
     }
     private function createCheckBoxEditJadwalKegiatanByBlok($request, $selectdb, $checkBoxIDJadwalKegiatan)
     {
-        $getJadwalHasMany = jadwalKegiatanAsrama::whereIn('id', $checkBoxIDJadwalKegiatan)
+        $getJadwalHasMany = JadwalKegiatanAsrama::whereIn('id', $checkBoxIDJadwalKegiatan)
             ->where('blok_id', $request->blok_id)
             ->where('jenis_kegiatan', $request->jenis_kegiatan)
             ->with('blokRuangan')

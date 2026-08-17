@@ -5,7 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Role;
 use App\Models\Kelas;
-use App\Models\prodi;
+use App\Models\Prodi;
 use App\Models\Presence;
 use App\Models\JenisKelas;
 use App\Models\LevelKelas;
@@ -113,11 +113,11 @@ class User extends Authenticatable
 
     public function blok()
     {
-        return $this->belongsTo(blokRuangan::class, 'blok_ruangan_id');
+        return $this->belongsTo(BlokRuangan::class, 'blok_ruangan_id');
     }
     public function prodi()
     {
-        return $this->belongsTo(prodi::class, 'prodi_id');
+        return $this->belongsTo(Prodi::class, 'prodi_id');
     }
 
     public function scopeOnlyEmployees($query)

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BlokRuangan;
 use App\Models\Pejabat;
-use App\Models\prodi;
+use App\Models\Prodi;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -18,7 +18,7 @@ class PejabatController extends Controller
             ->select('id', 'name', 'email', 'role_id')
             ->orderBy('name', 'asc')
             ->get();
-        $prodis = prodi::orderBy('prodi', 'asc')->get();
+        $prodis = Prodi::orderBy('prodi', 'asc')->get();
         $bloks = BlokRuangan::orderBy('name', 'asc')->get();
         $title = "Data Pejabat";
 

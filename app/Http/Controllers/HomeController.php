@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 
-use App\Models\jadwalKegiatanAsrama;
+use App\Models\JadwalKegiatanAsrama;
 use App\Models\PresensiApel;
 use App\Models\PresensiSenam;
 use App\Models\PresensiUpacara;
@@ -95,7 +95,7 @@ class HomeController extends Controller
                 $query->whereDate('tanggal_kegiatan', '<=', $today);
             })
             ->orderByDesc(
-                jadwalKegiatanAsrama::select('tanggal_kegiatan')
+                JadwalKegiatanAsrama::select('tanggal_kegiatan')
                     ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_upacaras.jadwalKegiatanAsrama_id')
             )
             ->get();

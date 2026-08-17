@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\jadwalKegiatanAsrama;
+use App\Models\JadwalKegiatanAsrama;
 use App\Models\PresensiApel;
 use App\Models\PresensiUpacara;
 use Carbon\Carbon;
@@ -57,7 +57,7 @@ class QRController extends Controller
         $json = json_encode($payloadWrapper);
         $QrCode = QrCode::size(400)->eye('circle')->generate($json);
 
-        $getJadwalKegiatan = jadwalKegiatanAsrama::where('tanggal_kegiatan', Carbon::now()->format('Y-m-d'))
+        $getJadwalKegiatan = JadwalKegiatanAsrama::where('tanggal_kegiatan', Carbon::now()->format('Y-m-d'))
             ->where('blok_id', $user->blok_ruangan_id)
             ->select('id', 'jenis_kegiatan', 'mulai_acara', 'selesai_acara')
             ->get();

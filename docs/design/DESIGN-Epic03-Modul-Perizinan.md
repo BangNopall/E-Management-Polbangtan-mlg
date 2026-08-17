@@ -898,7 +898,7 @@ untuk setiap jadwalKegiatanAsrama & ukm_jadwal milik mahasiswa
 Dua titik pemanggilan, keduanya perlu:
 
 - **Saat izin disetujui** — untuk jadwal yang sudah dibuat sebelumnya.
-- **Saat jadwal dibuat** (`UkmJadwalController::store`, `kegiatanAsramaController::createJadwalKegiatanStore`) —
+- **Saat jadwal dibuat** (`UkmJadwalController::store`, `KegiatanAsramaController::createJadwalKegiatanStore`) —
   untuk jadwal yang dibuat setelah izin disetujui. Fan-out yang sekarang menulis `'Alpha'` secara
   buta; tambahkan pengecekan izin aktif.
 

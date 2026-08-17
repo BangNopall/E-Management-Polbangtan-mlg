@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Kelas;
 use App\Models\LevelKelas;
-use App\Models\prodi;
+use App\Models\Prodi;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -23,7 +23,7 @@ class KelasSeeder extends Seeder
         LevelKelas::create(['nama_level_kelas' => 'C']);
 
         // Seeder untuk Kelas
-        foreach (prodi::all() as $prodis) {
+        foreach (Prodi::all() as $prodis) {
             foreach (LevelKelas::all() as $levelKelas) {
                 for ($i = 1; $i <= 4; $i++) {
                     Kelas::create([

@@ -9,9 +9,9 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Kelas;
 
-use App\Models\prodi;
+use App\Models\Prodi;
 use App\Models\Presence;
-use App\Models\blokRuangan;
+use App\Models\BlokRuangan;
 use App\Models\Pelanggaran;
 use Illuminate\Http\Request;
 use App\Exports\laporanAbsen;
@@ -21,7 +21,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\JenisPelanggaran;
 use Illuminate\Routing\Controller;
 use App\Models\KategoriPelanggaran;
-use App\Models\jadwalKegiatanAsrama;
+use App\Models\JadwalKegiatanAsrama;
 use BaconQrCode\Renderer\Path\Move;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Excel as ExcelExcel;
@@ -31,11 +31,11 @@ class GenerateReportController extends Controller
 {
     public function index()
     {
-        $blok = blokRuangan::all();
+        $blok = BlokRuangan::all();
 
         $kelas = kelas::select('id', 'kelas')
             ->get()->groupBy('kelas');
-        $prodi = prodi::select('id', 'prodi')
+        $prodi = Prodi::select('id', 'prodi')
             ->get();
         $kegiatanAsrama = [
             'Upacara',
@@ -124,9 +124,9 @@ class GenerateReportController extends Controller
         ]);
 
         // dd($request->all());
-        $namaProdi = prodi::where('id', $request->prodi)->first('prodi')->prodi;
+        $namaProdi = Prodi::where('id', $request->prodi)->first('prodi')->prodi;
         $zip = new ZipArchive;
-        $kelasPath = public_path('pelanggaran/pdf/kelas-' . $request->kelas . '-' . prodi::where('id', $request->prodi)->first('prodi')->prodi);
+        $kelasPath = public_path('pelanggaran/pdf/kelas-' . $request->kelas . '-' . Prodi::where('id', $request->prodi)->first('prodi')->prodi);
         $zipPath = $kelasPath . '/kelas-' . $request->kelas . '-' . $namaProdi . '_Laporan-Pelanggaran-Polbangtan-MLG' . '.zip';
         // Membuat folder jika belum ada
         if (!file_exists($kelasPath)) {
@@ -349,7 +349,7 @@ class GenerateReportController extends Controller
             if ($request->jenis_kegiatan == "Upacara") {
                 $getPresensiUpacaraAllData = $this->generateLaporanUpacara($request, $dateRangeText);
                 $zip = new ZipArchive();
-                $blokName = blokRuangan::where('id', $request->blok_id)->first()->name;
+                $blokName = BlokRuangan::where('id', $request->blok_id)->first()->name;
                 $zipFileName = 'kegiatan-asrama_' . $request->jenis_kegiatan . '_Blok_' . $blokName . '_Kegiatan_Wajib_Upacara_BLOK-' . $blokName . '-' . $dateRangeText . '.zip';
                 $directoryPath = public_path('kegiatan-asrama/' . $request->jenis_kegiatan . '/Blok ' . $blokName);
                 $zipFilePath = $directoryPath . '/' . $zipFileName;
@@ -415,7 +415,7 @@ class GenerateReportController extends Controller
             if ($request->jenis_kegiatan == "Apel") {
                 $getPresensiApelAllData = $this->generateLaporanApel($request, $dateRangeText);
                 $zip = new ZipArchive();
-                $blokName = blokRuangan::where('id', $request->blok_id)->first()->name;
+                $blokName = BlokRuangan::where('id', $request->blok_id)->first()->name;
                 $zipFileName = 'kegiatan-asrama_' . $request->jenis_kegiatan . '_Blok_' . $blokName . '_Kegiatan_Wajib_Apel_BLOK-' . $blokName . '-' . $dateRangeText . '.zip';
                 $directoryPath = public_path('kegiatan-asrama/' . $request->jenis_kegiatan . '/Blok ' . $blokName);
                 $zipFilePath = $directoryPath . '/' . $zipFileName;
@@ -474,7 +474,7 @@ class GenerateReportController extends Controller
             if ($request->jenis_kegiatan == "Senam") {
                 $getPresensiSenamAllData = $this->generateLaporanSenam($request, $dateRangeText);
                 $zip = new ZipArchive();
-                $blokName = blokRuangan::where('id', $request->blok_id)->first()->name;
+                $blokName = BlokRuangan::where('id', $request->blok_id)->first()->name;
                 $zipFileName = 'kegiatan-asrama_' . $request->jenis_kegiatan . '_Blok_' . $blokName . '_Kegiatan_Wajib_Senam_BLOK-' . $blokName . '-' . $dateRangeText . '.zip';
                 $directoryPath = public_path('kegiatan-asrama/' . $request->jenis_kegiatan . '/Blok ' . $blokName);
                 $zipFilePath = $directoryPath . '/' . $zipFileName;

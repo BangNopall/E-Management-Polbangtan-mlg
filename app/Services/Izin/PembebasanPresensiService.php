@@ -2,7 +2,7 @@
 
 namespace App\Services\Izin;
 
-use App\Models\jadwalKegiatanAsrama;
+use App\Models\JadwalKegiatanAsrama;
 use App\Models\PengajuanIzin;
 use App\Models\PresensiApel;
 use App\Models\PresensiSenam;
@@ -31,7 +31,7 @@ class PembebasanPresensiService
 
         DB::transaction(function () use ($userId, $start, $end) {
             // 1. Kegiatan Wajib (Apel, Senam, Upacara)
-            $jadwalWajibIds = jadwalKegiatanAsrama::whereBetween('tanggal_kegiatan', [$start->toDateString(), $end->toDateString()])
+            $jadwalWajibIds = JadwalKegiatanAsrama::whereBetween('tanggal_kegiatan', [$start->toDateString(), $end->toDateString()])
                 ->pluck('id');
 
             if ($jadwalWajibIds->isNotEmpty()) {
@@ -88,7 +88,7 @@ class PembebasanPresensiService
     /**
      * Bebaskan presensi saat jadwal kegiatan wajib baru dibuat dan di-fan-out.
      */
-    public function bebaskanUntukJadwalKegiatan(jadwalKegiatanAsrama $jadwal): void
+    public function bebaskanUntukJadwalKegiatan(JadwalKegiatanAsrama $jadwal): void
     {
         $tanggalJadwal = Carbon::parse($jadwal->tanggal_kegiatan)->toDateString();
 

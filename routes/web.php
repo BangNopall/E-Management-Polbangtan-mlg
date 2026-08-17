@@ -14,7 +14,7 @@ use App\Http\Controllers\QRControllerKegiatan;
 use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\GenerateReportController;
-use App\Http\Controllers\kegiatanAsramaController;
+use App\Http\Controllers\KegiatanAsramaController;
 use App\Http\Controllers\UkmController;
 use App\Http\Controllers\UkmMemberController;
 use App\Http\Controllers\UkmJadwalController;
@@ -75,7 +75,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/dashboard/formsubmit/{user_id}', [PelanggaranController::class, 'formHukumKategoriSubmit'])->name('formHukumKategoriSubmit');
         Route::get('/dashboard/riwayat-pelanggaran', [PelanggaranController::class, 'riwayatPelanggaran'])->name('riwayatPelanggaran');
         Route::get('/dashboard/riwayat-pelanggaran/detail/{id}', [PelanggaranController::class, 'riwayatPelanggaranDetail'])->name('riwayatPelanggaranDetail');
-        Route::get('/dashboard/riwayat-aktivitas', [kegiatanAsramaController::class, 'riwayatAktivitasShow'])->name('riwayatAktivitasShow');
+        Route::get('/dashboard/riwayat-aktivitas', [KegiatanAsramaController::class, 'riwayatAktivitasShow'])->name('riwayatAktivitasShow');
         Route::post('/dashboard/delete-foto/{user_id}', [ProfileController::class, 'deleteFotoProfile'])->name('deleteFotoProfile');
         Route::get('/handoff/konseling', [KonselingHandoffController::class, 'redirect'])->name('konseling');
 
@@ -234,19 +234,19 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/api/kamera-apel', [QRControllerKegiatan::class, 'kameraKegiatanApelApi'])->name('kameraKegiatanApelApi');
         Route::post('/api/kamera-senam', [QRControllerKegiatan::class, 'kameraKegiatanSenamApi'])->name('kameraKegiatanSenamApi');
 
-        Route::get('/jadwal-kegiatan', [kegiatanAsramaController::class, 'jadwalKegiatanShow'])->name('jadwalKegiatanShow');
+        Route::get('/jadwal-kegiatan', [KegiatanAsramaController::class, 'jadwalKegiatanShow'])->name('jadwalKegiatanShow');
         Route::get('/jadwal-kegiatan-filter', [KegiatanAsramaController::class, 'jadwalKegiatanFilter'])->name('jadwalKegiatanFilter');
-        Route::post('/create-jadwal-store', [kegiatanAsramaController::class, 'createJadwalKegiatanStore'])->name('createJadwalKegiatanStore');
-        Route::post('/jadwal-kegiatan-edit/{id}', [kegiatanAsramaController::class, 'editJadwalKegiatanAsrama'])->name('editJadwalKegiatanAsrama');
-        Route::post('/jadwal-kegiatan-delete/{id}', [kegiatanAsramaController::class, 'deleteJadwalKegiatanAsrama'])->name('deleteJadwalKegiatanAsrama');
-        Route::post('/edit-jadwal-kegiatan-by-blok', [kegiatanAsramaController::class, 'editJadwalKegiatanByBlok'])->name('editJadwalKegiatanByBlok');
-        Route::get('/filtering-jadwal-kegiatan-by-blok', [kegiatanAsramaController::class, 'filteringEditJadwalKegiatanByBlok'])->name('filteringEditJadwalKegiatanByBlok');
+        Route::post('/create-jadwal-store', [KegiatanAsramaController::class, 'createJadwalKegiatanStore'])->name('createJadwalKegiatanStore');
+        Route::post('/jadwal-kegiatan-edit/{id}', [KegiatanAsramaController::class, 'editJadwalKegiatanAsrama'])->name('editJadwalKegiatanAsrama');
+        Route::post('/jadwal-kegiatan-delete/{id}', [KegiatanAsramaController::class, 'deleteJadwalKegiatanAsrama'])->name('deleteJadwalKegiatanAsrama');
+        Route::post('/edit-jadwal-kegiatan-by-blok', [KegiatanAsramaController::class, 'editJadwalKegiatanByBlok'])->name('editJadwalKegiatanByBlok');
+        Route::get('/filtering-jadwal-kegiatan-by-blok', [KegiatanAsramaController::class, 'filteringEditJadwalKegiatanByBlok'])->name('filteringEditJadwalKegiatanByBlok');
 
-        Route::get('/data-kegiatan-wajib', [kegiatanAsramaController::class, 'dataKegiatanWajibShow'])->name('dataKegiatanWajibShow');
-        Route::post('/data-kegiatan-wajib/search', [kegiatanAsramaController::class, 'dataKegiatanWajibSearch'])->name('dataKegiatanWajibSearch');
-        Route::get('/data-kegiatan-wajib/{id}', [kegiatanAsramaController::class, 'dataKegiatanWajibDetail'])->name('dataKegiatanWajibDetail');
-        Route::post('/data-kegiatan-wajib-filter', [kegiatanAsramaController::class, 'dataKegiatanWajibDetailFilter'])->name('dataKegiatanWajibDetailFilter');
-        Route::post('/edit-data-kegiatan-wajib/{id}/upacara', [kegiatanAsramaController::class, 'editDataKegiatanWajib'])->name('editDataKegiatanWajib');
+        Route::get('/data-kegiatan-wajib', [KegiatanAsramaController::class, 'dataKegiatanWajibShow'])->name('dataKegiatanWajibShow');
+        Route::post('/data-kegiatan-wajib/search', [KegiatanAsramaController::class, 'dataKegiatanWajibSearch'])->name('dataKegiatanWajibSearch');
+        Route::get('/data-kegiatan-wajib/{id}', [KegiatanAsramaController::class, 'dataKegiatanWajibDetail'])->name('dataKegiatanWajibDetail');
+        Route::post('/data-kegiatan-wajib-filter', [KegiatanAsramaController::class, 'dataKegiatanWajibDetailFilter'])->name('dataKegiatanWajibDetailFilter');
+        Route::post('/edit-data-kegiatan-wajib/{id}/upacara', [KegiatanAsramaController::class, 'editDataKegiatanWajib'])->name('editDataKegiatanWajib');
 
         Route::post('/delete-foto/{user_id}', [ProfileController::class, 'deleteFotoProfile'])->name('deleteFotoProfile');
 

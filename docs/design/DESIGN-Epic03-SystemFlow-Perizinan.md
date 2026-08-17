@@ -408,7 +408,7 @@ Keduanya idempoten — aman dijalankan berulang, karena tidak ada jaminan schedu
 |---|---|
 | `QRController::presense()` | +1 blok `if` di awal (§4) |
 | `UkmJadwalController::store()` | fan-out cek izin aktif sebelum tulis `'Alpha'` |
-| `kegiatanAsramaController::createJadwalKegiatanStore()` | idem |
+| `KegiatanAsramaController::createJadwalKegiatanStore()` | idem |
 | `partials/nav.blade.php` | +3 item menu |
 | `database/migrations/…kelas` | +1 kolom `dosen_pa_id` (nullable) |
 

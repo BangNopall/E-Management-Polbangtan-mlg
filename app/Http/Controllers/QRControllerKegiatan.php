@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use App\Models\jadwalKegiatanAsrama;
+use App\Models\JadwalKegiatanAsrama;
 use App\Models\PresensiUpacara;
 use Illuminate\Support\Facades\Auth;
 
@@ -138,7 +138,7 @@ class QRControllerKegiatan extends Controller
             throw new \Exception('Mahasiswa tidak ditemukan');
         }
 
-        $getJadwal = jadwalKegiatanAsrama::where('blok_id', $getUser->blok_ruangan_id)
+        $getJadwal = JadwalKegiatanAsrama::where('blok_id', $getUser->blok_ruangan_id)
             ->where('tanggal_kegiatan', $request->date)
             ->where('jenis_kegiatan', $jenis_kegiatan)
             ->get();

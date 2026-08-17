@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\blokRuangan;
+use App\Models\BlokRuangan;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Presence;
@@ -26,7 +26,7 @@ class AbsensiMahasiswa extends Controller
             ->groupBy('users.id', 'users.nim', 'users.name', 'users.status')
             ->paginate(10);
 
-        $blokRuangan = blokRuangan::all();
+        $blokRuangan = BlokRuangan::all();
 
         $title = "Riwayat Absensi Mahasiswa";
 

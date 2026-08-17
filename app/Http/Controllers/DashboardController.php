@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Kelas;
-use App\Models\prodi;
+use App\Models\Prodi;
 use App\Models\Presence;
-use App\Models\blokRuangan;
+use App\Models\BlokRuangan;
 use GuzzleHttp\Psr7\Message;
 use Illuminate\Http\Request;
 use App\Models\LoginPermission;
@@ -89,7 +89,7 @@ class DashboardController extends Controller
 
     public function dataMahasiswa(Request $request)
     {
-        $blokRuangan = blokRuangan::all();
+        $blokRuangan = BlokRuangan::all();
         $kelas = Kelas::all();
         $mahasiswa = User::where('role_id', 3)->paginate(10);
 
@@ -101,10 +101,10 @@ class DashboardController extends Controller
     public function dataMahasiswaEdit($id)
     {
         $user = User::findOrFail($id);
-        $blocks = blokRuangan::all();
+        $blocks = BlokRuangan::all();
         $kelas = Kelas::all();
         $title = "Edit Data Mahasiswa";
-        $prodiOptions = prodi::all();
+        $prodiOptions = Prodi::all();
         $loginData = LoginPermission::where('user_id', $id)->first();
 
         if ($loginData == null) {

@@ -4,14 +4,14 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-use App\Models\jadwalKegiatanAsrama;
+use App\Models\JadwalKegiatanAsrama;
 use App\Models\Kelas;
 use App\Models\PresensiApel;
 use App\Models\PresensiSenam;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\prodi;
-use App\Models\blokRuangan;
+use App\Models\Prodi;
+use App\Models\BlokRuangan;
 use App\Models\Pelanggaran;
 use App\Models\Attendance;
 use App\Models\Presence;
@@ -80,10 +80,10 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'User Development Asrama Polbangtan',
         //     'email' => 'user@asramapolbangtan-mlg.com',
         //     'nim' => '1234567891234',
-        //     'blok_ruangan_id' => blokRuangan::where('name', 'B')->first('id'),
+        //     'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first('id'),
         //     'kelas_id' => Kelas::where('nama_kelas', 'Agrinak 1-B')->first('id'),
         //     'no_kamar' => '27',
-        //     'prodi_id' => prodi::where('prodi', 'Agrinak')->first('id'),
+        //     'prodi_id' => Prodi::where('prodi', 'Agrinak')->first('id'),
         //     'asal_daerah' => 'Malang',
         //     'no_hp' => '081233219133',
         //     'password' => bcrypt('password'),
@@ -93,10 +93,10 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Operator Development Asrama Polbangtan',
         //     'email' => 'operator@asramapolbangtan-mlg.com',
         //     'nim' => '1234566891234',
-        //     'blok_ruangan_id' => blokRuangan::where('name', 'B')->first('id'),
+        //     'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first('id'),
         //     'kelas_id' => Kelas::where('nama_kelas', 'PPB 1-B')->first('id'),
         //     'no_kamar' => '28',
-        //     'prodi_id' => prodi::where('prodi', 'PPKH')->first('id'),
+        //     'prodi_id' => Prodi::where('prodi', 'PPKH')->first('id'),
         //     'asal_daerah' => 'Malang',
         //     'no_hp' => '081234219133',
         //     'password' => bcrypt('password'),
@@ -106,10 +106,10 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Pelatih Development Asrama Polbangtan',
         //     'email' => 'pelatih@asramapolbangtan-mlg.com',
         //     'nim' => '1434567891234',
-        //     'blok_ruangan_id' => blokRuangan::where('name', 'B')->first('id'),
+        //     'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first('id'),
         //     'kelas_id' => Kelas::where('nama_kelas', 'PPB 1-B')->first('id'),
         //     'no_kamar' => '27',
-        //     'prodi_id' => prodi::where('prodi', 'Agrinak')->first('id'),
+        //     'prodi_id' => Prodi::where('prodi', 'Agrinak')->first('id'),
         //     'asal_daerah' => 'Malang',
         //     'no_hp' => '082233219133',
         //     'password' => bcrypt('password'),
@@ -138,7 +138,7 @@ class DatabaseSeeder extends Seeder
         // Attendance::factory(200)->create();
         // Presence::factory(1500)->create();
 
-        // jadwalKegiatanAsrama::factory(21)->create();
+        // JadwalKegiatanAsrama::factory(21)->create();
         // PresensiUpacara::factory(1000)->create();
         // PresensiApel::factory(1000)->create();
         // PresensiSenam::factory(1000)->create();

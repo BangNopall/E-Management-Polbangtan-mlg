@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\jadwalKegiatanAsrama;
+use App\Models\JadwalKegiatanAsrama;
 use App\Models\LoginPermission;
 use App\Models\Pelanggaran;
 use App\Models\Presence;
@@ -492,12 +492,12 @@ class DashboardAdminController extends Controller
             $presensiSenam->delete();
         }
 
-        $jadwalKegiatanAsrama = jadwalKegiatanAsrama::where('blok_id', $user->blok_ruangan_id)->get();
+        $jadwalKegiatanAsrama = JadwalKegiatanAsrama::where('blok_id', $user->blok_ruangan_id)->get();
 
         // Pengecekan apakah hasil query tidak kosong
         if (!$jadwalKegiatanAsrama->isEmpty()) {
             // Menghapus semua data jadwal kegiatan
-            jadwalKegiatanAsrama::where('blok_id', $user->blok_ruangan_id)->delete();
+            JadwalKegiatanAsrama::where('blok_id', $user->blok_ruangan_id)->delete();
         }
         // dd($pelanggaran);
 

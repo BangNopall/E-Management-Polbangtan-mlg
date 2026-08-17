@@ -13,7 +13,7 @@ class Kelas extends Model
 
     public function Prodi()
     {
-        return $this->belongsTo(prodi::class, 'prodi_id');
+        return $this->belongsTo(Prodi::class, 'prodi_id');
     }
 
     public function levelKelas()

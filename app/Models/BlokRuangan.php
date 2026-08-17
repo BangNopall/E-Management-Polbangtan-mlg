@@ -13,6 +13,6 @@ class BlokRuangan extends Model
 
     public function jadwalKegiatanAsrama()
     {
-        return $this->hasMany(jadwalKegiatanAsrama::class , 'blok_id');
+        return $this->hasMany(JadwalKegiatanAsrama::class , 'blok_id');
     }
 }

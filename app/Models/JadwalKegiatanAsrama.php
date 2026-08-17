@@ -12,7 +12,7 @@ class JadwalKegiatanAsrama extends Model
 
     public function blokRuangan()
     {
-        return $this->belongsTo(blokRuangan::class , 'blok_id');
+        return $this->belongsTo(BlokRuangan::class , 'blok_id');
     }
 
     public function presensiApel()
