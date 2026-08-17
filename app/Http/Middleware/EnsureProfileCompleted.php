@@ -26,7 +26,7 @@ class EnsureProfileCompleted
             }
             
             // Check dummy email
-            if (str_ends_with($user->email, '@dummy.com') || str_ends_with($user->email, '@ganti.email')) {
+            if (str_ends_with($user->email, '@ganti.email')) {
                 $isIncomplete = true;
             }
             
