@@ -54,7 +54,7 @@ class ProfileController extends Controller
             'blok_ruangan_id' => 'required|exists:blok_ruangans,id',
             'no_kamar' => 'required|numeric',
             'asal_daerah' => 'required|string|max:255',
-            'foto-profil' => 'nullable|image|mimes:jpeg,png,jpg,webp,heic|max:5120',
+            'foto-profil' => 'nullable|image|mimes:jpeg,png,jpg,webp,heic|max:10250',
         ];
 
         // Only require NIM and Prodi if user is NOT a student
