@@ -83,7 +83,7 @@
             </div>
         </div>
     </div>
-    <form action="{{ route('admin.kegiatan.presense.api') }}" method="post" id="form">
+    <form action="{{ route('admin.kameraKegiatanApelApi') }}" method="post" id="form">
         @csrf
         <input type="hidden" name="payload" id="payload">
         <input type="hidden" name="payload" id="payload">

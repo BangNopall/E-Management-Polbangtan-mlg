@@ -24,13 +24,19 @@ class UsersImport implements ToModel
             return null;
         }
 
+        if (empty($row[0])) return null;
+
+        $nim = $row[0];
+        $email = !empty($row[3]) ? $row[3] : $nim . '@dummy.com';
+
         return new User([
-            'name' => $row[0], // Assuming the first column is 'name'
-            'email' => $row[1], // Assuming the second column is 'email'
-            'password' => Hash::make("password"), // Assuming the third column is 'password'
-            'role_id' => 3, // Assuming the fourth column is 'role
-            'status' => 'didalam', // Assuming the fifth column is 'status
-            // Add more attributes as needed based on your Excel columns
+            'nim' => $nim,
+            'name' => $row[1] ?? 'Unknown',
+            'prodi_id' => $row[2] ?? null,
+            'email' => $email,
+            'password' => Hash::make("password"), 
+            'role_id' => 3, 
+            'status' => 'didalam',
         ]);
     }
 }

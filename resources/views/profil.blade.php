@@ -101,14 +101,14 @@
                 <div class="text-md text-gray-600 font-medium w-auto md:w-[400px]">
                     Nomor Induk Mahasiswa
                 </div>
-                <div class="flex flex-col md:flex-row w-auto md:w-[500px] mt-1 md:mt-0">
+                <div class="flex flex-col md:flex-row w-auto md:w-[500px] mt-1 md:mt-0 cursor-not-allowed">
                     <span
                         class="inline-flex items-center w-10 md:w-auto px-3 text-sm text-white bg-teal-900 border border-r-1 md:border-r-0 border-utama md:rounded-tl-md md:rounded-t-none rounded-t-md md:rounded-l-md">
                         <div class="text-text-md">ID</div>
                     </span>
                     <input type="number" id="nim" name="nim"
                         class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5"
-                        placeholder="012143" value="{{ $user->nim }}">
+                        placeholder="012143" value="{{ $user->nim }}" {{ auth()->user()->role_id == 3 ? 'readonly' : '' }}>
                 </div>
             </div>
             <div class="border-b border-gray-300 my-3"></div>
@@ -137,14 +137,15 @@
                 <div class="text-md text-gray-600 font-medium w-auto md:w-[400px]">
                     Program Studi
                 </div>
-                <div class="flex flex-col md:flex-row w-auto md:w-[500px] mt-1 md:mt-0">
+                <div class="flex flex-col md:flex-row w-auto md:w-[500px] mt-1 md:mt-0 cursor-not-allowed">
                     <span
                         class="inline-flex items-center w-10 md:w-auto px-3 text-sm text-white bg-teal-900 border border-r-1 md:border-r-0 border-utama md:rounded-tl-md md:rounded-t-none rounded-t-md md:rounded-l-md">
                         <i class="ri-bookmark-line text-md text-white"></i>
                     </span>
-                    <select id="prodi_id" name="prodi_id"
-                        class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5">
-                        <option selected hidden>Pilih Program Studi</option>
+                    <select id="prodi_id" name="prodi_id_select"
+                        class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5"
+                        {{ auth()->user()->role_id == 3 ? 'disabled' : '' }}>
+                        <option hidden>Pilih Program Studi</option>
                         @foreach ($prodis as $prodi)
                             <option value="{{ $prodi->id }}"
                                 {{ old('prodi_id', $user->prodi_id) === $prodi->id ? 'selected' : '' }}>

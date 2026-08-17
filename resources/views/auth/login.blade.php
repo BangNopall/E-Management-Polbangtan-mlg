@@ -98,8 +98,8 @@
                 <form action="{{ route('auth.login') }}" method="POST">
                     @csrf
                     <label class="block">
-                        <span class="text-gray-700 text-sm">Email</span>
-                        <input type="email" name="email" id="email" value="{{ old('email') }}"
+                        <span class="text-gray-700 text-sm">Email / NIM</span>
+                        <input type="text" name="email" id="email" value="{{ old('email') }}"
                             class="form-input mt-1 block w-full p-1 rounded-md border-2 shadow border-utama">
                         @error('email')
                             <span class="text-red-500 text-sm mt-1 text-right">{{ $message }}</span>

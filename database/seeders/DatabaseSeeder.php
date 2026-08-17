@@ -80,6 +80,7 @@ class DatabaseSeeder extends Seeder
             'prodi_id' => 1,
             'no_kamar' => '01',
         ]);
+
         // User Development Only
         // User::factory()->create([
         //     'name' => 'User Development Asrama Polbangtan',
@@ -122,31 +123,31 @@ class DatabaseSeeder extends Seeder
         // ]);
         
         // factory Development Only
-        User::factory(50)->create();
-        Pelanggaran::factory(20)->create([
-            'statusPelanggaran' => 'Submitted'
-        ]);        
-        Pelanggaran::factory(7)->create([
-            'statusPelanggaran' => 'rejected',
-            'rejected_message' => 'Input Pelanggaran anda tidak sesuai dengan kriteria yang ada'
-        ]);
-        Pelanggaran::factory(500)->state([
-            'statusPelanggaran' => 'progressing',
-            'Hukuman' => 'Denda Rp. 100.000,-',
-            'accepted_id' => User::where('role_id', Role::where('name', 'admin')->first()->id)->first()->id
-        ])->create();        
-        Pelanggaran::factory(500)->state([
-            'statusPelanggaran' => 'Done',
-            'Hukuman' => 'Denda Rp. 100.000,-',
-            'accepted_id' => User::where('role_id', Role::where('name', 'admin')->first()->id)->first()->id
-        ])->create(); 
-        Attendance::factory(200)->create();
-        Presence::factory(1500)->create();
+        // User::factory(50)->create();
+        // Pelanggaran::factory(20)->create([
+        //     'statusPelanggaran' => 'Submitted'
+        // ]);        
+        // Pelanggaran::factory(7)->create([
+        //     'statusPelanggaran' => 'rejected',
+        //     'rejected_message' => 'Input Pelanggaran anda tidak sesuai dengan kriteria yang ada'
+        // ]);
+        // Pelanggaran::factory(500)->state([
+        //     'statusPelanggaran' => 'progressing',
+        //     'Hukuman' => 'Denda Rp. 100.000,-',
+        //     'accepted_id' => User::where('role_id', Role::where('name', 'admin')->first()->id)->first()->id
+        // ])->create();        
+        // Pelanggaran::factory(500)->state([
+        //     'statusPelanggaran' => 'Done',
+        //     'Hukuman' => 'Denda Rp. 100.000,-',
+        //     'accepted_id' => User::where('role_id', Role::where('name', 'admin')->first()->id)->first()->id
+        // ])->create(); 
+        // Attendance::factory(200)->create();
+        // Presence::factory(1500)->create();
 
-        jadwalKegiatanAsrama::factory(21)->create();
-        PresensiUpacara::factory(1000)->create();
-        PresensiApel::factory(1000)->create();
-        PresensiSenam::factory(1000)->create();
+        // jadwalKegiatanAsrama::factory(21)->create();
+        // PresensiUpacara::factory(1000)->create();
+        // PresensiApel::factory(1000)->create();
+        // PresensiSenam::factory(1000)->create();
 
         $this->call(UkmSeeder::class);
         $this->call(JenisIzinSeeder::class);

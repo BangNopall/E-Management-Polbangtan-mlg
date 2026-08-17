@@ -62,7 +62,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profil', [ProfileController::class, 'index'])->name('user.profil');
 
     // ROUTE SINGGLE START
-    Route::middleware('role:user')->name('home.')->group(function () {
+    Route::middleware(['role:user', 'ensure.profile.completed'])->name('home.')->group(function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('index');
         Route::get('/dashboard/profil', [ProfileController::class, 'profil'])->name('profilshow');
         Route::get('/get-presence-date', [HomeController::class, 'getPresenceDate'])->name('get-presence-date');
@@ -258,7 +258,7 @@ Route::middleware(['auth'])->group(function () {
         // EPIC 03: PERSETUJUAN PERIZINAN (M2b Approver Routes)
         Route::get('/admin/izin/persetujuan', [\App\Http\Controllers\IzinPersetujuanController::class, 'inbox'])->name('izin.persetujuan.inbox');
         Route::get('/admin/izin/persetujuan/{pengajuan}', [\App\Http\Controllers\IzinPersetujuanController::class, 'review'])->name('izin.persetujuan.review');
-        Route::get('/admin/izin/persetujuan/{pengajuan}/pdf', [\App\Http\Controllers\IzinPersetujuanController::class, 'downloadPdf'])->name('izin.persetujuan.pdf');
+    Route::get('/admin/izin/persetujuan/{pengajuan}/pdf', [\App\Http\Controllers\IzinPersetujuanController::class, 'downloadPdf'])->name('izin.persetujuan.pdf');
         Route::post('/admin/izin/persetujuan/{pengajuan}', [\App\Http\Controllers\IzinPersetujuanController::class, 'putuskan'])->name('izin.persetujuan.putuskan');
 
         // EPIC 03: MONITOR ASRAMA (M5 Dashboard Staff Routes)

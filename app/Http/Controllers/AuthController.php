@@ -24,19 +24,25 @@ class AuthController extends Controller
                 'password' => 'required',
             ]);
 
-            // Temukan pengguna berdasarkan alamat email
-            $user = User::where('email', $credentials['email'])->first();
-
-            // checl password 
-            if (!Hash::check($credentials['password'], $user->password)) {
-                return back()->with('error', 'Login gagal, silahkan cek email dan password Anda!');
-            }
+            // Temukan pengguna berdasarkan alamat email atau nim
+            $user = User::where('email', $credentials['email'])
+                        ->orWhere('nim', $credentials['email'])
+                        ->first();
 
             if (!$user) {
                 return back()->with('error', 'Login gagal, user tidak ditemukan!');
             }
+
+            // checl password 
+            if (!Hash::check($credentials['password'], $user->password)) {
+                return back()->with('error', 'Login gagal, silahkan cek email/nim dan password Anda!');
+            }
+            
+            // Set correct email for Auth::attempt
+            $credentials['email'] = $user->email;
+
         } catch (\Exception $e) {
-            return back()->with('error', 'Login gagal, silahkan cek email dan password Anda!');
+            return back()->with('error', 'Login gagal, silahkan cek email/nim dan password Anda!');
         }
 
         try {
@@ -70,9 +76,9 @@ class AuthController extends Controller
             }
 
             // // Jika otentikasi gagal, kembalikan pesan kesalahan
-            return back()->with('error', 'Login gagal, silahkan cek email dan password Anda!');
+            return back()->with('error', 'Login gagal, silahkan cek email/nim dan password Anda!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Login gagal, silahkan cek email dan password Anda!');
+            return back()->with('error', 'Login gagal, silahkan cek email/nim dan password Anda!');
         }
     }
 

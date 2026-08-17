@@ -83,7 +83,7 @@
             </div>
         </div>
     </div>
-    <form action="{{ route('admin.presense.api.pelatih') }}" method="post" id="form">
+    <form action="{{ route('admin.scanCamPelatihStore') }}" method="post" id="form">
         @csrf
         <input type="hidden" name="payload" id="payload">
         <input type="hidden" name="payload" id="payload">
