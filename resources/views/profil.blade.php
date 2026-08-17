@@ -73,6 +73,7 @@
                 <div class="text-md text-gray-600 font-medium w-auto md:w-[400px]">
                     Foto Anda
                     <div class="text-sm font-normal text-gray-500">Akan ditampilkan di profil Anda</div>
+                    <div class="text-xs text-red-500">Ukuran Maksimum Foto <span class="font-bold">2MB</span></div>
                 </div>
                 <div class="flex flex-col items-center justify-center mt-3 md:mt-0">
                     <label for="foto-profil" class="cursor-pointer">
