@@ -4,12 +4,13 @@ namespace App\Imports;
 
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Illuminate\Support\Facades\Hash;
 
-class UsersImport implements ToModel
+class UsersImport implements ToModel, WithBatchInserts, WithChunkReading, WithStartRow
 {
-    private $row = 0; // Counter to track the row number
-
     /**
      * @param array $row
      *
@@ -17,13 +18,6 @@ class UsersImport implements ToModel
      */
     public function model(array $row)
     {
-        $this->row++; // Increment the row counter
-
-        // Skip the first row
-        if ($this->row === 1) {
-            return null;
-        }
-
         if (empty($row[0])) return null;
 
         $nim = $row[0];
@@ -38,5 +32,20 @@ class UsersImport implements ToModel
             'role_id' => 3, 
             'status' => 'didalam',
         ]);
+    }
+
+    public function batchSize(): int
+    {
+        return 100;
+    }
+
+    public function chunkSize(): int
+    {
+        return 100;
+    }
+
+    public function startRow(): int
+    {
+        return 2;
     }
 }
