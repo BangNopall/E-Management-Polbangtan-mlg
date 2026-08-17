@@ -268,6 +268,9 @@ class PengajuanIzinService
 
                 // Bebaskan presensi kegiatan beririsan: 'Alpha' -> 'Izin'
                 app(PembebasanPresensiService::class)->bebaskanUntukPengajuan($pengajuan->fresh());
+
+                // Dispatch Queue Job untuk men-generate PDF secara Asynchronous
+                \App\Jobs\GenerateSuratIzinPdfJob::dispatch($pengajuan->fresh());
             }
 
             return $pengajuan->fresh(['approvals']);

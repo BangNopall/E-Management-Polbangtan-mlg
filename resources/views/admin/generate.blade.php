@@ -179,7 +179,7 @@
             <!-- Export Laporan UKM Card -->
             <div class="bg-white rounded-lg border-2 p-3 flex flex-col mt-5 justify-between w-full mx-auto sm:w-[90%]">
                 <div>
-                    <h2 class="font-semibold text-lg border-b-2 pb-2">Laporan Presensi UKM</h2>
+                    <h2 class="text-lg border-b-2 pb-2">Laporan Presensi UKM</h2>
                     <div class="text-sm text-gray-700 mt-2">Export laporan presensi anggota UKM (PDF & Excel)</div>
                     <form action="{{ route('admin.generateLaporanUkm') }}" method="post" class="mt-4">
                         @csrf

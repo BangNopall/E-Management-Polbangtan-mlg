@@ -109,6 +109,37 @@
                         type="submit">Template Excel</button>
                 </form>
             </div>
+            <div class="mt-6 border border-gray-300 rounded-lg p-4 bg-gray-50">
+                <h3 class="text-sm font-semibold text-gray-700 mb-2">Contoh Format Excel:</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-xs text-left text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-200">
+                            <tr>
+                                <th scope="col" class="px-4 py-2 border border-gray-300">NIM (Kolom A)</th>
+                                <th scope="col" class="px-4 py-2 border border-gray-300">Nama (Kolom B)</th>
+                                <th scope="col" class="px-4 py-2 border border-gray-300">ID Prodi (Kolom C)</th>
+                                <th scope="col" class="px-4 py-2 border border-gray-300">Email (Kolom D) - Opsional
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white border-b">
+                                <td class="px-4 py-2 border border-gray-300">0123456789</td>
+                                <td class="px-4 py-2 border border-gray-300">Budi Santoso</td>
+                                <td class="px-4 py-2 border border-gray-300">1</td>
+                                <td class="px-4 py-2 border border-gray-300">budi@example.com</td>
+                            </tr>
+                            <tr class="bg-white">
+                                <td class="px-4 py-2 border border-gray-300">0123456790</td>
+                                <td class="px-4 py-2 border border-gray-300">Siti Aminah</td>
+                                <td class="px-4 py-2 border border-gray-300">2</td>
+                                <td class="px-4 py-2 border border-gray-300"><i class="text-gray-400">Kosongkan jika tidak
+                                        ada</i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
         {{-- KELAS --}}
         <div class="pt-6 pb-3 px-3 tab-content" id="kelasTab" style="display: none">

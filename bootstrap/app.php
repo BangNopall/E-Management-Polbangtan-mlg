@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(fn () => route('auth.login'));
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
+            'ensure.profile.completed' => \App\Http\Middleware\EnsureProfileCompleted::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

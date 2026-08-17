@@ -95,27 +95,30 @@ class UkmScanController extends Controller
             }
 
             // 5. Update or check presence status
-            $presensi = UkmPresensi::where('ukm_jadwal_id', $jadwal->id)
-                ->where('user_id', $user->id)
-                ->first();
+            \Illuminate\Support\Facades\DB::transaction(function () use ($jadwal, $user, $scanTime) {
+                $presensi = UkmPresensi::where('ukm_jadwal_id', $jadwal->id)
+                    ->where('user_id', $user->id)
+                    ->lockForUpdate()
+                    ->first();
 
-            if ($presensi && $presensi->status_kehadiran === 'Hadir') {
-                throw new Exception('Anda Sudah Melakukan Presensi');
-            }
+                if ($presensi && $presensi->status_kehadiran === 'Hadir') {
+                    throw new Exception('Anda Sudah Melakukan Presensi');
+                }
 
-            if ($presensi) {
-                $presensi->update([
-                    'status_kehadiran' => 'Hadir',
-                    'jam_kehadiran' => $scanTime,
-                ]);
-            } else {
-                UkmPresensi::create([
-                    'ukm_jadwal_id' => $jadwal->id,
-                    'user_id' => $user->id,
-                    'status_kehadiran' => 'Hadir',
-                    'jam_kehadiran' => $scanTime,
-                ]);
-            }
+                if ($presensi) {
+                    $presensi->update([
+                        'status_kehadiran' => 'Hadir',
+                        'jam_kehadiran' => $scanTime,
+                    ]);
+                } else {
+                    UkmPresensi::create([
+                        'ukm_jadwal_id' => $jadwal->id,
+                        'user_id' => $user->id,
+                        'status_kehadiran' => 'Hadir',
+                        'jam_kehadiran' => $scanTime,
+                    ]);
+                }
+            });
 
             return redirect()->route('admin.ukm.scan.show', $jadwal->id)
                 ->with('success', 'Presensi UKM untuk Mahasiswa atas nama ' . $user->name . ' Berhasil Dilakukan.');

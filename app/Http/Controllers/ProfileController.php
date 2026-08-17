@@ -40,34 +40,42 @@ class ProfileController extends Controller
 
     public function editProfile(Request $request, $id)
     {
-        // Validasi data dari formulir
-        $request->validate([
-            'nim' => 'required|numeric|min:11|unique:users,nim,'.$id,
+        // Temukan pengguna berdasarkan ID
+        $user = User::find($id);
+
+        // Periksa apakah pengguna ditemukan
+        if (! $user) {
+            return redirect()->back()->with('error', 'Pengguna tidak ditemukan.');
+        }
+
+        $rules = [
             'name' => 'required|string|max:255',
-            'prodi_id' => 'required',
             'kelas_id' => 'required|exists:kelas,id',
             'blok_ruangan_id' => 'required|exists:blok_ruangans,id',
             'no_kamar' => 'required|numeric',
             'asal_daerah' => 'required|string|max:255',
             'foto-profil' => 'nullable|image|mimes:jpeg,png,jpg,webp,heic|max:5120',
-            // Tambahkan aturan validasi lainnya sesuai kebutuhan
-        ]);
+        ];
 
-        // Temukan pengguna berdasarkan ID
-        $user = User::find($id);
-
-        $existingUser = User::where('nim', $request->nim)->first();
-        if ($existingUser && $existingUser->id != $user->id) {
-            return redirect()->back()->with('error', 'NIM sudah digunakan oleh pengguna lain.');
+        // Only require NIM and Prodi if user is NOT a student
+        if (!$user->isUser()) {
+            $rules['nim'] = 'required|numeric|min:11|unique:users,nim,'.$id;
+            $rules['prodi_id'] = 'required';
         }
+
+        // Validasi data dari formulir
+        $request->validate($rules);
+
+        if (!$user->isUser()) {
+            $existingUser = User::where('nim', $request->nim)->first();
+            if ($existingUser && $existingUser->id != $user->id) {
+                return redirect()->back()->with('error', 'NIM sudah digunakan oleh pengguna lain.');
+            }
+        }
+
         // Cek apakah pengguna telah mengunggah file foto baru
         if ($request->hasFile('foto-profil')) {
             $this->updateProfilePicture($request, $user);
-        }
-
-        // Periksa apakah pengguna ditemukan
-        if (! $user) {
-            return redirect()->back()->with('error', 'Pengguna tidak ditemukan.');
         }
 
         // Update data pengguna dengan data yang baru
@@ -85,10 +93,9 @@ class ProfileController extends Controller
         } elseif ($user->isUser()) {
             // script baru
             $cariKelas = Kelas::where('id', $request->kelas_id)->first();
-            if ($cariKelas->prodi_id == $request->prodi_id) {
-                $user->nim = $request->nim;
+            if ($cariKelas->prodi_id == $user->prodi_id) { // Compare with existing prodi_id
+                // Do not update NIM and prodi_id
                 $user->name = $request->name;
-                $user->prodi_id = $request->prodi_id;
                 $user->kelas_id = $request->kelas_id;
                 $user->blok_ruangan_id = $request->blok_ruangan_id;
                 $user->no_kamar = $request->no_kamar;
