@@ -383,7 +383,11 @@ class DashboardAdminController extends Controller
     public function downloadExcelTemplate()
     {
         $fileTemplate = public_path('excel/datauser-template.xlsx');
-        return response()->download($fileTemplate);
+        return response()->download($fileTemplate, 'datauser-template.xlsx', [
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0'
+        ]);
     }
 
     // { START OF UPGRADE CLASS SISTEM ADMIN }
