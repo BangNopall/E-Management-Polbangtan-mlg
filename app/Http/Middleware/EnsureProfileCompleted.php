@@ -26,7 +26,7 @@ class EnsureProfileCompleted
             }
             
             // Check dummy email
-            if (str_ends_with($user->email, '@dummy.com')) {
+            if (str_ends_with($user->email, '@dummy.com') || str_ends_with($user->email, '@ganti.email')) {
                 $isIncomplete = true;
             }
             
@@ -36,7 +36,7 @@ class EnsureProfileCompleted
             }
             
             // To prevent redirect loop, check if current route is profile edit
-            $allowedRoutes = ['home.profilshow', 'editProfile', 'editAccount', 'auth.logout'];
+            $allowedRoutes = ['home.profilshow', 'home.Editprofil', 'home.EditprofilGmail', 'auth.logout'];
             if ($isIncomplete && !in_array($request->route()->getName(), $allowedRoutes)) {
                 return redirect()->route('home.profilshow', $user->id)
                     ->with('error', 'Untuk melanjutkan, lengkapi seluruh data profil, ubah email dari default, dan ganti password Anda terlebih dahulu.');

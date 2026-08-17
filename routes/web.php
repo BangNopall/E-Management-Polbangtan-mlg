@@ -63,11 +63,11 @@ Route::middleware(['auth'])->group(function () {
 
     // ROUTE SINGGLE START
     Route::middleware(['role:user', 'ensure.profile.completed'])->name('home.')->group(function () {
-        Route::get('/dashboard', [HomeController::class, 'index'])->name('index');
         Route::get('/dashboard/profil', [ProfileController::class, 'profil'])->name('profilshow');
-        Route::get('/get-presence-date', [HomeController::class, 'getPresenceDate'])->name('get-presence-date');
         Route::post('/dashboard/profil/{id}', [ProfileController::class, 'editProfile'])->name('Editprofil');
         Route::post('/dashboard/profil-gmail/{id}', [ProfileController::class, 'editProfileGmail'])->name('EditprofilGmail');
+        Route::get('/dashboard', [HomeController::class, 'index'])->name('index');
+        Route::get('/get-presence-date', [HomeController::class, 'getPresenceDate'])->name('get-presence-date');
         Route::get('/dashboard/kode-qr', [QRController::class, 'kodeqr'])->name('kodeqr');
         Route::get('/dashboard/riwayat-absen', [HomeController::class, 'riwayat'])->name('riwayatindex');
         Route::get('/dashboard/qr-hukum', [QRControllerHukum::class, 'qrhukum'])->name('qrhukum');

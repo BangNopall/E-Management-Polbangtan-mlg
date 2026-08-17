@@ -21,7 +21,7 @@ class UsersImport implements ToModel, WithBatchInserts, WithChunkReading, WithSt
         if (empty($row[0])) return null;
 
         $nim = $row[0];
-        $email = !empty($row[3]) ? $row[3] : $nim . '@dummy.com';
+        $email = !empty($row[3]) ? $row[3] : str_replace('.', '', $nim) . '@ganti.email';
 
         return new User([
             'nim' => $nim,
