@@ -106,7 +106,7 @@
                         class="inline-flex items-center w-10 md:w-auto px-3 text-sm text-white bg-teal-900 border border-r-1 md:border-r-0 border-utama md:rounded-tl-md md:rounded-t-none rounded-t-md md:rounded-l-md">
                         <div class="text-text-md">ID</div>
                     </span>
-                    <input type="number" id="nim" name="nim"
+                    <input type="text" id="nim" name="nim"
                         class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5"
                         placeholder="012143" value="{{ $user->nim }}" {{ auth()->user()->role_id == 3 ? 'readonly' : '' }}>
                 </div>

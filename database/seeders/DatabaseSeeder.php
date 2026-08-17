@@ -72,13 +72,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'user@gmail.com',
             'password' => bcrypt('password'),
             'role_id' => 3,
-            // Profil dilengkapi (bukan null) supaya QRController::kodeqr() dan
-            // QRControllerHukum::qrhukum() tidak redirect ke /dashboard/profil
-            // saat suite tes berjalan di atas DB yang baru di-migrate:fresh --seed.
-            'blok_ruangan_id' => 1,
-            'kelas_id' => 1,
             'prodi_id' => 1,
-            'no_kamar' => '01',
         ]);
 
         // User Development Only

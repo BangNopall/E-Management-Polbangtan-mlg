@@ -46,6 +46,7 @@ class User extends Authenticatable
         'point',
         'kelas_id',
         'blok_ruangan_id',
+        'prodi_id',
     ];
 
     /**
