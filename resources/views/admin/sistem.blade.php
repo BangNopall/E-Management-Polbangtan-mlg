@@ -117,7 +117,7 @@
                             <tr>
                                 <th scope="col" class="px-4 py-2 border border-gray-300">NIM (Kolom A)</th>
                                 <th scope="col" class="px-4 py-2 border border-gray-300">Nama (Kolom B)</th>
-                                <th scope="col" class="px-4 py-2 border border-gray-300">ID Prodi (Kolom C)</th>
+                                <th scope="col" class="px-4 py-2 border border-gray-300">PRODI_ID (Kolom C)</th>
                                 <th scope="col" class="px-4 py-2 border border-gray-300">Email (Kolom D) - Opsional
                                 </th>
                             </tr>
