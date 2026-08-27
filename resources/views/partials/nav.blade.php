@@ -110,7 +110,7 @@
                         </ul>
                     </li>
                 @endif
-                @if (Auth::check() && (Auth::user()->role_id == 1 || Auth::user()->role_id == 2 || Auth::user()->role_id == 4 || Auth::user()->role_id == 5))
+                @if (Auth::check() && Auth::user()->role_id != 3)
                     <li class="mb-1 group mt-1">
                         <a href="{{ route('admin.index') }}"
                             class="{{ Request::is('dashboard-admin') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
@@ -118,13 +118,15 @@
                             <span class="text-sm">Dashboard Admin</span>
                         </a>
                     </li>
-                    <li class="mb-1 group">
-                        <a href="{{ route('admin.izin.monitor') }}"
-                            class="{{ Request::is('admin/izin/monitor*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
-                            <i class="ri-dashboard-3-line mr-3 text-lg"></i>
-                            <span class="text-sm">Monitor Asrama</span>
-                        </a>
-                    </li>
+                    @if (in_array(Auth::user()->role_id, [1, 8, 9]))
+                        <li class="mb-1 group">
+                            <a href="{{ route('admin.izin.monitor') }}"
+                                class="{{ Request::is('admin/izin/monitor*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
+                                <i class="ri-dashboard-3-line mr-3 text-lg"></i>
+                                <span class="text-sm">Monitor Asrama</span>
+                            </a>
+                        </li>
+                    @endif
                     {{-- <li class="mb-1 group">
                         <a href="{{ route('admin.absensiMahasiswa') }}"
                             class="{{ Request::is('absensi-mahasiswa') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
@@ -132,204 +134,241 @@
                             <span class="text-sm">Absensi Mahasiswa</span>
                         </a>
                     </li> --}}
-                    <li class="mb-1 group">
-                        @php
-                            $pendingApprovalsCount = 0;
-                            if (Auth::check()) {
-                                $pendingApprovalsCount = \App\Models\IzinApproval::where('approver_user_id', Auth::id())
-                                    ->where('status', 'menunggu')
-                                    ->whereHas('pengajuan', function ($q) {
-                                        $q->whereColumn('pengajuan_izins.langkah_aktif', 'izin_approvals.urutan')
-                                          ->whereIn('pengajuan_izins.status', ['diajukan', 'menunggu']);
-                                    })
-                                    ->count();
-                            }
-                        @endphp
-                        <a href="{{ route('admin.izin.persetujuan.inbox') }}"
-                            class="{{ Request::is('admin/izin/persetujuan*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center justify-between px-3 py-1">
-                            <div class="flex items-center">
-                                <i class="ri-inbox-archive-line mr-3 text-lg"></i>
-                                <span class="text-sm">Inbox Perizinan</span>
-                            </div>
-                            @if ($pendingApprovalsCount > 0)
-                                <span class="px-2 py-0.5 text-xs font-bold bg-rose-600 text-white rounded-full">
-                                    {{ $pendingApprovalsCount }}
-                                </span>
-                            @endif
-                        </a>
-                    </li>
-                    <li class="mb-1 group">
-                        <a href="/data-absen-keluar"
-                        class="{{ Request::is('data-absen-keluar', 'data-absen-keluar/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
-                        <i class="ri-survey-line mr-3 text-lg"></i>
-                            <span class="text-sm">Data Absen Keluar</span>
-                        </a>
-                    </li>
-                    <li class="mb-1 group">
-                        <a href="/data-kegiatan-wajib"
-                        class="{{ Request::is('data-kegiatan-wajib', 'data-kegiatan-wajib/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
-                        <i class="ri-file-list-line mr-3 text-lg"></i>
-                            <span class="text-sm">Data Absen Kegiatan</span>
-                        </a>
-                    </li>
-                    <li class="mb-1 group">
-                        <a href="{{ route('admin.dataPetugas') }}"
-                            class="{{ Request::is('data-petugas', 'data-petugas/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
-                            <i class="ri-admin-line mr-3 text-lg"></i>
-                            <span class="text-sm">Data Petugas</span>
-                        </a>
-                    </li>
-                    @if (Auth::user()->role_id == 1)
-                    <li class="mb-1 group">
-                        <a href="{{ route('admin.pejabat.index') }}"
-                            class="{{ Request::is('pejabat', 'pejabat/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
-                            <i class="ri-user-star-line mr-3 text-lg"></i>
-                            <span class="text-sm">Data Pejabat</span>
-                        </a>
-                    </li>
+                    @if (in_array(Auth::user()->role_id, [1, 8, 9]))
+                        <li class="mb-1 group">
+                            @php
+                                $pendingApprovalsCount = 0;
+                                if (Auth::check()) {
+                                    $pendingApprovalsCount = \App\Models\IzinApproval::where(
+                                        'approver_user_id',
+                                        Auth::id(),
+                                    )
+                                        ->where('status', 'menunggu')
+                                        ->whereHas('pengajuan', function ($q) {
+                                            $q->whereColumn(
+                                                'pengajuan_izins.langkah_aktif',
+                                                'izin_approvals.urutan',
+                                            )->whereIn('pengajuan_izins.status', ['diajukan', 'menunggu']);
+                                        })
+                                        ->count();
+                                }
+                            @endphp
+                            <a href="{{ route('admin.izin.persetujuan.inbox') }}"
+                                class="{{ Request::is('admin/izin/persetujuan*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center justify-between px-3 py-1">
+                                <div class="flex items-center">
+                                    <i class="ri-inbox-archive-line mr-3 text-lg"></i>
+                                    <span class="text-sm">Inbox Perizinan</span>
+                                </div>
+                                @if ($pendingApprovalsCount > 0)
+                                    <span class="px-2 py-0.5 text-xs font-bold bg-rose-600 text-white rounded-full">
+                                        {{ $pendingApprovalsCount }}
+                                    </span>
+                                @endif
+                            </a>
+                        </li>
                     @endif
-                    <li class="mb-1 group">
-                        <a href="{{ route('admin.piketPetugas') }}"
-                            class="{{ Request::is('piket-petugas') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
-                            <i class="ri-bubble-chart-line mr-3 text-lg"></i>
-                            <span class="text-sm">Piket Petugas</span>
-                        </a>
-                    </li>
-                    <li class="mb-1 group">
-                        <a href="{{ route('admin.kamera') }}"
-                            class="{{ Request::is('kamera-scan') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
-                            <i class="ri-camera-line mr-3 text-lg"></i>
-                            <span class="text-sm">Scan Absen Keluar</span>
-                        </a>
-                    </li>
-                    @if (in_array(Auth::user()->role_id, [1, 4, 5]))
-                    <li class="group mb-1 mt-1">
-                        <button type="button"
-                            class="flex items-center w-full px-3 py-1 text-gray-300 transition duration-75 group hover:bg-utama text-md"
-                            aria-controls="admin-ukm" data-collapse-toggle="admin-ukm">
-                            <i class="ri-team-line text-lg font-medium"></i>
-                            <span class="flex-1 ms-3 text-left text-sm whitespace-nowrap">UKM</span>
-                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 10 6">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="2" d="m1 1 4 4 4-4" />
-                            </svg>
-                        </button>
-                        <ul id="admin-ukm"
-                            class="{{ Request::is('ukm*', 'kamera-ukm*') ? 'block' : 'hidden' }} py-1 space-y-1">
-                            @if (Auth::user()->role_id == 1)
-                                <li>
-                                    <a href="{{ route('admin.ukm.index') }}"
-                                        class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm', 'ukm/*') && !Request::is('ukm/*/verifikasi') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                        Kelola UKM</a>
-                                </li>
-                            @endif
-                            @if (Auth::user()->role_id == 4)
-                                @php
-                                    $pelatihUkms = \App\Models\UkmMember::where('user_id', Auth::id())->where('peran', 'pelatih')->where('status', 'aktif')->with('ukm')->get();
-                                @endphp
-                                @foreach($pelatihUkms as $member)
-                                    @if($member->ukm)
+                    @if (in_array(Auth::user()->role_id, [1, 2, 9]))
+                        <li class="mb-1 group">
+                            <a href="/data-absen-keluar"
+                                class="{{ Request::is('data-absen-keluar', 'data-absen-keluar/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
+                                <i class="ri-survey-line mr-3 text-lg"></i>
+                                <span class="text-sm">Data Absen Keluar</span>
+                            </a>
+                        </li>
+                        <li class="mb-1 group">
+                            <a href="/data-kegiatan-wajib"
+                                class="{{ Request::is('data-kegiatan-wajib', 'data-kegiatan-wajib/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
+                                <i class="ri-file-list-line mr-3 text-lg"></i>
+                                <span class="text-sm">Data Absen Kegiatan</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (in_array(Auth::user()->role_id, [1, 9]))
+                        <li class="mb-1 group">
+                            <a href="{{ route('admin.dataPetugas') }}"
+                                class="{{ Request::is('data-petugas', 'data-petugas/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
+                                <i class="ri-admin-line mr-3 text-lg"></i>
+                                <span class="text-sm">Data Petugas</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (Auth::user()->role_id == 1)
+
+                        @if (in_array(Auth::user()->role_id, [1]))
+                            <li class="mb-1 group">
+                                <a href="{{ route('admin.dosen_pa.index') }}"
+                                    class="{{ Request::is('admin/dosen-pa*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
+                                    <i class="ri-user-2-line mr-3 text-lg"></i>
+                                    <span class="text-sm">Data Dosen PA</span>
+                                </a>
+                            </li>
+                        @endif
+                        <li class="mb-1 group">
+                            <a href="{{ route('admin.pejabat.index') }}"
+                                class="{{ Request::is('pejabat', 'pejabat/*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
+                                <i class="ri-user-star-line mr-3 text-lg"></i>
+                                <span class="text-sm">Data Pejabat</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (in_array(Auth::user()->role_id, [1, 9]))
+                        <li class="mb-1 group">
+                            <a href="{{ route('admin.piketPetugas') }}"
+                                class="{{ Request::is('piket-petugas') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
+                                <i class="ri-bubble-chart-line mr-3 text-lg"></i>
+                                <span class="text-sm">Piket Petugas</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (in_array(Auth::user()->role_id, [1, 2, 7, 9]))
+                        <li class="mb-1 group">
+                            <a href="{{ route('admin.kamera') }}"
+                                class="{{ Request::is('kamera-scan') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
+                                <i class="ri-camera-line mr-3 text-lg"></i>
+                                <span class="text-sm">Scan Absen Keluar</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (in_array(Auth::user()->role_id, [1, 5, 6, 9]))
+                        <li class="group mb-1 mt-1">
+                            <button type="button"
+                                class="flex items-center w-full px-3 py-1 text-gray-300 transition duration-75 group hover:bg-utama text-md"
+                                aria-controls="admin-ukm" data-collapse-toggle="admin-ukm">
+                                <i class="ri-team-line text-lg font-medium"></i>
+                                <span class="flex-1 ms-3 text-left text-sm whitespace-nowrap">UKM</span>
+                                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 10 6">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2" d="m1 1 4 4 4-4" />
+                                </svg>
+                            </button>
+                            <ul id="admin-ukm"
+                                class="{{ Request::is('ukm*', 'kamera-ukm*') ? 'block' : 'hidden' }} py-1 space-y-1">
+                                @if (Auth::user()->role_id == 1)
                                     <li>
-                                        <a href="{{ route('admin.ukm.show', $member->ukm_id) }}"
-                                            class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm/'.$member->ukm_id.'*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                            {{ $member->ukm->nama }}</a>
+                                        <a href="{{ route('admin.ukm.index') }}"
+                                            class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm', 'ukm/*') && !Request::is('ukm/*/verifikasi') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                            Kelola UKM</a>
                                     </li>
-                                    @endif
-                                @endforeach
-                            @endif
-                            @if (Auth::user()->role_id == 5)
-                                @php
-                                    $pembinaUkms = \App\Models\UkmMember::where('user_id', Auth::id())->where('peran', 'pembina')->where('status', 'aktif')->with('ukm')->get();
-                                @endphp
-                                @foreach($pembinaUkms as $member)
-                                    @if($member->ukm)
-                                    <li>
-                                        <a href="{{ route('admin.ukm.verifikasi.index', $member->ukm_id) }}"
-                                            class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm/'.$member->ukm_id.'/verifikasi*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                            {{ $member->ukm->nama }} (Verifikasi)</a>
-                                    </li>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </ul>
-                    </li>
+                                @endif
+                                @if (in_array(Auth::user()->role_id, [5, 6]))
+                                    @php
+                                        $pelatihUkms = \App\Models\UkmMember::where('user_id', Auth::id())
+                                            ->whereIn('peran', ['pelatih', 'pembina'])
+                                            ->where('status', 'aktif')
+                                            ->with('ukm')
+                                            ->get();
+                                    @endphp
+                                    @foreach ($pelatihUkms as $member)
+                                        @if ($member->ukm)
+                                            <li>
+                                                <a href="{{ route('admin.ukm.show', $member->ukm_id) }}"
+                                                    class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm/' . $member->ukm_id . '*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                                    {{ $member->ukm->nama }}</a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                @endif
+                                @if (Auth::user()->role_id == 5)
+                                    @php
+                                        $pembinaUkms = \App\Models\UkmMember::where('user_id', Auth::id())
+                                            ->where('peran', 'pembina')
+                                            ->where('status', 'aktif')
+                                            ->with('ukm')
+                                            ->get();
+                                    @endphp
+                                    @foreach ($pembinaUkms as $member)
+                                        @if ($member->ukm)
+                                            <li>
+                                                <a href="{{ route('admin.ukm.verifikasi.index', $member->ukm_id) }}"
+                                                    class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('ukm/' . $member->ukm_id . '/verifikasi*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                                    {{ $member->ukm->nama }} (Verifikasi)</a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </ul>
+                        </li>
                     @endif
 
-                    <li class="group mb-1 mt-1">
-                        <button type="button"
-                            class="flex items-center w-full px-3 py-1 text-gray-300 transition duration-75 group hover:bg-utama text-md"
-                            aria-controls="admin-kegiatanwajib" data-collapse-toggle="admin-kegiatanwajib">
-                            <i class="ri-star-line text-lg font-medium"></i>
-                            <span class="flex-1 ms-3 text-left text-sm whitespace-nowrap">Kegiatan Wajib</span>
-                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 10 6">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="2" d="m1 1 4 4 4-4" />
-                            </svg>
-                        </button>
-                        <ul id="admin-kegiatanwajib"
-                            class="{{ Request::is('kamera-upacara', 'kamera-apel', 'kamera-senam', 'jadwal-kegiatan') ? 'block' : 'hidden' }} py-1 space-y-1">
-                            <li>
-                                <a href="/kamera-upacara"
-                                    class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('kamera-upacara') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                    Scan QR Upacara</a>
-                            </li>
-                            <li>
-                                <a href="/kamera-apel"
-                                    class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('kamera-apel') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                    Scan QR Apel</a>
-                            </li>
-                            <li>
-                                <a href="/kamera-senam"
-                                    class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('kamera-senam') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                    Scan QR Senam</a>
-                            </li>
-                            <li>
-                                <a href="/jadwal-kegiatan"
-                                    class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('jadwal-kegiatan') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                    Jadwal Kegiatan</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="group mb-1 mt-1">
-                        <button type="button"
-                            class="flex items-center w-full px-3 py-1 text-gray-300 transition duration-75 group hover:bg-utama text-md"
-                            aria-controls="admin-pelanggaran" data-collapse-toggle="admin-pelanggaran">
-                            <i class="ri-file-warning-line text-lg font-medium"></i>
-                            <span class="flex-1 ms-3 text-left text-sm whitespace-nowrap">Pelanggaran</span>
-                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 10 6">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="2" d="m1 1 4 4 4-4" />
-                            </svg>
-                        </button>
-                        <ul id="admin-pelanggaran"
-                            class="{{ Request::is('kamera-pelatih', 'edit-pelanggaran', 'laporan-pelanggaran', 'laporan-pelanggaran/*', 'data-pelanggaran', 'data-pelanggaran/*', 'edit-pelanggaran/*') ? 'block' : 'hidden' }} py-1 space-y-1">
-                            <li>
-                                <a href="{{ route('admin.scanCamPelatih') }}"
-                                    class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('kamera-pelatih') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                    Scan QR Pelanggaran</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.laporanPelanggaran') }}"
-                                    class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('laporan-pelanggaran', 'laporan-pelanggaran/*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                    Laporan Pelanggaran</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.dataPelanggaran') }}"
-                                    class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('data-pelanggaran', 'data-pelanggaran/*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                    Data Pelanggaran</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.editPelanggaranIdKategori', 1) }}"
-                                    class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('edit-pelanggaran', 'edit-pelanggaran/*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
-                                    Edit Pelanggaran</a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if (in_array(Auth::user()->role_id, [1, 2, 9]))
+                        <li class="group mb-1 mt-1">
+                            <button type="button"
+                                class="flex items-center w-full px-3 py-1 text-gray-300 transition duration-75 group hover:bg-utama text-md"
+                                aria-controls="admin-kegiatanwajib" data-collapse-toggle="admin-kegiatanwajib">
+                                <i class="ri-star-line text-lg font-medium"></i>
+                                <span class="flex-1 ms-3 text-left text-sm whitespace-nowrap">Kegiatan Wajib</span>
+                                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 10 6">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2" d="m1 1 4 4 4-4" />
+                                </svg>
+                            </button>
+                            <ul id="admin-kegiatanwajib"
+                                class="{{ Request::is('kamera-upacara', 'kamera-apel', 'kamera-senam', 'jadwal-kegiatan') ? 'block' : 'hidden' }} py-1 space-y-1">
+                                <li>
+                                    <a href="/kamera-upacara"
+                                        class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('kamera-upacara') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                        Scan QR Upacara</a>
+                                </li>
+                                <li>
+                                    <a href="/kamera-apel"
+                                        class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('kamera-apel') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                        Scan QR Apel</a>
+                                </li>
+                                <li>
+                                    <a href="/kamera-senam"
+                                        class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('kamera-senam') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                        Scan QR Senam</a>
+                                </li>
+                                <li>
+                                    <a href="/jadwal-kegiatan"
+                                        class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('jadwal-kegiatan') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                        Jadwal Kegiatan</a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endif
+                    @if (in_array(Auth::user()->role_id, [1, 2, 4, 9]))
+                        <li class="group mb-1 mt-1">
+                            <button type="button"
+                                class="flex items-center w-full px-3 py-1 text-gray-300 transition duration-75 group hover:bg-utama text-md"
+                                aria-controls="admin-pelanggaran" data-collapse-toggle="admin-pelanggaran">
+                                <i class="ri-file-warning-line text-lg font-medium"></i>
+                                <span class="flex-1 ms-3 text-left text-sm whitespace-nowrap">Pelanggaran</span>
+                                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 10 6">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2" d="m1 1 4 4 4-4" />
+                                </svg>
+                            </button>
+                            <ul id="admin-pelanggaran"
+                                class="{{ Request::is('kamera-pelatih', 'edit-pelanggaran', 'laporan-pelanggaran', 'laporan-pelanggaran/*', 'data-pelanggaran', 'data-pelanggaran/*', 'edit-pelanggaran/*') ? 'block' : 'hidden' }} py-1 space-y-1">
+                                <li>
+                                    <a href="{{ route('admin.scanCamPelatih') }}"
+                                        class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm  {{ Request::is('kamera-pelatih') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                        Scan QR Pelanggaran</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('admin.laporanPelanggaran') }}"
+                                        class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('laporan-pelanggaran', 'laporan-pelanggaran/*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                        Laporan Pelanggaran</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('admin.dataPelanggaran') }}"
+                                        class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('data-pelanggaran', 'data-pelanggaran/*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                        Data Pelanggaran</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('admin.editPelanggaranIdKategori', 1) }}"
+                                        class="flex items-center w-full px-3 py-1 transition duration-75 pl-6 group text-sm {{ Request::is('edit-pelanggaran', 'edit-pelanggaran/*') ? 'bg-utama text-white' : 'text-gray-300 hover:bg-utama' }}">•
+                                        Edit Pelanggaran</a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endif
                 @endif
-                @if (Auth::check() && Auth::user()->role_id == 1)
+                @if (Auth::check() && in_array(Auth::user()->role_id, [1, 8, 9]))
                     <div class="mb-3 mt-1">
                         <h6
                             class="md:min-w-full text-white text-sm uppercase font-bold block pt-1 px-2 mt-3 no-underline">
@@ -337,13 +376,15 @@
                         </h6>
                     </div>
 
-                    <li class="mb-1 group">
-                        <a href="{{ route('admin.jenis.index') }}"
-                            class="{{ Request::is('admin/izin/jenis*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
-                            <i class="ri-settings-4-line mr-3 text-lg"></i>
-                            <span class="text-sm">Kelola Jenis Izin</span>
-                        </a>
-                    </li>
+                    @if (in_array(Auth::user()->role_id, [1, 9]))
+                        <li class="mb-1 group">
+                            <a href="{{ route('admin.jenis.index') }}"
+                                class="{{ Request::is('admin/izin/jenis*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
+                                <i class="ri-settings-4-line mr-3 text-lg"></i>
+                                <span class="text-sm">Kelola Jenis Izin</span>
+                            </a>
+                        </li>
+                    @endif
                     <li class="mb-1 group">
                         <a href="{{ route('admin.izin.data.index') }}"
                             class="{{ Request::is('admin/izin/data*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
@@ -352,27 +393,29 @@
                         </a>
                     </li>
 
-                    <li class="mb-1 group">
-                        <a href="/data-mahasiswa"
-                            class="{{ Request::is('data-mahasiswa') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
-                            <i class="ri-database-2-line mr-3 text-lg"></i>
-                            <span class="text-sm">Data Mahasiswa</span>
-                        </a>
-                    </li>
-                    <li class="mb-1 group">
-                        <a href="/generate-laporan"
-                            class="{{ Request::is('generate-laporan') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
-                            <i class="ri-file-list-3-line mr-3 text-lg"></i>
-                            <span class="text-sm">Export Laporan</span>
-                        </a>
-                    </li>
-                    <li class="mb-1 group">
-                        <a href="/sistem-admin"
-                            class="{{ Request::is('sistem-laporan') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
-                            <i class="ri-settings-2-line mr-3 text-lg"></i>
-                            <span class="text-sm">Sistem Admin</span>
-                        </a>
-                    </li>
+                    @if (in_array(Auth::user()->role_id, [1, 9]))
+                        <li class="mb-1 group">
+                            <a href="/data-mahasiswa"
+                                class="{{ Request::is('data-mahasiswa') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
+                                <i class="ri-database-2-line mr-3 text-lg"></i>
+                                <span class="text-sm">Data Mahasiswa</span>
+                            </a>
+                        </li>
+                        <li class="mb-1 group">
+                            <a href="/generate-laporan"
+                                class="{{ Request::is('generate-laporan') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
+                                <i class="ri-file-list-3-line mr-3 text-lg"></i>
+                                <span class="text-sm">Export Laporan</span>
+                            </a>
+                        </li>
+                        <li class="mb-1 group">
+                            <a href="/sistem-admin"
+                                class="{{ Request::is('sistem-laporan') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">
+                                <i class="ri-settings-2-line mr-3 text-lg"></i>
+                                <span class="text-sm">Sistem Admin</span>
+                            </a>
+                        </li>
+                    @endif
                 @endif
             </ul>
         </div>

@@ -35,16 +35,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RoleSeeder::class);
 
-        // Role 'pembina' untuk Epic 01 (Modul UKM Dinamis, §7.1 desain arsitektur).
-        // Ditambahkan di sini — bukan di RoleSeeder.php — supaya urutan ID benar
-        // di instalasi baru/DB tes: migrasi 2026_08_04_000005_add_pembina_role
-        // sengaja tidak bertindak di sini (tabel roles masih kosong saat migrasi
-        // jalan, sebelum seeder), jadi firstOrCreate() di bawah yang menjamin
-        // pembina mendapat id=5 setelah RoleSeeder mengisi id 1-4. Di produksi
-        // (roles sudah terisi), migrasi tadi yang menangani lewat updateOrInsert
-        // dan baris ini menjadi no-op (Role::firstOrCreate menemukan baris yang
-        // sudah ada).
-        Role::firstOrCreate(['name' => 'pembina']);
 
         $this->call(BlokRuanganSeeder::class);
         $this->call(ProdiSeeder::class);
@@ -56,22 +46,21 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin Asrama Polbangtan',
             'email' => 'admin@asramapolbangtan-mlg.com',
             'password' => bcrypt('password'),
-            'role_id' => 1,
+            'role_id' => User::ADMIN_ROLE_ID,
         ]);
 
-        
         User::create([
             'name' => 'Developer Asrama Polbangtan',
             'email' => 'developer@asramapolbangtan-mlg.com',
             'password' => bcrypt('@asramaPolbangtan2023'),
-            'role_id' => 1,
+            'role_id' => User::ADMIN_ROLE_ID,
         ]);
 
         User::create([
             'name' => 'user Asrama Polbangtan',
             'email' => 'user@gmail.com',
             'password' => bcrypt('password'),
-            'role_id' => 3,
+            'role_id' => User::USER_ROLE_ID,
             'prodi_id' => 1,
         ]);
 
@@ -87,7 +76,7 @@ class DatabaseSeeder extends Seeder
         //     'asal_daerah' => 'Malang',
         //     'no_hp' => '081233219133',
         //     'password' => bcrypt('password'),
-        //     'role_id' => Role::where('name', 'user')->first('id'),
+        //     'role_id' => User::USER_ROLE_ID,
         // ]);
         // User::factory()->create([
         //     'name' => 'Operator Development Asrama Polbangtan',
@@ -100,7 +89,7 @@ class DatabaseSeeder extends Seeder
         //     'asal_daerah' => 'Malang',
         //     'no_hp' => '081234219133',
         //     'password' => bcrypt('password'),
-        //     'role_id' => Role::where('name', 'operator')->first('id'),
+        //     'role_id' => User::OPERATOR_ROLE_ID,
         // ]);
         // User::factory()->create([
         //     'name' => 'Pelatih Development Asrama Polbangtan',
@@ -113,7 +102,7 @@ class DatabaseSeeder extends Seeder
         //     'asal_daerah' => 'Malang',
         //     'no_hp' => '082233219133',
         //     'password' => bcrypt('password'),
-        //     'role_id' => Role::where('name', 'pelatih')->first('id'),
+        //     'role_id' => User::PELATIH_ROLE_ID,
         // ]);
         
         // factory Development Only

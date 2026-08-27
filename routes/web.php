@@ -93,8 +93,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard/izin/{pengajuan}/pdf', [\App\Http\Controllers\IzinMahasiswaController::class, 'downloadPdf'])->name('izin.pdf');
         Route::post('/dashboard/izin/{pengajuan}/batal', [\App\Http\Controllers\IzinMahasiswaController::class, 'batal'])->name('izin.batal');
     });
-
     Route::middleware('role:admin')->name('admin.')->group(function () {
+
+        Route::get('/dosen-pa', [\App\Http\Controllers\Admin\DosenPaController::class, 'index'])->name('dosen_pa.index');
+        Route::post('/dosen-pa/import', [\App\Http\Controllers\Admin\DosenPaController::class, 'import'])->name('dosen_pa.import');
+        Route::get('/dosen-pa/{id}', [\App\Http\Controllers\Admin\DosenPaController::class, 'show'])->name('dosen_pa.show');
+        Route::delete('/dosen-pa/{id}', [\App\Http\Controllers\Admin\DosenPaController::class, 'destroy'])->name('dosen_pa.destroy');
+        
+        Route::post('/hapus-lulusan/import', [\App\Http\Controllers\Admin\LulusanController::class, 'import'])->name('lulusan.import');
+
         Route::get('/data-mahasiswa', [DashboardController::class, 'dataMahasiswa'])->name('dataMahasiswa');
         Route::post('/data-mahasiswa/search-blokruangan', [DashboardController::class, 'searchMahasiswaByBlokRuangan'])->name('searchMahasiswaByBlokRuangan');
         Route::post('/data-mahasiswa/get-nomor-ruangan', [DashboardController::class, 'getNomorRuangan'])->name('getNomorRuangan');
@@ -137,7 +144,7 @@ Route::middleware(['auth'])->group(function () {
     // authDashboard() mengarahkan role pembina ke admin.index — kalau grup ini
     // menolaknya, middleware akan redirect balik ke admin.index tanpa akhir.
     // Lihat Konflik 1 di .claude/plans/epic-01-ukm-dinamis.md.
-    Route::middleware('role:admin,operator,pelatih,pembina')->name('admin.')->group(function () {
+    Route::middleware('role:admin,operator,pelatih,pembina,pelatih_ukm,dosen_pa,pejabat,security')->name('admin.')->group(function () {
         Route::get('/dashboard-admin', [DashboardController::class, 'index'])->name('index');
         Route::get('/getDataPresenceUserLast7Days', [DashboardController::class, 'getDataPresenceUserLast7Days'])->name('getDataPresenceUserLast7Days');
 
@@ -157,6 +164,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/data-petugas/destroy/{id}', [DashboardAdminController::class, 'destroyDataPetugas'])->name('destroyPetugas');
 
         // EPIC 03: MODUL PERIZINAN — Admin Management Routes (M6)
+    Route::middleware(['role:admin,pejabat'])->group(function () {
         Route::resource('izin/jenis', \App\Http\Controllers\AdminJenisIzinController::class)->names([
             'index' => 'jenis.index',
             'create' => 'jenis.create',
@@ -170,7 +178,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/izin/data-export/pdf', [\App\Http\Controllers\AdminIzinDataController::class, 'exportPdf'])->name('izin.data.pdf');
         Route::get('/izin/data-export/excel', [\App\Http\Controllers\AdminIzinDataController::class, 'exportExcel'])->name('izin.data.excel');
         Route::get('/izin/data/{pengajuan}', [\App\Http\Controllers\AdminIzinDataController::class, 'show'])->name('izin.data.show');
+    });
 
+    Route::middleware(['role:admin,pejabat'])->group(function () {
         Route::get('/piket-petugas/generate-jadwal-bulanan', [DashboardAdminController::class, 'piketPetugasGenerateJadwalBulanan'])->name('piketPetugasGenerateJadwalBulanan');
         Route::get('/piket-petugas/generate-jadwal-mingguan', [DashboardAdminController::class, 'piketPetugasGenerateJadwalMingguan'])->name('piketPetugasGenerateJadwalMingguan');
         Route::post('/piket-petugas/generate-jadwal', [DashboardAdminController::class, 'piketPetugasGenerateJadwal'])->name('piketPetugasGenerateJadwal');
@@ -179,6 +189,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/piket-petugas/edit/{id}', [DashboardAdminController::class, 'showPiketPetugasSingle'])->name('showPiketPetugasSingle');
         Route::post('/piket-petugas/update/{id}', [DashboardAdminController::class, 'updatePiketPetugas'])->name('updatePiketPetugas');
 
+    });
         Route::get('/kamera-pelatih', [QRControllerHukum::class, 'scanCamPelatih'])->name('scanCamPelatih');  //Done Survey
         Route::post('/kamera-pelatih', [QRControllerHukum::class, 'scanCamPelatihStore'])->name('scanCamPelatihStore');  //Done Survey
 
@@ -188,6 +199,7 @@ Route::middleware(['auth'])->group(function () {
         // Scanner" links, "kembali ke detail" from verifikasi). Scoped
         // in-controller: non-admin staff only see UKMs they are an active
         // member of.
+    Route::middleware(['role:admin,pembina,pelatih_ukm,pejabat'])->group(function () {
         Route::get('ukm/{ukm}', [UkmController::class, 'show'])->name('ukm.show');
         Route::post('ukm/{ukm}/jadwal', [UkmJadwalController::class, 'store'])->name('ukm.jadwal.store');
         Route::get('ukm/{ukm}/jadwal/events', [UkmJadwalController::class, 'events'])->name('ukm.jadwal.events');
@@ -201,10 +213,14 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('ukm/{ukm}/anggota/{member}', [UkmMemberController::class, 'destroy'])->name('ukm.anggota.destroy');
 
         // EPIC 01: MODUL UKM DINAMIS — Pembina & Admin Verification & Report Routes (US 1.4)
-        Route::get('ukm/{ukm}/verifikasi', [UkmVerifikasiController::class, 'index'])->name('ukm.verifikasi.index');
-        Route::patch('ukm/jadwal/{jadwal}/verifikasi', [UkmVerifikasiController::class, 'update'])->name('ukm.verifikasi.update');
-        Route::post('ukm/{ukm}/laporan/pdf', [UkmLaporanController::class, 'pdfReport'])->name('ukm.laporan.pdf');
+        Route::middleware(['role:admin,pembina,pejabat'])->group(function () {
+            Route::get('ukm/{ukm}/verifikasi', [UkmVerifikasiController::class, 'index'])->name('ukm.verifikasi.index');
+            Route::patch('ukm/jadwal/{jadwal}/verifikasi', [UkmVerifikasiController::class, 'update'])->name('ukm.verifikasi.update');
+            Route::post('ukm/{ukm}/laporan/pdf', [UkmLaporanController::class, 'pdfReport'])->name('ukm.laporan.pdf');
+        });
 
+    });
+    Route::middleware(['role:admin,operator,pelatih,pejabat'])->group(function () {
         Route::get('/data-pelanggaran', [PelanggaranController::class, 'dataPelanggaran'])->name('dataPelanggaran');
         Route::post('/data-pelanggaran/searchdatapelanggaran', [PelanggaranController::class, 'searchDataPelanggaran'])->name('searchDataPelanggaran');
         Route::get('/data-pelanggaran/detail/{id}', [PelanggaranController::class, 'dataPelanggaranDetail'])->name('dataPelanggaranDetail');
@@ -224,9 +240,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/deletejenispelanggaran/{id}', [PelanggaranController::class, 'deleteJenisPelanggaran'])->name('deleteJenisPelanggaran');
         Route::get('/deletekategori/{id}', [PelanggaranController::class, 'deleteKategori'])->name('deleteKategori');
 
+    });
+    Route::middleware(['role:admin,operator,security,pejabat'])->group(function () {
         Route::get('/kamera-scan', [DashboardAdminController::class, 'showKamera'])->name('kamera'); 
         Route::post('/presense/api', [QRController::class, 'presense'])->name('presense.api');
 
+    });
+    Route::middleware(['role:admin,operator,pejabat'])->group(function () {
         Route::get('/kamera-upacara', [QRControllerKegiatan::class, 'kameraKegiatanUpacaraShow'])->name('kameraKegiatanUpacaraShow'); 
         Route::get('/kamera-apel', [QRControllerKegiatan::class, 'kameraKegiatanApelShow'])->name('kameraKegiatanApelShow');
         Route::get('/kamera-senam', [QRControllerKegiatan::class, 'kameraKegiatanSenamShow'])->name('kameraKegiatanSenamShow');
@@ -248,14 +268,18 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/data-kegiatan-wajib-filter', [KegiatanAsramaController::class, 'dataKegiatanWajibDetailFilter'])->name('dataKegiatanWajibDetailFilter');
         Route::post('/edit-data-kegiatan-wajib/{id}/upacara', [KegiatanAsramaController::class, 'editDataKegiatanWajib'])->name('editDataKegiatanWajib');
 
+    });
         Route::post('/delete-foto/{user_id}', [ProfileController::class, 'deleteFotoProfile'])->name('deleteFotoProfile');
 
         // ROUTE DEVELOPMENT BACKEND
+    Route::middleware(['role:admin,operator,pejabat'])->group(function () {
         Route::get('/data-absen-keluar', [AbsensiMahasiswa::class, 'dataAbsenKeluarShow'])->name('data-absen-keluar');
         Route::post ('/data-absen-keluar/search', [AbsensiMahasiswa::class, 'dataAbsenKeluarSearch'])->name('dataAbsenKeluarSearch');
         Route::get('/data-absen-keluar/detail/{id}', [AbsensiMahasiswa::class, 'dataAbsenKeluarDetail'])->name('detailAbsenKeluarDetail');
 
+    });
         // EPIC 03: PERSETUJUAN PERIZINAN (M2b Approver Routes)
+    Route::middleware(['role:admin,pejabat,dosen_pa'])->group(function () {
         Route::get('/admin/izin/persetujuan', [\App\Http\Controllers\IzinPersetujuanController::class, 'inbox'])->name('izin.persetujuan.inbox');
         Route::get('/admin/izin/persetujuan/{pengajuan}', [\App\Http\Controllers\IzinPersetujuanController::class, 'review'])->name('izin.persetujuan.review');
     Route::get('/admin/izin/persetujuan/{pengajuan}/pdf', [\App\Http\Controllers\IzinPersetujuanController::class, 'downloadPdf'])->name('izin.persetujuan.pdf');
@@ -264,6 +288,7 @@ Route::middleware(['auth'])->group(function () {
         // EPIC 03: MONITOR ASRAMA (M5 Dashboard Staff Routes)
         Route::get('/admin/izin/monitor', [\App\Http\Controllers\IzinMonitorController::class, 'index'])->name('izin.monitor');
         Route::get('/admin/izin/monitor/data', [\App\Http\Controllers\IzinMonitorController::class, 'data'])->name('izin.monitor.data');
+    });
     });
 
     // LOGOUT ROUTE

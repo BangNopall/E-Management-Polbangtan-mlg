@@ -182,6 +182,31 @@
                 </div>
             </div>
             <div class="border-b border-gray-300 my-3"></div>
+            @error('dosen_pa_id')
+                <span class="text-red-500 text-sm mt-1 text-right">{{ $message }}</span>
+            @enderror
+            <div class="flex flex-col md:flex-row">
+                <div class="text-md text-gray-600 font-medium w-auto md:w-[400px]">
+                    Dosen PA
+                </div>
+                <div class="flex flex-col md:flex-row w-auto md:w-[500px] mt-1 md:mt-0">
+                    <span
+                        class="inline-flex items-center w-10 md:w-auto px-3 text-sm text-white bg-teal-900 border border-r-1 md:border-r-0 border-utama md:rounded-tl-md md:rounded-t-none rounded-t-md md:rounded-l-md">
+                        <i class="ri-user-2-line text-md text-white"></i>
+                    </span>
+                    <select id="dosen_pa_id" name="dosen_pa_id"
+                        class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5">
+                        <option selected hidden value="">Pilih Dosen PA</option>
+                        @foreach ($dosenPas as $dp)
+                            <option value="{{ $dp->id }}"
+                                {{ old('dosen_pa_id', $user->dosen_pa_id) == $dp->id ? 'selected' : '' }}>
+                                {{ $dp->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="border-b border-gray-300 my-3"></div>
             @error('blok_ruangan_id')
                 <span class="text-red-500 text-sm mt-1 text-right">{{ $message }}</span>
             @enderror
@@ -201,6 +226,31 @@
                             <option value="{{ $block->id }}"
                                 {{ old('blok_ruangan_id', $user->blok_ruangan_id) == $block->id ? 'selected' : '' }}>
                                 {{ $block->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="border-b border-gray-300 my-3"></div>
+            @error('dosen_pa_id')
+                <span class="text-red-500 text-sm mt-1 text-right">{{ $message }}</span>
+            @enderror
+            <div class="flex flex-col md:flex-row">
+                <div class="text-md text-gray-600 font-medium w-auto md:w-[400px]">
+                    Dosen PA
+                </div>
+                <div class="flex flex-col md:flex-row w-auto md:w-[500px] mt-1 md:mt-0">
+                    <span
+                        class="inline-flex items-center w-10 md:w-auto px-3 text-sm text-white bg-teal-900 border border-r-1 md:border-r-0 border-utama md:rounded-tl-md md:rounded-t-none rounded-t-md md:rounded-l-md">
+                        <i class="ri-user-2-line text-md text-white"></i>
+                    </span>
+                    <select id="dosen_pa_id" name="dosen_pa_id"
+                        class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5">
+                        <option selected hidden value="">Pilih Dosen PA</option>
+                        @foreach ($dosenPas as $dp)
+                            <option value="{{ $dp->id }}"
+                                {{ old('dosen_pa_id', $user->dosen_pa_id) == $dp->id ? 'selected' : '' }}>
+                                {{ $dp->name }}
                             </option>
                         @endforeach
                     </select>

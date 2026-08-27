@@ -81,6 +81,12 @@
                             Kelas
                         </button>
                     </li>
+                    <li>
+                        <button onclick="showTab('lulusan', this)" id="tombol"
+                            class="cursor-pointer font-semibold w-full text-md tab-button block text-center px-8 py-3 text-gray-500 hover:text-utama hover:border-b hover:border-utama transition-all duration-500 ease-in-out">
+                            Lulusan
+                        </button>
+                    </li>
                 </ul>
             </div>
             <div class="border-b border-gray-300 -mt-[1px]"></div>
@@ -156,11 +162,60 @@
                 </button>
             </form>
         </div>
+        {{-- LULUSAN --}}
+        <div class="pt-6 pb-3 px-3 tab-content" id="lulusanTab" style="display: none">
+            <p class="text-sm text-gray-500">
+                Pilih opsi ini jika Anda ingin menghapus data mahasiswa beserta relasinya secara permanen.
+            </p>
+            <div class="mb-4 mt-5 text-sm text-gray-600 bg-yellow-50 p-4 border border-yellow-200 rounded">
+                <strong>Peringatan:</strong> Fitur ini akan menghapus data mahasiswa (history izin, ukm, pelanggaran, dll) secara permanen berdasarkan NIM yang ada pada file Excel.
+            </div>
+            
+            <form action="{{ route('admin.lulusan.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-utama mb-2" for="file_lulusan">
+                        Upload File Excel
+                    </label>
+                    <input type="file" name="file" id="file_lulusan" class="block w-full sm:w-[300px] text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" required accept=".xls, .xlsx, .csv">
+                    <p class="mt-1 text-sm text-gray-500" id="file_input_help">XLS, XLSX, CSV</p>
+                </div>
+                
+                <button type="submit" class="bg-red-600 text-sm text-white px-4 py-2 rounded mt-3 shadow hover:bg-red-700 w-full sm:w-auto font-bold" onclick="return confirm('Apakah Anda yakin? Aksi ini tidak dapat dibatalkan.')">Hapus Permanen</button>
+            </form>
+
+            <div class="mt-6 border border-gray-300 rounded-lg p-4 bg-gray-50">
+                <h3 class="text-sm font-semibold text-gray-700 mb-2">Contoh Format Excel Lulusan:</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-xs text-left text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-200">
+                            <tr>
+                                <th scope="col" class="px-4 py-2 border border-gray-300">nim (Wajib ada)</th>
+                                <th scope="col" class="px-4 py-2 border border-gray-300">Nama (Opsional)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white border-b">
+                                <td class="px-4 py-2 border border-gray-300">1234567890</td>
+                                <td class="px-4 py-2 border border-gray-300">Budi Santoso</td>
+                            </tr>
+                            <tr class="bg-white">
+                                <td class="px-4 py-2 border border-gray-300">0987654321</td>
+                                <td class="px-4 py-2 border border-gray-300">Siti Aminah</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="tab-content" id="import">
         <div class="hidden"></div>
     </div>
     <div class="tab-content" id="kelas" style="display: none">
+        <div class="hidden"></div>
+    </div>
+    <div class="tab-content" id="lulusan" style="display: none">
         <div class="hidden"></div>
     </div>
     <script src="{{ asset('js/library/flowbite.min.js') }}" type="text/javascript"></script>

@@ -32,6 +32,7 @@ class ProfileController extends Controller
         $blocks = BlokRuangan::all();
         $prodis = Prodi::all();
         $kelas = Kelas::all();
+        $dosenPas = \App\Models\User::where('role_id', \App\Models\User::DOSEN_PA_ROLE_ID)->get();
 
         $title = 'Profil';
 

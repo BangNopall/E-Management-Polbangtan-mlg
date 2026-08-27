@@ -16,17 +16,24 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
-        Role::create([
-            'name' => 'admin', // admin & developer (1)
-        ]);
-        Role::create([
-            'name' => 'operator', // petugas (2)
-        ]);
-        Role::create([
-            'name' => 'user', // mahasiswa (3)
-        ]);
-        Role::create([
-            'name' => 'pelatih',  // pelatih (4)
-        ]);
+        // Must match constants in App\Models\User
+        // 1: admin, 2: operator, 3: user, 4: pelatih, 5: pembina, 
+        // 6: pelatih_ukm, 7: security, 8: dosen_pa, 9: pejabat
+        
+        $roles = [
+            1 => 'admin',       // admin & developer
+            2 => 'operator',    // petugas asrama
+            3 => 'user',        // mahasiswa
+            4 => 'pelatih',     // pelatih
+            5 => 'pembina',     // pembina
+            6 => 'pelatih_ukm', // pelatih ukm
+            7 => 'security',    // security
+            8 => 'dosen_pa',    // dosen pa
+            9 => 'pejabat',     // pejabat
+        ];
+
+        foreach ($roles as $id => $name) {
+            Role::updateOrCreate(['id' => $id], ['name' => $name]);
+        }
     }
 }
