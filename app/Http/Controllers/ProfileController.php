@@ -32,11 +32,11 @@ class ProfileController extends Controller
         $blocks = BlokRuangan::all();
         $prodis = Prodi::all();
         $kelas = Kelas::all();
-        $dosenPas = \App\Models\User::where('role_id', \App\Models\User::DOSEN_PA_ROLE_ID)->get();
+        $dosenPas = User::where('role_id', User::DOSEN_PA_ROLE_ID)->get();
 
         $title = 'Profil';
 
-        return view('profil', compact('user', 'blocks', 'prodis', 'kelas', 'title'));
+        return view('profil', compact('user', 'blocks', 'prodis', 'kelas', 'title', 'dosenPas'));
     }
 
     public function editProfile(Request $request, $id)

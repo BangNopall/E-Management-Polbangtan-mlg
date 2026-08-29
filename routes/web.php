@@ -92,6 +92,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard/izin/{pengajuan}', [\App\Http\Controllers\IzinMahasiswaController::class, 'show'])->name('izin.show');
         Route::get('/dashboard/izin/{pengajuan}/pdf', [\App\Http\Controllers\IzinMahasiswaController::class, 'downloadPdf'])->name('izin.pdf');
         Route::post('/dashboard/izin/{pengajuan}/batal', [\App\Http\Controllers\IzinMahasiswaController::class, 'batal'])->name('izin.batal');
+        Route::post('/dashboard/izin/{pengajuan}/konfirmasi-tiba', [\App\Http\Controllers\IzinMahasiswaController::class, 'konfirmasiTiba'])->name('izin.konfirmasi-tiba');
     });
     Route::middleware('role:admin')->name('admin.')->group(function () {
 
@@ -180,7 +181,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/izin/data/{pengajuan}', [\App\Http\Controllers\AdminIzinDataController::class, 'show'])->name('izin.data.show');
     });
 
-    Route::middleware(['role:admin,pejabat'])->group(function () {
+    Route::middleware(['role:admin,pejabat,operator'])->group(function () {
         Route::get('/piket-petugas/generate-jadwal-bulanan', [DashboardAdminController::class, 'piketPetugasGenerateJadwalBulanan'])->name('piketPetugasGenerateJadwalBulanan');
         Route::get('/piket-petugas/generate-jadwal-mingguan', [DashboardAdminController::class, 'piketPetugasGenerateJadwalMingguan'])->name('piketPetugasGenerateJadwalMingguan');
         Route::post('/piket-petugas/generate-jadwal', [DashboardAdminController::class, 'piketPetugasGenerateJadwal'])->name('piketPetugasGenerateJadwal');

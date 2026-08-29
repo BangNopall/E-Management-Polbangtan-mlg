@@ -44,14 +44,14 @@ class DatabaseSeeder extends Seeder
 
         User::create([
             'name' => 'Admin Asrama Polbangtan',
-            'email' => 'admin@asramapolbangtan-mlg.com',
+            'email' => 'admin@polbangtanmalang.ac.id',
             'password' => bcrypt('password'),
             'role_id' => User::ADMIN_ROLE_ID,
         ]);
 
         User::create([
             'name' => 'Developer Asrama Polbangtan',
-            'email' => 'developer@asramapolbangtan-mlg.com',
+            'email' => 'developer@polbangtanmalang.ac.id',
             'password' => bcrypt('@asramaPolbangtan2023'),
             'role_id' => User::ADMIN_ROLE_ID,
         ]);
@@ -67,7 +67,7 @@ class DatabaseSeeder extends Seeder
         // User Development Only
         // User::factory()->create([
         //     'name' => 'User Development Asrama Polbangtan',
-        //     'email' => 'user@asramapolbangtan-mlg.com',
+        //     'email' => 'user@polbangtanmalang.ac.id',
         //     'nim' => '1234567891234',
         //     'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first('id'),
         //     'kelas_id' => Kelas::where('nama_kelas', 'Agrinak 1-B')->first('id'),
@@ -80,7 +80,7 @@ class DatabaseSeeder extends Seeder
         // ]);
         // User::factory()->create([
         //     'name' => 'Operator Development Asrama Polbangtan',
-        //     'email' => 'operator@asramapolbangtan-mlg.com',
+        //     'email' => 'operator@polbangtanmalang.ac.id',
         //     'nim' => '1234566891234',
         //     'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first('id'),
         //     'kelas_id' => Kelas::where('nama_kelas', 'PPB 1-B')->first('id'),
@@ -93,7 +93,7 @@ class DatabaseSeeder extends Seeder
         // ]);
         // User::factory()->create([
         //     'name' => 'Pelatih Development Asrama Polbangtan',
-        //     'email' => 'pelatih@asramapolbangtan-mlg.com',
+        //     'email' => 'pelatih@polbangtanmalang.ac.id',
         //     'nim' => '1434567891234',
         //     'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first('id'),
         //     'kelas_id' => Kelas::where('nama_kelas', 'PPB 1-B')->first('id'),
@@ -132,9 +132,9 @@ class DatabaseSeeder extends Seeder
         // PresensiApel::factory(1000)->create();
         // PresensiSenam::factory(1000)->create();
 
+        $this->call(PejabatSeeder::class);
+        $this->call(StaffSeeder::class);
         $this->call(UkmSeeder::class);
         $this->call(JenisIzinSeeder::class);
-        $this->call(StaffSeeder::class);
-        $this->call(PejabatSeeder::class);
     }
 }

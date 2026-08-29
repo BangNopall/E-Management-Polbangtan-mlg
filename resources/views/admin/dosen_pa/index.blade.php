@@ -18,7 +18,7 @@
         </div>
     @endif
 
-    <div class="bg-white rounded-lg p-0 sm:p-5 mt-5 border-2 border-gray-200">
+    <div class="bg-white rounded-lg p-2 sm:p-5 mt-5 border-2 border-gray-200">
         <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Import Data Dosen PA</h2>
         <div class="mb-4 text-sm text-gray-600 bg-blue-50 p-4 border border-blue-200 rounded">
             Silahkan upload file excel untuk menambahkan data Dosen PA secara massal.
@@ -27,7 +27,7 @@
             @csrf
             <div class="w-full sm:w-1/2">
                 <label class="block text-sm font-medium text-gray-700 mb-1" for="file_dosen">Upload File Excel</label>
-                <input type="file" name="file" id="file_dosen" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2" accept=".xls, .xlsx, .csv" required>
+                <input type="file" name="file" id="file_dosen" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" accept=".xls, .xlsx, .csv" required>
             </div>
             <button type="submit" class="bg-utama text-white px-4 py-2.5 rounded shadow hover:bg-teal-800 transition-all font-semibold text-sm">Import Excel</button>
         </form>
@@ -40,21 +40,18 @@
                         <tr>
                             <th scope="col" class="px-4 py-2 border border-gray-300">nama</th>
                             <th scope="col" class="px-4 py-2 border border-gray-300">email</th>
-                            <th scope="col" class="px-4 py-2 border border-gray-300">nip (Opsional)</th>
                             <th scope="col" class="px-4 py-2 border border-gray-300">password (Opsional)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="bg-white border-b">
                             <td class="px-4 py-2 border border-gray-300">Ir. Budi Santoso</td>
-                            <td class="px-4 py-2 border border-gray-300">budi@polbangtan.ac.id</td>
-                            <td class="px-4 py-2 border border-gray-300">198001012005011001</td>
-                            <td class="px-4 py-2 border border-gray-300">rahasia123</td>
+                            <td class="px-4 py-2 border border-gray-300">budi@polbangtanmalang.ac.id</td>
+                            <td class="px-4 py-2 border border-gray-300">password</td>
                         </tr>
                         <tr class="bg-white">
                             <td class="px-4 py-2 border border-gray-300">Dr. Siti Aminah</td>
-                            <td class="px-4 py-2 border border-gray-300">siti@polbangtan.ac.id</td>
-                            <td class="px-4 py-2 border border-gray-300"></td>
+                            <td class="px-4 py-2 border border-gray-300">siti@polbangtanmalang.ac.id</td>
                             <td class="px-4 py-2 border border-gray-300"></td>
                         </tr>
                     </tbody>
@@ -63,7 +60,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-lg p-0 sm:p-5 mt-5 border-2 border-gray-200">
+    <div class="bg-white rounded-lg p-2 sm:p-5 mt-5 border-2 border-gray-200">
         <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Daftar Dosen PA</h2>
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg border border-gray-200">
             <table class="w-full text-sm text-left text-gray-500">

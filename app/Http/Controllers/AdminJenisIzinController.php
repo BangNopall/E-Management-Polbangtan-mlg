@@ -113,7 +113,6 @@ class AdminJenisIzinController extends Controller
             'steps.*.resolver' => ['required', 'string', 'in:dosen_pa,pembina_ukm,petugas_jaga,pejabat'],
             'steps.*.jabatan' => ['nullable', 'array'],
             'steps.*.mode' => ['required', 'string', 'in:any,all'],
-            'steps.*.resolve_saat' => ['required', 'string', 'in:submit,langkah_aktif'],
         ], [
             'steps.required' => 'Wajib menyusun minimal 1 langkah persetujuan.',
             'steps.min' => 'Wajib menyusun minimal 1 langkah persetujuan.',
@@ -159,7 +158,7 @@ class AdminJenisIzinController extends Controller
                 'resolver' => $step['resolver'],
                 'jabatan' => $step['resolver'] === 'pejabat' ? array_values(array_filter($step['jabatan'] ?? [])) : null,
                 'mode' => $step['mode'],
-                'resolve_saat' => $step['resolve_saat'],
+                'resolve_saat' => $step['resolver'] === 'petugas_jaga' ? 'langkah_aktif' : 'submit',
             ]);
         }
     }

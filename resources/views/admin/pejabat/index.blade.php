@@ -30,7 +30,6 @@
                             <th scope="col" class="px-6 py-3">Nama Pejabat</th>
                             <th scope="col" class="px-6 py-3">Jabatan</th>
                             <th scope="col" class="px-6 py-3">Lingkup</th>
-                            <th scope="col" class="px-6 py-3">Masa Menjabat</th>
                             <th scope="col" class="px-6 py-3">Status</th>
                             <th scope="col" class="px-6 py-3">Aksi</th>
                         </tr>
@@ -53,10 +52,6 @@
                                     @if ($pejabat->lingkup_id)
                                         <span class="text-xs text-gray-500">(ID: {{ $pejabat->lingkup_id }})</span>
                                     @endif
-                                </td>
-                                <td class="px-6 py-4 text-xs">
-                                    {{ $pejabat->mulai_menjabat ? $pejabat->mulai_menjabat->format('d/m/Y') : '-' }} s/d
-                                    {{ $pejabat->selesai_menjabat ? $pejabat->selesai_menjabat->format('d/m/Y') : 'Sekarang' }}
                                 </td>
                                 <td class="px-6 py-4">
                                     @if ($pejabat->is_active)
@@ -124,7 +119,6 @@
                                     <option value="kaprodi" {{ $pejabat->jabatan == 'kaprodi' ? 'selected' : '' }}>Ketua Program Studi (Kaprodi)</option>
                                     <option value="kepala_asrama" {{ $pejabat->jabatan == 'kepala_asrama' ? 'selected' : '' }}>Kepala Asrama</option>
                                     <option value="unit_kemahasiswaan" {{ $pejabat->jabatan == 'unit_kemahasiswaan' ? 'selected' : '' }}>Unit Kemahasiswaan</option>
-                                    <option value="wadir_kemahasiswaan" {{ $pejabat->jabatan == 'wadir_kemahasiswaan' ? 'selected' : '' }}>Wakil Direktur Kemahasiswaan</option>
                                 </select>
                             </div>
                             <div>
@@ -139,17 +133,7 @@
                             <div>
                                 <label for="lingkup_id" class="block mb-1 text-sm font-medium text-gray-900">ID Lingkup (Opsional)</label>
                                 <input type="number" name="lingkup_id" value="{{ $pejabat->lingkup_id }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="ID Prodi/Blok">
-                                <p class="text-[10px] text-gray-500 mt-1">ID spesifik Prodi/Blok jika Lingkup bertipe Prodi/Blok.</p>
-                            </div>
-                            <div>
-                                <label for="mulai_menjabat" class="block mb-1 text-sm font-medium text-gray-900">Mulai Menjabat</label>
-                                <input type="date" name="mulai_menjabat" value="{{ $pejabat->mulai_menjabat ? $pejabat->mulai_menjabat->format('Y-m-d') : '' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
-                                <p class="text-[10px] text-gray-500 mt-1">Tanggal awal resmi menjabat.</p>
-                            </div>
-                            <div>
-                                <label for="selesai_menjabat" class="block mb-1 text-sm font-medium text-gray-900">Selesai Menjabat</label>
-                                <input type="date" name="selesai_menjabat" value="{{ $pejabat->selesai_menjabat ? $pejabat->selesai_menjabat->format('Y-m-d') : '' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
-                                <p class="text-[10px] text-gray-500 mt-1">Kosongkan jika masih aktif menjabat saat ini.</p>
+                                <p class="text-[10px] text-gray-500 mt-1">Masukkan ID program studi (contoh: 1) jika lingkup = prodi, atau ID blok gedung jika lingkup = blok.</p>
                             </div>
                             <div class="col-span-2 flex items-center">
                                 <input type="checkbox" name="is_active" value="1" id="is_active{{ $pejabat->id }}" {{ $pejabat->is_active ? 'checked' : '' }} class="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500">
@@ -195,7 +179,6 @@
                                 <option value="kaprodi">Ketua Program Studi (Kaprodi)</option>
                                 <option value="kepala_asrama">Kepala Asrama</option>
                                 <option value="unit_kemahasiswaan">Unit Kemahasiswaan</option>
-                                <option value="wadir_kemahasiswaan">Wakil Direktur Kemahasiswaan</option>
                             </select>
                         </div>
                         <div>
@@ -210,17 +193,7 @@
                         <div>
                             <label for="lingkup_id" class="block mb-1 text-sm font-medium text-gray-900">ID Lingkup (Opsional)</label>
                             <input type="number" name="lingkup_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="ID Prodi/Blok">
-                            <p class="text-[10px] text-gray-500 mt-1">ID spesifik Prodi/Blok jika Lingkup bertipe Prodi/Blok.</p>
-                        </div>
-                        <div>
-                            <label for="mulai_menjabat" class="block mb-1 text-sm font-medium text-gray-900">Mulai Menjabat</label>
-                            <input type="date" name="mulai_menjabat" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
-                            <p class="text-[10px] text-gray-500 mt-1">Tanggal awal resmi menjabat.</p>
-                        </div>
-                        <div>
-                            <label for="selesai_menjabat" class="block mb-1 text-sm font-medium text-gray-900">Selesai Menjabat</label>
-                            <input type="date" name="selesai_menjabat" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
-                            <p class="text-[10px] text-gray-500 mt-1">Kosongkan jika masih aktif menjabat saat ini.</p>
+                            <p class="text-[10px] text-gray-500 mt-1">Masukkan ID program studi (contoh: 1) jika lingkup = prodi, atau ID blok gedung jika lingkup = blok.</p>
                         </div>
                         <div class="col-span-2 flex items-center">
                             <input type="checkbox" name="is_active" value="1" id="is_active_new" checked class="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500">

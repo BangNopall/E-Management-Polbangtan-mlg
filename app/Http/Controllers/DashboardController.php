@@ -91,7 +91,7 @@ class DashboardController extends Controller
     {
         $blokRuangan = BlokRuangan::all();
         $kelas = Kelas::all();
-        $mahasiswa = User::where('role_id', 3)->paginate(10);
+        $mahasiswa = User::where('role_id', 3)->paginate(20);
 
         $title = "Data Mahasiswa";
 

@@ -21,7 +21,7 @@ class DosenPaImport implements ToModel, WithHeadingRow
             'name'     => $row['nama'] ?? $row['name'],
             'email'    => $row['email'],
             'nim'      => $row['nip'] ?? null, 
-            'password' => Hash::make($row['password'] ?? 'password123'),
+            'password' => Hash::make($row['password'] ?? 'password'),
             'role_id'  => User::DOSEN_PA_ROLE_ID,
             'status'   => 'didalam', // default status
         ]);

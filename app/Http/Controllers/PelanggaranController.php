@@ -88,12 +88,12 @@ class PelanggaranController extends Controller
         $data = Pelanggaran::where('user_id', $id_user)
             ->whereIn('statusPelanggaran', ['submitted', 'progressing', 'Done'])
             ->orderByRaw("FIELD(statusPelanggaran, 'submitted', 'progressing', 'Done')")
-            ->paginate(10);
+            ->paginate(20);
 
         // Query for rejected data
         $dataRejected = Pelanggaran::where('user_id', $id_user)
             ->where('statusPelanggaran', 'rejected')
-            ->paginate(10);
+            ->paginate(20);
 
         // Modify the items in the paginated result
         $data->each(function ($pelanggaran) {
@@ -512,17 +512,17 @@ class PelanggaranController extends Controller
         $submitted = Pelanggaran::with('user')
             ->whereIn('statusPelanggaran', ['submitted'])
             ->orderByRaw("ABS(DATEDIFF(date, '$today'))") // Urutkan berdasarkan perbedaan tanggal
-            ->paginate(10);
+            ->paginate(20);
 
         $rejected = Pelanggaran::with('user')
             ->whereIn('statusPelanggaran', ['rejected'])
             ->orderByRaw("ABS(DATEDIFF(date, '$today'))") // Urutkan berdasarkan perbedaan tanggal
-            ->paginate(10);
+            ->paginate(20);
 
         $progressing = Pelanggaran::with('user')
             ->whereIn('statusPelanggaran', ['progressing'])
             ->orderByRaw("ABS(DATEDIFF(date, '$today'))") // Urutkan berdasarkan perbedaan tanggal
-            ->paginate(10);
+            ->paginate(20);
 
         $totalSubmitted = Pelanggaran::whereIn('statusPelanggaran', ['submitted'])->count();
         $totalRejected = Pelanggaran::whereIn('statusPelanggaran', ['rejected'])->count();

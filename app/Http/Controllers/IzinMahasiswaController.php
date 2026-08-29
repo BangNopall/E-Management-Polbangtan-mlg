@@ -149,4 +149,26 @@ class IzinMahasiswaController extends Controller
                 ->with('error', $e->getMessage());
         }
     }
+
+    public function konfirmasiTiba(Request $request, PengajuanIzin $pengajuan)
+    {
+        abort_unless($pengajuan->user_id === auth()->id(), 403);
+        abort_unless($pengajuan->status === 'berjalan', 403, 'Izin tidak dalam status berjalan.');
+        abort_unless(optional($pengajuan->jenisIzin)->butuh_konfirmasi_tiba, 403, 'Izin ini tidak memerlukan konfirmasi tiba.');
+
+        $request->validate([
+            'foto_bukti' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $path = $request->file('foto_bukti')->store('bukti_tiba', 'public');
+
+        $pengajuan->update([
+            'tiba_at' => now(),
+            'tiba_bukti_path' => $path,
+            'tiba_dikonfirmasi_oleh' => auth()->id(),
+            'status' => 'selesai'
+        ]);
+
+        return redirect()->back()->with('success', 'Konfirmasi kedatangan berhasil disimpan. Izin telah selesai.');
+    }
 }

@@ -14,15 +14,15 @@ class PejabatSeeder extends Seeder
      */
     public function run(): void
     {
-        $password = Hash::make('password');
+        $password = bcrypt('password');
 
         // 1. Kaprodi
         $kaprodiUser = User::firstOrCreate(
-            ['email' => 'kaprodi@asramapolbangtan-mlg.com'],
+            ['email' => 'kaprodi@polbangtanmalang.ac.id'],
             [
                 'name' => 'Bapak Kaprodi',
                 'password' => $password,
-                'role_id' => User::PEMBINA_ROLE_ID,
+                'role_id' => User::PEJABAT_ROLE_ID,
                 'no_hp' => '081111111111',
             ]
         );
@@ -30,8 +30,7 @@ class PejabatSeeder extends Seeder
         Pejabat::firstOrCreate(
             [
                 'jabatan' => 'kaprodi',
-                'lingkup' => 'prodi',
-                'lingkup_id' => 1, // Asumsi prodi_id = 1 (Agrinak)
+                'lingkup' => 'global',
             ],
             [
                 'user_id' => $kaprodiUser->id,
@@ -42,11 +41,11 @@ class PejabatSeeder extends Seeder
 
         // 2. Kepala Asrama
         $kepalaAsramaUser = User::firstOrCreate(
-            ['email' => 'kepala_asrama@asramapolbangtan-mlg.com'],
+            ['email' => 'kepala_asrama@polbangtanmalang.ac.id'],
             [
                 'name' => 'Bapak Kepala Asrama',
                 'password' => $password,
-                'role_id' => User::PEMBINA_ROLE_ID,
+                'role_id' => User::PEJABAT_ROLE_ID,
                 'no_hp' => '082222222222',
             ]
         );
@@ -65,9 +64,9 @@ class PejabatSeeder extends Seeder
 
         // 3. Unit Kemahasiswaan
         $unitKemaUser = User::firstOrCreate(
-            ['email' => 'unit_kemahasiswaan@asramapolbangtan-mlg.com'],
+            ['email' => 'unit_kemahasiswaan@polbangtanmalang.ac.id'],
             [
-                'name' => 'Ibu Unit Kemahasiswaan',
+                'name' => 'Unit Kemahasiswaan',
                 'password' => $password,
                 'role_id' => User::OPERATOR_ROLE_ID,
                 'no_hp' => '083333333333',
@@ -81,29 +80,6 @@ class PejabatSeeder extends Seeder
             ],
             [
                 'user_id' => $unitKemaUser->id,
-                'mulai_menjabat' => now(),
-                'is_active' => true,
-            ]
-        );
-
-        // 4. Wadir Kemahasiswaan
-        $wadirUser = User::firstOrCreate(
-            ['email' => 'wadir@asramapolbangtan-mlg.com'],
-            [
-                'name' => 'Bapak Wadir Kemahasiswaan',
-                'password' => $password,
-                'role_id' => User::PEMBINA_ROLE_ID,
-                'no_hp' => '084444444444',
-            ]
-        );
-
-        Pejabat::firstOrCreate(
-            [
-                'jabatan' => 'wadir_kemahasiswaan',
-                'lingkup' => 'global',
-            ],
-            [
-                'user_id' => $wadirUser->id,
                 'mulai_menjabat' => now(),
                 'is_active' => true,
             ]

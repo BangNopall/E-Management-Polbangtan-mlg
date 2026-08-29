@@ -57,14 +57,28 @@
                     <div class="text-gray-900 text-lg font-medium">Daftar Petugas</div>
                     <div class="text-gray-600 text-sm mt-1">Berikut daftar petugas Asrama Polbangtan-mlg</div>
                 </div>
-                @if (auth()->user()->role_id == 1)
-                    <div class="mt-5 md:mt-0">
-                        <a href="{{ route('admin.createPetugasShow') }}"
-                            class="bg-utama hover:bg-teal-800 text-white rounded px-3 py-2 text-sm">
+                <div class="flex flex-col md:flex-row items-center gap-2 mt-3 md:mt-0 w-full md:w-auto">
+                    <form action="{{ route('admin.dataPetugas') }}" method="GET" class="flex flex-col md:flex-row gap-2 w-full">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau email..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full md:w-48 p-2">
+                        
+                        <select name="role_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full md:w-40 p-2">
+                            <option value="">Semua Role</option>
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->id }}" {{ request('role_id') == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                        
+                        <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white rounded px-3 py-2 text-sm font-medium">
+                            <i class="ri-search-line"></i> Cari
+                        </button>
+                    </form>
+
+                    @if (auth()->user()->role_id == 1)
+                        <a href="{{ route('admin.createPetugasShow') }}" class="bg-utama hover:bg-teal-800 text-white rounded px-3 py-2 text-sm text-center font-medium w-full md:w-auto whitespace-nowrap">
                             <i class="ri-add-line text-md mr-1"></i>Tambah Petugas
                         </a>
-                    </div>
-                @endif
+                    @endif
+                </div>
             </div>
             <div class="border-b border-gray-300 my-3"></div>
             <div class="relative overflow-x-auto">
@@ -139,6 +153,10 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+            
+            <div class="mt-4">
+                {{ $petugas->links() }}
             </div>
         </div>
     </div>

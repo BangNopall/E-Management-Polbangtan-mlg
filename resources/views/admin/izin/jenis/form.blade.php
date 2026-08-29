@@ -43,7 +43,7 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label for="min_ajukan_jam" class="block text-xs font-bold text-gray-900 mb-1">Min Lead Time (Jam)</label>
+                        <label for="min_ajukan_jam" class="block text-xs font-bold text-gray-900 mb-1">Minimal Waktu Pengajuan Sebelum Berangkat (Jam)</label>
                         <input type="number" id="min_ajukan_jam" name="min_ajukan_jam" value="{{ old('min_ajukan_jam', $jenisIzin->min_ajukan_jam ?? 2) }}" min="0" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-xs focus:ring-teal-500 focus:border-teal-500" required>
                     </div>
                     <div>
@@ -106,38 +106,30 @@
                                 </button>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                                 <div class="md:col-span-1">
                                     <label class="block font-bold text-gray-800 mb-1">Label / Nama Langkah</label>
                                     <input type="text" :name="'steps[' + index + '][label]'" x-model="step.label" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs" placeholder="Contoh: Persetujuan Dosen PA" required>
                                 </div>
 
                                 <div class="md:col-span-1">
-                                    <label class="block font-bold text-gray-800 mb-1">Resolver Penandatangan</label>
+                                    <label class="block font-bold text-gray-800 mb-1">Pihak yang Menyetujui</label>
                                     <select :name="'steps[' + index + '][resolver]'" x-model="step.resolver" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs" required>
-                                        <option value="dosen_pa">Dosen PA Mahasiswa (Operator)</option>
+                                        <option value="dosen_pa">Dosen PA Mahasiswa</option>
                                         <option value="pembina_ukm">Pembina UKM Terkait</option>
-                                        <option value="petugas_jaga">Petugas Jaga / Piket (Pelatih/Operator)</option>
-                                        <option value="pejabat">Pejabat Berdasarkan Jabatan</option>
+                                        <option value="petugas_jaga">Petugas Jaga / Piket</option>
+                                        <option value="pejabat">Pejabat Khusus</option>
                                     </select>
                                     <p x-show="step.resolver === 'dosen_pa'" class="text-[10px] text-gray-500 mt-1">
                                         ℹ️ Memilih Dosen PA mahasiswa. Jika kelas belum diset Dosen PA, otomatis dialihkan ke akun staf Operator.
                                     </p>
                                 </div>
-
-                                <div class="md:col-span-1">
-                                    <label class="block font-bold text-gray-800 mb-1">Penyelesaian (Resolve Saat)</label>
-                                    <select :name="'steps[' + index + '][resolve_saat]'" x-model="step.resolve_saat" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs" required>
-                                        <option value="submit">Submit (Pembekuan Awal)</option>
-                                        <option value="langkah_aktif">Langkah Aktif (Dinamis)</option>
-                                    </select>
-                                </div>
                             </div>
 
                             <!-- Pilihan Jabatan (Hanya tampil jika resolver == 'pejabat') -->
                             <div x-show="step.resolver === 'pejabat'" class="pt-2 border-t border-gray-200 space-y-1.5 text-xs">
-                                <label class="block font-bold text-gray-800">Target Jabatan Pejabat <span class="text-rose-500">*</span></label>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 bg-white p-2.5 rounded-lg border border-gray-200">
+                                <label class="block font-bold text-gray-800">Jabatan <span class="text-rose-500">*</span></label>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 bg-white p-2.5 rounded-lg border border-gray-200">
                                     <label class="flex items-center space-x-1.5">
                                         <input type="checkbox" :name="'steps[' + index + '][jabatan][]'" value="kaprodi" x-model="step.jabatan" class="rounded text-teal-600">
                                         <span>Kaprodi</span>
@@ -149,10 +141,6 @@
                                     <label class="flex items-center space-x-1.5">
                                         <input type="checkbox" :name="'steps[' + index + '][jabatan][]'" value="unit_kemahasiswaan" x-model="step.jabatan" class="rounded text-teal-600">
                                         <span>Unit Kemahasiswaan</span>
-                                    </label>
-                                    <label class="flex items-center space-x-1.5">
-                                        <input type="checkbox" :name="'steps[' + index + '][jabatan][]'" value="wadir_kemahasiswaan" x-model="step.jabatan" class="rounded text-teal-600">
-                                        <span>Wadir Kemahasiswaan</span>
                                     </label>
                                 </div>
                                 <input type="hidden" :name="'steps[' + index + '][mode]'" value="any">
@@ -176,7 +164,7 @@
     function jenisIzinForm(initialSteps) {
         return {
             steps: initialSteps.length > 0 ? initialSteps : [
-                { urutan: 1, label: 'Persetujuan Dosen PA', resolver: 'dosen_pa', mode: 'any', resolve_saat: 'submit', jabatan: [] }
+                { urutan: 1, label: 'Persetujuan Dosen PA', resolver: 'dosen_pa', mode: 'any', jabatan: [] }
             ],
 
             addStep() {
@@ -185,7 +173,6 @@
                     label: 'Persetujuan Langkah ' + (this.steps.length + 1),
                     resolver: 'pejabat',
                     mode: 'any',
-                    resolve_saat: 'submit',
                     jabatan: ['kaprodi']
                 });
             },

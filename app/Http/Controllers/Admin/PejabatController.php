@@ -29,11 +29,9 @@ class PejabatController extends Controller
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
-            'jabatan' => 'required|in:kaprodi,kepala_asrama,unit_kemahasiswaan,wadir_kemahasiswaan',
+            'jabatan' => 'required|in:kaprodi,kepala_asrama,unit_kemahasiswaan',
             'lingkup' => 'required|in:global,prodi,blok',
             'lingkup_id' => 'nullable|integer',
-            'mulai_menjabat' => 'nullable|date',
-            'selesai_menjabat' => 'nullable|date|after_or_equal:mulai_menjabat',
             'is_active' => 'nullable|boolean',
         ]);
 
@@ -48,11 +46,9 @@ class PejabatController extends Controller
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
-            'jabatan' => 'required|in:kaprodi,kepala_asrama,unit_kemahasiswaan,wadir_kemahasiswaan',
+            'jabatan' => 'required|in:kaprodi,kepala_asrama,unit_kemahasiswaan',
             'lingkup' => 'required|in:global,prodi,blok',
             'lingkup_id' => 'nullable|integer',
-            'mulai_menjabat' => 'nullable|date',
-            'selesai_menjabat' => 'nullable|date|after_or_equal:mulai_menjabat',
             'is_active' => 'nullable|boolean',
         ]);
 

@@ -24,42 +24,53 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardAdminController extends Controller
 {
-    public function showDataPetugas()
+    public function showDataPetugas(Request $request)
     {
         $role_id = auth()->user()->role_id;
+        $search = $request->input('search');
+        $filter_role = $request->input('role_id');
+
+        $query = User::where('role_id', '!=', 3)
+            ->when($search, function ($q) use ($search) {
+                return $q->where(function($q2) use ($search) {
+                    $q2->where('name', 'like', "%{$search}%")
+                       ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($filter_role, function ($q) use ($filter_role) {
+                return $q->where('role_id', $filter_role);
+            });
 
         if ($role_id == 2) {
-            $petugas = User::whereIn('role_id', [1, 2, 4, 5])
-                ->orderBy('role_id', 'asc')
+            $petugas = $query->orderBy('role_id', 'asc')
                 ->select('id', 'name', 'email', 'role_id', 'image')
-                ->get();
+                ->paginate(20);
         } else {
-            $petugas = User::whereIn('role_id', [1, 2, 4, 5])
-                ->with([
-                    'roleId' => function ($query) {
-                        $query->select('id', 'name');
+            $petugas = $query->with([
+                    'roleId' => function ($q) {
+                        $q->select('id', 'name');
                     }
                 ])
                 ->orderBy('role_id', 'asc')
                 ->select('id', 'name', 'email', 'role_id', 'image')
-                ->get();
+                ->paginate(20);
         }
 
+        $roles = Role::where('id', '!=', 3)->get();
         $title = "Data Petugas";
 
-        // dd($petugas);
-
-        return view('admin.data-petugas', compact('petugas', 'title'));
+        return view('admin.data-petugas', compact('petugas', 'title', 'roles', 'search', 'filter_role'));
     }
 
     public function createDataPetugasShow()
     {
         $title = "Tambah Petugas";
+        $roles = Role::where('id', '!=', 3)->get();
 
-        return view('admin.admin-edit.create-data-petugas', compact('title'));
+        return view('admin.admin-edit.create-data-petugas', compact('title', 'roles'));
     }
 
-    public function createDataPetugas(request $request)
+    public function createDataPetugas(Request $request)
     {
         // Validasi data yang diterima dari formulir
         $request->validate([
@@ -122,22 +133,16 @@ class DashboardAdminController extends Controller
     {
         // Validasi data yang diterima dari formulir
         $validatedData = $request->validate([
-            'email' => 'email',
-            'name' => 'string|max:255',
-            'role_id' => 'integer',
-            'reset_password' => 'string|min:5',
-            'new_password' => 'string|min:5|nullable',
-            'new_password_confirmation' => 'string|min:5|nullable',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'name' => 'required|string|max:255',
+            'role_id' => 'required|integer',
+            'reset_password' => 'required|string|min:5',
+            'new_password' => 'nullable|string|min:5',
+            'new_password_confirmation' => 'nullable|string|min:5|same:new_password',
         ]);
 
         // Ambil pengguna berdasarkan ID dari formulir
         $user = User::findOrFail($id);
-
-
-        // Periksa apakah pengguna ditemukan
-        if (!$user) {
-            return redirect()->route('admin.editDataPetugasShow')->with('error', 'Pengguna tidak ditemukan.');
-        }
 
         if (Auth()->user()->role_id == 2) {
             if ($user->id != Auth()->user()->id) {
@@ -145,19 +150,10 @@ class DashboardAdminController extends Controller
             }
         }
 
-        // dd($validatedData);
         // Periksa apakah password reset yang dimasukkan benar
         if (!password_verify($validatedData['reset_password'], $user->password)) {
             return redirect()->route('admin.editDataPetugasShow')->with('error', 'Password reset salah.');
         }
-        // dd('password-lolos');
-
-
-        // Periksa apakah new_password dan password_confirmation nilainya sama
-        if ($validatedData['new_password'] !== $validatedData['new_password_confirmation']) {
-            return redirect()->route('admin.editDataPetugasShow')->with('error', 'Password baru dan konfirmasi password tidak cocok.');
-        }
-
 
         // Jika ada password baru, hash password baru dan update pengguna
         if ($request->filled('new_password')) {
@@ -184,6 +180,10 @@ class DashboardAdminController extends Controller
         // Periksa apakah pengguna ditemukan
         if (!$user) {
             return redirect()->back()->with('error', 'Pengguna tidak ditemukan.');
+        }
+
+        if ($user->id == auth()->id()) {
+            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
         if (Auth()->user()->role_id == 2) {
@@ -218,7 +218,7 @@ class DashboardAdminController extends Controller
             $query->where('date', $searchDate);
         }
 
-        $petugas = $query->paginate(10);
+        $petugas = $query->paginate(20);
         $users = User::where('role_id', 2)->get();
         $existingDates = JadwalPetugas::pluck('date')->toArray();
 
@@ -363,7 +363,7 @@ class DashboardAdminController extends Controller
         $title = "Scan QR Absen Keluar";
         $user = auth()->user();
 
-        $jadwalPiket = JadwalPetugas::where('date', now()->format('y-m-d'))->first();
+        $jadwalPiket = JadwalPetugas::where('date', now()->format('Y-m-d'))->first();
 
         if ($jadwalPiket == null) {
             return redirect()->route('admin.piketPetugas')->with('error', 'Jadwal piket untuk hari ini tidak ditemukan silahkan buat jadwal terlebih dahulu.');

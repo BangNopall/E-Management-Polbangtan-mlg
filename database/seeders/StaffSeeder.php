@@ -13,11 +13,11 @@ class StaffSeeder extends Seeder
      */
     public function run(): void
     {
-        $password = Hash::make('password');
+        $password = bcrypt('password');
 
         // 1. Akun Operator
         User::firstOrCreate(
-            ['email' => 'operator@asramapolbangtan-mlg.com'],
+            ['email' => 'operator@polbangtanmalang.ac.id'],
             [
                 'name' => 'Operator Asrama',
                 'password' => $password,
@@ -28,7 +28,7 @@ class StaffSeeder extends Seeder
 
         // 2. Akun Pelatih
         User::firstOrCreate(
-            ['email' => 'pelatih@asramapolbangtan-mlg.com'],
+            ['email' => 'pelatih@polbangtanmalang.ac.id'],
             [
                 'name' => 'Pelatih Asrama',
                 'password' => $password,
@@ -39,7 +39,7 @@ class StaffSeeder extends Seeder
 
         // 3. Akun Pembina
         User::firstOrCreate(
-            ['email' => 'pembina@asramapolbangtan-mlg.com'],
+            ['email' => 'pembina@polbangtanmalang.ac.id'],
             [
                 'name' => 'Pembina Asrama',
                 'password' => $password,

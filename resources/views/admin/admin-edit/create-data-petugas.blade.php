@@ -73,10 +73,9 @@
                         <label for="role_id" class="block mb-2 text-sm font-medium text-gray-500">Pilih role</label>
                         <select id="role_id" name="role_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5">
                           <option selected hidden>Pilih role</option>
-                          <option value="1">Admin</option>
-                          <option value="2">Operator</option>
-                          <option value="4">Pelatih</option>
-                          <option value="5">Pembina</option>
+                          @foreach($roles as $role)
+                              <option value="{{ $role->id }}">{{ $role->name }}</option>
+                          @endforeach
                         </select>
                     </div>
                     <div class="relative z-0 w-full mb-6 group">
