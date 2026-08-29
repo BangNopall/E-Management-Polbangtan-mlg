@@ -56,12 +56,14 @@
                 @csrf
                 <div class="flex flex-col md:flex-row justify-center items-center">
                     <h1 class="font-semibold text-center md:text-left my-2">Kategori Pelanggaran</h1>
-                    @include('partials.modals.simpanedit1')
-                    <div class="ml-0 md:ml-auto w-full md:w-auto md:mt-0">
-                        <button type="button" id="deleteButton" data-modal-target="simpan1Modal"
-                            data-modal-toggle="simpan1Modal"
-                            class="text-white w-auto hidden md:block bg-utama hover:bg-teal-800 focus:ring-2 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-3 py-2 mr-0 md:mr-3">Simpan</button>
-                    </div>
+                    @if (!auth()->user()->isPejabat())
+                        @include('partials.modals.simpanedit1')
+                        <div class="ml-0 md:ml-auto w-full md:w-auto md:mt-0">
+                            <button type="button" id="deleteButton" data-modal-target="simpan1Modal"
+                                data-modal-toggle="simpan1Modal"
+                                class="text-white w-auto hidden md:block bg-utama hover:bg-teal-800 focus:ring-2 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-3 py-2 mr-0 md:mr-3">Simpan</button>
+                        </div>
+                    @endif
                 </div>
                 <ul class="flex flex-col gap-2 mt-2">
                     @foreach ($kategoriPelanggaran as $kategori)
@@ -70,11 +72,13 @@
                             <input type="text" id="{{ $kategori->id }}" name="{{ $kategori->id }}"
                                 value="{{ $kategori->name }}"
                                 class="block w-full p-2 text-gray-900 border border-l-4 border-utama rounded-sm bg-gray-50 text-sm focus:ring-red-400 focus:border-red-400">
+                            @if (!auth()->user()->isPejabat())
                             <button type="button"
                                 class="text-white text-xs w-auto bg-red-400 hover:bg-red-800 focus:ring-2 focus:outline-none focus:ring-red-300 font-medium rounded px-3 py-2 mr-0 md:mr-3"
                                 id="deleteButton" data-modal-target="hapusdataModal{{ $kategori->id }}"
                                 data-modal-toggle="hapusdataModal{{ $kategori->id }}"><i
                                     class="ri-delete-bin-line"></i></button>
+                            @endif
                         </div>
                     @endforeach
                 </ul>
@@ -187,13 +191,15 @@
                                             required>
                                     </td>
                                     <td class="px-3 py-2">
-                                        @include('partials.modals.hapusjenis')
-                                        <button type="button"
-                                            class="text-white text-xs w-auto bg-red-400 hover:bg-red-800 focus:ring-2 focus:outline-none focus:ring-red-300 font-medium rounded px-3 py-2 mr-0 md:mr-3"
-                                            id="deleteButton" data-modal-target="hapusjenisModal{{ $pelanggaran->id }}"
-                                            data-modal-toggle="hapusjenisModal{{ $pelanggaran->id }}">
-                                            <i class="ri-delete-bin-line"></i>
-                                        </button>
+                                        @if (!auth()->user()->isPejabat())
+                                            @include('partials.modals.hapusjenis')
+                                            <button type="button"
+                                                class="text-white text-xs w-auto bg-red-400 hover:bg-red-800 focus:ring-2 focus:outline-none focus:ring-red-300 font-medium rounded px-3 py-2 mr-0 md:mr-3"
+                                                id="deleteButton" data-modal-target="hapusjenisModal{{ $pelanggaran->id }}"
+                                                data-modal-toggle="hapusjenisModal{{ $pelanggaran->id }}">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

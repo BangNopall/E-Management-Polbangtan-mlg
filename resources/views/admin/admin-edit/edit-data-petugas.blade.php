@@ -77,7 +77,15 @@
                             @foreach ($roles as $role)
                                 <option value="{{ $role->id }}"
                                     {{ old('role_id', $user->role_id) == $role->id ? 'selected' : '' }}>
-                                    {{ $role->name }}
+                                    @if ($role->name == 'pelatih')
+                                        Pelatih Kedis
+                                    @elseif ($role->name == 'pelatih_ukm')
+                                        Pelatih UKM
+                                    @elseif ($role->name == 'dosen_pa')
+                                        Dosen PA
+                                    @else
+                                        {{ ucfirst(str_replace('_', ' ', $role->name)) }}
+                                    @endif
                                 </option>
                             @endforeach
                         </select>

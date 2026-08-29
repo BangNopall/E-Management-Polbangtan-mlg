@@ -23,8 +23,8 @@ class PresenceFactory extends Factory
     {
         // Example data generation
         return [
-            'user_id' => $this->faker->numberBetween(3, 50), // Replace with your logic to generate user_id
-            'attendance_id' => $this->faker->numberBetween(1, 200), // Replace with your logic to generate attendance_id
+            'user_id' => \App\Models\User::inRandomOrder()->value('id') ?? 1,
+            'attendance_id' => \App\Models\Attendance::inRandomOrder()->value('id') ?? 1,
             // 'presence_date' => $this->faker->dateTimeBetween(now()->startOfWeek(), now()->endOfWeek())->format('Y-m-d'),
             'presence_date' => $this->faker->dateTimeBetween(now()->startOfMonth(), now()->endOfMonth())->format('Y-m-d'),
             // 'presence_date' => $this->faker->dateTimeBetween(now()->startOfYear(), now()->endOfYear())->format('Y-m-d'),

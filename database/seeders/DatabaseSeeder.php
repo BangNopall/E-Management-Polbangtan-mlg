@@ -52,7 +52,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Developer Asrama Polbangtan',
             'email' => 'developer@polbangtanmalang.ac.id',
-            'password' => bcrypt('@asramaPolbangtan2023'),
+            'password' => bcrypt('password'),
             'role_id' => User::ADMIN_ROLE_ID,
         ]);
 
@@ -64,73 +64,9 @@ class DatabaseSeeder extends Seeder
             'prodi_id' => 1,
         ]);
 
-        // User Development Only
-        // User::factory()->create([
-        //     'name' => 'User Development Asrama Polbangtan',
-        //     'email' => 'user@polbangtanmalang.ac.id',
-        //     'nim' => '1234567891234',
-        //     'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first('id'),
-        //     'kelas_id' => Kelas::where('nama_kelas', 'Agrinak 1-B')->first('id'),
-        //     'no_kamar' => '27',
-        //     'prodi_id' => Prodi::where('prodi', 'Agrinak')->first('id'),
-        //     'asal_daerah' => 'Malang',
-        //     'no_hp' => '081233219133',
-        //     'password' => bcrypt('password'),
-        //     'role_id' => User::USER_ROLE_ID,
-        // ]);
-        // User::factory()->create([
-        //     'name' => 'Operator Development Asrama Polbangtan',
-        //     'email' => 'operator@polbangtanmalang.ac.id',
-        //     'nim' => '1234566891234',
-        //     'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first('id'),
-        //     'kelas_id' => Kelas::where('nama_kelas', 'PPB 1-B')->first('id'),
-        //     'no_kamar' => '28',
-        //     'prodi_id' => Prodi::where('prodi', 'PPKH')->first('id'),
-        //     'asal_daerah' => 'Malang',
-        //     'no_hp' => '081234219133',
-        //     'password' => bcrypt('password'),
-        //     'role_id' => User::OPERATOR_ROLE_ID,
-        // ]);
-        // User::factory()->create([
-        //     'name' => 'Pelatih Development Asrama Polbangtan',
-        //     'email' => 'pelatih@polbangtanmalang.ac.id',
-        //     'nim' => '1434567891234',
-        //     'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first('id'),
-        //     'kelas_id' => Kelas::where('nama_kelas', 'PPB 1-B')->first('id'),
-        //     'no_kamar' => '27',
-        //     'prodi_id' => Prodi::where('prodi', 'Agrinak')->first('id'),
-        //     'asal_daerah' => 'Malang',
-        //     'no_hp' => '082233219133',
-        //     'password' => bcrypt('password'),
-        //     'role_id' => User::PELATIH_ROLE_ID,
-        // ]);
-        
-        // factory Development Only
-        // User::factory(50)->create();
-        // Pelanggaran::factory(20)->create([
-        //     'statusPelanggaran' => 'Submitted'
-        // ]);        
-        // Pelanggaran::factory(7)->create([
-        //     'statusPelanggaran' => 'rejected',
-        //     'rejected_message' => 'Input Pelanggaran anda tidak sesuai dengan kriteria yang ada'
-        // ]);
-        // Pelanggaran::factory(500)->state([
-        //     'statusPelanggaran' => 'progressing',
-        //     'Hukuman' => 'Denda Rp. 100.000,-',
-        //     'accepted_id' => User::where('role_id', Role::where('name', 'admin')->first()->id)->first()->id
-        // ])->create();        
-        // Pelanggaran::factory(500)->state([
-        //     'statusPelanggaran' => 'Done',
-        //     'Hukuman' => 'Denda Rp. 100.000,-',
-        //     'accepted_id' => User::where('role_id', Role::where('name', 'admin')->first()->id)->first()->id
-        // ])->create(); 
-        // Attendance::factory(200)->create();
-        // Presence::factory(1500)->create();
-
-        // JadwalKegiatanAsrama::factory(21)->create();
-        // PresensiUpacara::factory(1000)->create();
-        // PresensiApel::factory(1000)->create();
-        // PresensiSenam::factory(1000)->create();
+        if (app()->environment(['local', 'testing'])) {
+            $this->call(DummyDataSeeder::class);
+        }
 
         $this->call(PejabatSeeder::class);
         $this->call(StaffSeeder::class);

@@ -19,7 +19,7 @@ class JadwalKegiatanAsramaFactory extends Factory
     {
         return [
             'tanggal_kegiatan' => $this->faker->unique(1000)->dateTimeBetween(now()->startOfWeek(), now()->endOfWeek())->format('Y-m-d'),
-            'blok_id' => $this->faker->numberBetween(3, 5),
+            'blok_id' => \App\Models\BlokRuangan::inRandomOrder()->value('id') ?? 1,
             'jenis_kegiatan' => $this->faker->randomElement(['Apel', 'Upacara', 'Senam']),
             'mulai_acara' => $this->faker->time(),
             'selesai_acara' => $this->faker->time(),

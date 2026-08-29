@@ -369,13 +369,6 @@
                     @endif
                 @endif
                 @if (Auth::check() && in_array(Auth::user()->role_id, [1, 8, 9]))
-                    <div class="mb-3 mt-1">
-                        <h6
-                            class="md:min-w-full text-white text-sm uppercase font-bold block pt-1 px-2 mt-3 no-underline">
-                            Admin Privilege Pages
-                        </h6>
-                    </div>
-
                     @if (in_array(Auth::user()->role_id, [1, 9]))
                         <li class="mb-1 group">
                             <a href="{{ route('admin.jenis.index') }}"
@@ -394,8 +387,15 @@
                             </a>
                         </li>
                     @endif
+                    
+                    @if (Auth::user()->role_id == 1)
+                        <div class="mb-3 mt-1">
+                            <h6
+                                class="md:min-w-full text-white text-sm uppercase font-bold block pt-1 px-2 mt-3 no-underline">
+                                Admin Privilege Pages
+                            </h6>
+                        </div>
 
-                    @if (in_array(Auth::user()->role_id, [1, 9]))
                         <li class="mb-1 group">
                             <a href="/data-mahasiswa"
                                 class="{{ Request::is('data-mahasiswa') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">

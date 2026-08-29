@@ -17,8 +17,8 @@ class PresensiUpacaraFactory extends Factory
     public function definition(): array
     {
         return [
-            'jadwalKegiatanAsrama_id' => $this->faker->numberBetween(3, 21),
-            'user_id' => $this->faker->numberBetween(3, 50),
+            'jadwalKegiatanAsrama_id' => \App\Models\JadwalKegiatanAsrama::inRandomOrder()->value('id') ?? 1,
+            'user_id' => \App\Models\User::inRandomOrder()->value('id') ?? 1,
             'jam_kehadiran' => $this->faker->time(),
             'status_kehadiran' => $this->faker->randomElement(['Hadir', 'Alpha', 'Izin']),
 

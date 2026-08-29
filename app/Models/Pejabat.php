@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Prodi;
+use App\Models\BlokRuangan;
 
 class Pejabat extends Model
 {
@@ -20,6 +22,21 @@ class Pejabat extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function getLingkupNameAttribute()
+    {
+        if ($this->lingkup === 'prodi' && $this->lingkup_id) {
+            $prodi = Prodi::find($this->lingkup_id);
+            return $prodi ? $prodi->prodi : 'Prodi tidak ditemukan';
+        }
+        
+        if ($this->lingkup === 'blok' && $this->lingkup_id) {
+            $blok = BlokRuangan::find($this->lingkup_id);
+            return $blok ? $blok->name : 'Blok tidak ditemukan';
+        }
+
+        return ucfirst($this->lingkup);
     }
 
     public function scopeActive($query)

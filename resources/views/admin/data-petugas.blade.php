@@ -58,23 +58,39 @@
                     <div class="text-gray-600 text-sm mt-1">Berikut daftar petugas Asrama Polbangtan-mlg</div>
                 </div>
                 <div class="flex flex-col md:flex-row items-center gap-2 mt-3 md:mt-0 w-full md:w-auto">
-                    <form action="{{ route('admin.dataPetugas') }}" method="GET" class="flex flex-col md:flex-row gap-2 w-full">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau email..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full md:w-48 p-2">
-                        
-                        <select name="role_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full md:w-40 p-2">
+                    <form action="{{ route('admin.dataPetugas') }}" method="GET"
+                        class="flex flex-col md:flex-row gap-2 w-full">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Cari nama atau email..."
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full md:w-48 p-2">
+
+                        <select name="role_id"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full md:w-40 p-2">
                             <option value="">Semua Role</option>
                             @foreach ($roles as $role)
-                                <option value="{{ $role->id }}" {{ request('role_id') == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                                <option value="{{ $role->id }}" {{ request('role_id') == $role->id ? 'selected' : '' }}>
+                                    @if ($role->name == 'pelatih')
+                                        Pelatih Kedis
+                                    @elseif ($role->name == 'pelatih_ukm')
+                                        Pelatih UKM
+                                    @elseif ($role->name == 'dosen_pa')
+                                        Dosen PA
+                                    @else
+                                        {{ ucfirst(str_replace('_', ' ', $role->name)) }}
+                                    @endif
+                                </option>
                             @endforeach
                         </select>
-                        
-                        <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white rounded px-3 py-2 text-sm font-medium">
+
+                        <button type="submit"
+                            class="bg-teal-600 hover:bg-teal-700 text-white rounded px-3 py-2 text-sm font-medium">
                             <i class="ri-search-line"></i> Cari
                         </button>
                     </form>
 
                     @if (auth()->user()->role_id == 1)
-                        <a href="{{ route('admin.createPetugasShow') }}" class="bg-utama hover:bg-teal-800 text-white rounded px-3 py-2 text-sm text-center font-medium w-full md:w-auto whitespace-nowrap">
+                        <a href="{{ route('admin.createPetugasShow') }}"
+                            class="bg-utama hover:bg-teal-800 text-white rounded px-3 py-2 text-sm text-center font-medium w-full md:w-auto whitespace-nowrap">
                             <i class="ri-add-line text-md mr-1"></i>Tambah Petugas
                         </a>
                     @endif
@@ -127,7 +143,15 @@
                                     {{ $user->email }}
                                 </td>
                                 <td class="px-6 py-4">
-                                    {{ $user->roleId->name }}
+                                    @if ($user->roleId->name == 'pelatih')
+                                        Pelatih Kedis
+                                    @elseif ($user->roleId->name == 'pelatih_ukm')
+                                        Pelatih UKM
+                                    @elseif ($user->roleId->name == 'dosen_pa')
+                                        Dosen PA
+                                    @else
+                                        {{ ucfirst(str_replace('_', ' ', $user->roleId->name)) }}
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex gap-1">
@@ -140,11 +164,16 @@
                                                 @method('DELETE')
                                                 @csrf
                                                 @include('partials.modals.hapusdata')
-                                                <button type="button" class="bg-red-500 text-white rounded p-2" id="deleteButton" data-modal-target="hapusdataModal{{ $user->id }}" data-modal-toggle="hapusdataModal{{ $user->id }}">Hapus</button>
+                                                <button type="button" class="bg-red-500 text-white rounded p-2"
+                                                    id="deleteButton"
+                                                    data-modal-target="hapusdataModal{{ $user->id }}"
+                                                    data-modal-toggle="hapusdataModal{{ $user->id }}">Hapus</button>
                                             </form>
                                         @else
-                                        <div class="bg-gray-400 text-gray-600 rounded p-2 cursor-not-allowed">Edit</div>
-                                        <div class="bg-gray-400 text-gray-600 rounded p-2 cursor-not-allowed">Hapus</div>
+                                            <div class="bg-gray-400 text-gray-600 rounded p-2 cursor-not-allowed">Edit
+                                            </div>
+                                            <div class="bg-gray-400 text-gray-600 rounded p-2 cursor-not-allowed">Hapus
+                                            </div>
                                         @endif
                                     </div>
                                 </td>
@@ -154,7 +183,7 @@
                     </tbody>
                 </table>
             </div>
-            
+
             <div class="mt-4">
                 {{ $petugas->links() }}
             </div>

@@ -48,10 +48,7 @@
                                     {{ str_replace('_', ' ', $pejabat->jabatan) }}
                                 </td>
                                 <td class="px-6 py-4 capitalize">
-                                    {{ $pejabat->lingkup }}
-                                    @if ($pejabat->lingkup_id)
-                                        <span class="text-xs text-gray-500">(ID: {{ $pejabat->lingkup_id }})</span>
-                                    @endif
+                                    {{ $pejabat->lingkup_name }}
                                 </td>
                                 <td class="px-6 py-4">
                                     @if ($pejabat->is_active)
@@ -122,18 +119,31 @@
                                 </select>
                             </div>
                             <div>
-                                <label for="lingkup" class="block mb-1 text-sm font-medium text-gray-900">Lingkup</label>
-                                <select name="lingkup" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required>
+                                <label for="lingkup_{{ $pejabat->id }}" class="block mb-1 text-sm font-medium text-gray-900">Lingkup</label>
+                                <select id="lingkup_{{ $pejabat->id }}" name="lingkup" onchange="toggleLingkup('{{ $pejabat->id }}')" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required>
                                     <option value="global" {{ $pejabat->lingkup == 'global' ? 'selected' : '' }}>Global</option>
                                     <option value="prodi" {{ $pejabat->lingkup == 'prodi' ? 'selected' : '' }}>Prodi</option>
                                     <option value="blok" {{ $pejabat->lingkup == 'blok' ? 'selected' : '' }}>Blok Ruangan</option>
                                 </select>
                                 <p class="text-[10px] text-gray-500 mt-1">Wewenang: Global (seluruh kampus), Prodi (jurusan), atau Blok (asrama).</p>
                             </div>
-                            <div>
-                                <label for="lingkup_id" class="block mb-1 text-sm font-medium text-gray-900">ID Lingkup (Opsional)</label>
-                                <input type="number" name="lingkup_id" value="{{ $pejabat->lingkup_id }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="ID Prodi/Blok">
-                                <p class="text-[10px] text-gray-500 mt-1">Masukkan ID program studi (contoh: 1) jika lingkup = prodi, atau ID blok gedung jika lingkup = blok.</p>
+                            <div id="container_prodi_{{ $pejabat->id }}" style="display: {{ $pejabat->lingkup == 'prodi' ? 'block' : 'none' }};">
+                                <label for="lingkup_id_prodi_{{ $pejabat->id }}" class="block mb-1 text-sm font-medium text-gray-900">Pilih Prodi</label>
+                                <select id="lingkup_id_prodi_{{ $pejabat->id }}" name="lingkup_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" {{ $pejabat->lingkup != 'prodi' ? 'disabled' : '' }}>
+                                    <option value="">-- Pilih Prodi --</option>
+                                    @foreach ($prodis as $prodi)
+                                        <option value="{{ $prodi->id }}" {{ ($pejabat->lingkup == 'prodi' && $pejabat->lingkup_id == $prodi->id) ? 'selected' : '' }}>{{ $prodi->prodi }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div id="container_blok_{{ $pejabat->id }}" style="display: {{ $pejabat->lingkup == 'blok' ? 'block' : 'none' }};">
+                                <label for="lingkup_id_blok_{{ $pejabat->id }}" class="block mb-1 text-sm font-medium text-gray-900">Pilih Blok</label>
+                                <select id="lingkup_id_blok_{{ $pejabat->id }}" name="lingkup_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" {{ $pejabat->lingkup != 'blok' ? 'disabled' : '' }}>
+                                    <option value="">-- Pilih Blok --</option>
+                                    @foreach ($bloks as $blok)
+                                        <option value="{{ $blok->id }}" {{ ($pejabat->lingkup == 'blok' && $pejabat->lingkup_id == $blok->id) ? 'selected' : '' }}>{{ $blok->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="col-span-2 flex items-center">
                                 <input type="checkbox" name="is_active" value="1" id="is_active{{ $pejabat->id }}" {{ $pejabat->is_active ? 'checked' : '' }} class="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500">
@@ -182,18 +192,31 @@
                             </select>
                         </div>
                         <div>
-                            <label for="lingkup" class="block mb-1 text-sm font-medium text-gray-900">Lingkup</label>
-                            <select name="lingkup" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required>
+                            <label for="lingkup_new" class="block mb-1 text-sm font-medium text-gray-900">Lingkup</label>
+                            <select id="lingkup_new" name="lingkup" onchange="toggleLingkup('new')" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required>
                                 <option value="global">Global</option>
                                 <option value="prodi">Prodi</option>
                                 <option value="blok">Blok Ruangan</option>
                             </select>
                             <p class="text-[10px] text-gray-500 mt-1">Wewenang: Global (seluruh kampus), Prodi (jurusan), atau Blok (asrama).</p>
                         </div>
-                        <div>
-                            <label for="lingkup_id" class="block mb-1 text-sm font-medium text-gray-900">ID Lingkup (Opsional)</label>
-                            <input type="number" name="lingkup_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="ID Prodi/Blok">
-                            <p class="text-[10px] text-gray-500 mt-1">Masukkan ID program studi (contoh: 1) jika lingkup = prodi, atau ID blok gedung jika lingkup = blok.</p>
+                        <div id="container_prodi_new" style="display: none;">
+                            <label for="lingkup_id_prodi_new" class="block mb-1 text-sm font-medium text-gray-900">Pilih Prodi</label>
+                            <select id="lingkup_id_prodi_new" name="lingkup_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" disabled>
+                                <option value="">-- Pilih Prodi --</option>
+                                @foreach ($prodis as $prodi)
+                                    <option value="{{ $prodi->id }}">{{ $prodi->prodi }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div id="container_blok_new" style="display: none;">
+                            <label for="lingkup_id_blok_new" class="block mb-1 text-sm font-medium text-gray-900">Pilih Blok</label>
+                            <select id="lingkup_id_blok_new" name="lingkup_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" disabled>
+                                <option value="">-- Pilih Blok --</option>
+                                @foreach ($bloks as $blok)
+                                    <option value="{{ $blok->id }}">{{ $blok->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-span-2 flex items-center">
                             <input type="checkbox" name="is_active" value="1" id="is_active_new" checked class="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500">
@@ -207,4 +230,33 @@
             </div>
         </div>
     </div>
+    <script>
+        function toggleLingkup(id) {
+            const lingkup = document.getElementById('lingkup_' + id).value;
+            const prodiContainer = document.getElementById('container_prodi_' + id);
+            const blokContainer = document.getElementById('container_blok_' + id);
+            const prodiSelect = document.getElementById('lingkup_id_prodi_' + id);
+            const blokSelect = document.getElementById('lingkup_id_blok_' + id);
+
+            if (lingkup === 'prodi') {
+                prodiContainer.style.display = 'block';
+                prodiSelect.disabled = false;
+                
+                blokContainer.style.display = 'none';
+                blokSelect.disabled = true;
+            } else if (lingkup === 'blok') {
+                blokContainer.style.display = 'block';
+                blokSelect.disabled = false;
+
+                prodiContainer.style.display = 'none';
+                prodiSelect.disabled = true;
+            } else {
+                prodiContainer.style.display = 'none';
+                prodiSelect.disabled = true;
+                
+                blokContainer.style.display = 'none';
+                blokSelect.disabled = true;
+            }
+        }
+    </script>
 @endsection
