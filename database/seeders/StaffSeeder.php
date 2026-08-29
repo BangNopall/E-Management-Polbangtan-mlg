@@ -28,11 +28,11 @@ class StaffSeeder extends Seeder
 
         // 2. Akun Pelatih
         User::firstOrCreate(
-            ['email' => 'pelatih@polbangtanmalang.ac.id'],
+            ['email' => 'pelatihukm@polbangtanmalang.ac.id'],
             [
-                'name' => 'Pelatih Asrama',
+                'name' => 'Pelatih UKM',
                 'password' => $password,
-                'role_id' => User::PELATIH_ROLE_ID,
+                'role_id' => User::PELATIH_UKM_ROLE_ID,
                 'no_hp' => '081234567890',
             ]
         );
@@ -41,7 +41,7 @@ class StaffSeeder extends Seeder
         User::firstOrCreate(
             ['email' => 'pembina@polbangtanmalang.ac.id'],
             [
-                'name' => 'Pembina Asrama',
+                'name' => 'Pembina UKM',
                 'password' => $password,
                 'role_id' => User::PEMBINA_ROLE_ID,
                 'no_hp' => '1512312312312',

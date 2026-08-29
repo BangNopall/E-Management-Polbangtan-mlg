@@ -26,36 +26,8 @@ class DummyDataSeeder extends Seeder
     {
         // User Development Only
         User::factory()->create([
-            'name' => 'User Development Asrama Polbangtan',
-            'email' => 'user_dev@polbangtanmalang.ac.id',
-            'nim' => '1234567891234',
-            'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first()?->id ?? 1,
-            'kelas_id' => Kelas::first()?->id ?? 1,
-            'no_kamar' => '27',
-            'prodi_id' => Prodi::first()?->id ?? 1,
-            'asal_daerah' => 'Malang',
-            'no_hp' => NULL, // Adjusted from no_hp based on User model
-            'password' => bcrypt('password'),
-            'role_id' => User::USER_ROLE_ID,
-        ]);
-
-        User::factory()->create([
-            'name' => 'Operator Development Asrama Polbangtan',
-            'email' => 'operator_dev@polbangtanmalang.ac.id',
-            'nim' => '1234566891234',
-            'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first()?->id ?? 1,
-            'kelas_id' => Kelas::first()?->id ?? 1,
-            'no_kamar' => '28',
-            'prodi_id' => Prodi::first()?->id ?? 1,
-            'asal_daerah' => 'Malang',
-            'no_hp' => NULL,
-            'password' => bcrypt('password'),
-            'role_id' => User::OPERATOR_ROLE_ID,
-        ]);
-
-        User::factory()->create([
-            'name' => 'Pelatih Development Asrama Polbangtan',
-            'email' => 'pelatih_dev@polbangtanmalang.ac.id',
+            'name' => 'Pelatih Kedis',
+            'email' => 'pelatihkedis@polbangtanmalang.ac.id',
             'nim' => '1434567891234',
             'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first()?->id ?? 1,
             'kelas_id' => Kelas::first()?->id ?? 1,
