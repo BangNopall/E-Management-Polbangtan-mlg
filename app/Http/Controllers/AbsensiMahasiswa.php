@@ -24,7 +24,7 @@ class AbsensiMahasiswa extends Controller
             ->selectRaw('GROUP_CONCAT(presences.presence_keluar) as presence_keluar')
             ->orderByRaw("FIELD(users.status, 'diluar', 'telat', 'didalam')")
             ->groupBy('users.id', 'users.nim', 'users.name', 'users.status')
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
 
         $blokRuangan = BlokRuangan::all();
 
@@ -74,7 +74,7 @@ class AbsensiMahasiswa extends Controller
         }
 
         $mergedData = $mergedData->groupBy('users.id', 'users.nim', 'users.name', 'users.status')
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
 
         return response()->json($mergedData);
     }
@@ -83,7 +83,7 @@ class AbsensiMahasiswa extends Controller
     {
         $Users = User::where('role_id', 3)->with('kelas', 'blok')
             ->select('id', 'name', 'nim', 'kelas_id', 'blok_ruangan_id')
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
         return view('admin.data-absenkeluar', compact('Users'));
     }
 
@@ -95,7 +95,7 @@ class AbsensiMahasiswa extends Controller
         $paginationControl = 20;
         $dataPresensi = Presence::where('user_id', $id)
             ->orderBy('presence_date', 'desc')
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
         $dataPresensi->each(function ($presensi) {
             $presensi->formatted_date = Carbon::parse($presensi->presence_date)->format('d F Y');
         });
@@ -131,7 +131,7 @@ class AbsensiMahasiswa extends Controller
                         $query->where('name', 'like', '%' . $request->search . '%');
                     });
             })
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
 
         // Load the table view and return it as part of the JSON response
         $table = view('admin.partials.data_absen_table', compact('Users'))->render();

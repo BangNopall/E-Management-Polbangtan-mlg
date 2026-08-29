@@ -17,7 +17,7 @@ class AdminIzinDataController extends Controller
     public function index(Request $request)
     {
         $prodis = Prodi::all();
-        $izins = $this->buildQuery($request)->paginate(20);
+        $izins = $this->buildQuery($request)->paginate(20)->withQueryString();
 
         return view('admin.izin.data.index', compact('izins', 'prodis'));
     }

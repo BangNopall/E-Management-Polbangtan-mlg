@@ -91,7 +91,7 @@ class DashboardController extends Controller
     {
         $blokRuangan = BlokRuangan::all();
         $kelas = Kelas::all();
-        $mahasiswa = User::where('role_id', 3)->paginate(20);
+        $mahasiswa = User::where('role_id', 3)->paginate(20)->withQueryString();
 
         $title = "Data Mahasiswa";
 
@@ -299,13 +299,13 @@ class DashboardController extends Controller
             ->where('role_id', 3)
             ->where(function ($query) use ($search) {
                 $query->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('nim', 'like', '%' . $search . '%');
-            })
-            ->orWhereHas('kelas', function ($query) use ($search) {
-                $query->where('nama_kelas', 'like', '%' . $search . '%');
-            })
-            ->orWhereHas('blok', function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%');
+                    ->orWhere('nim', 'like', '%' . $search . '%')
+                    ->orWhereHas('kelas', function ($query) use ($search) {
+                        $query->where('nama_kelas', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('blok', function ($query) use ($search) {
+                        $query->where('name', 'like', '%' . $search . '%');
+                    });
             })
             ->get();
 

@@ -22,7 +22,7 @@ class KegiatanAsramaController extends Controller
         $title = 'Jadwal Kegiatan Asrama';
         $daftarJadwalKegiatanAsrama = JadwalKegiatanAsrama::orderByDesc('tanggal_kegiatan')
             ->orderBy('blok_id')
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
         $daftarJadwalKegiatanAsrama->each(function ($kegiatan) {
             $kegiatan->formatted_date = Carbon::parse($kegiatan->tanggal_kegiatan)->format('d F Y');
         });
@@ -54,7 +54,7 @@ class KegiatanAsramaController extends Controller
         }
 
         // Eksekusi query
-        $daftarJadwalKegiatanAsrama = $query->orderBy('blok_id')->paginate(20);
+        $daftarJadwalKegiatanAsrama = $query->orderBy('blok_id')->paginate(20)->withQueryString();
         /** @var \Illuminate\Support\Collection $daftarJadwalKegiatanAsrama */
         $daftarJadwalKegiatanAsrama->each(function ($kegiatan) {
             $kegiatan->formatted_date = Carbon::parse($kegiatan->tanggal_kegiatan)->format('d F Y');
@@ -183,21 +183,21 @@ class KegiatanAsramaController extends Controller
                 JadwalKegiatanAsrama::select('tanggal_kegiatan')
                     ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_upacaras.jadwalKegiatanAsrama_id')
             )
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
         $dataKegiatanApel = PresensiApel::with('jadwalKegiatanAsrama')
             ->where('user_id', auth()->user()->id)
             ->orderByDesc(
                 JadwalKegiatanAsrama::select('tanggal_kegiatan')
                     ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_apels.jadwalKegiatanAsrama_id')
             )
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
         $dataKegiatanSenam = PresensiSenam::with('jadwalKegiatanAsrama')
             ->where('user_id', auth()->user()->id)
             ->orderByDesc(
                 JadwalKegiatanAsrama::select('tanggal_kegiatan')
                     ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_senams.jadwalKegiatanAsrama_id')
             )
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
         $today = now()->toDateString();
         $now = now()->toTimeString();
 
@@ -257,7 +257,7 @@ class KegiatanAsramaController extends Controller
     {
         $Users = User::where('role_id', 3)->with('kelas', 'blok')
             ->select('id', 'name', 'nim', 'kelas_id', 'blok_ruangan_id')
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
         // dd($user);
         return view('admin.data-absenkegiatan', compact('Users'));
     }
@@ -277,7 +277,7 @@ class KegiatanAsramaController extends Controller
                         $query->where('name', 'like', '%' . $request->search . '%');
                     });
             })
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
 
         // Load the table view and return it as part of the JSON response
         $table = view('admin.partials.data_kegiatan_table', compact('Users'))->render();
@@ -300,7 +300,7 @@ class KegiatanAsramaController extends Controller
                 JadwalKegiatanAsrama::select('tanggal_kegiatan')
                     ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_upacaras.jadwalKegiatanAsrama_id')
             )
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
         $dataKegiatanApel = PresensiApel::with('jadwalKegiatanAsrama')
             ->where('user_id', $id)
             ->whereHas('jadwalKegiatanAsrama', function ($query) use ($today) {
@@ -310,7 +310,7 @@ class KegiatanAsramaController extends Controller
                 JadwalKegiatanAsrama::select('tanggal_kegiatan')
                     ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_apels.jadwalKegiatanAsrama_id')
             )
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
         $dataKegiatanSenam = PresensiSenam::with('jadwalKegiatanAsrama')
             ->where('user_id', $id)
             ->whereHas('jadwalKegiatanAsrama', function ($query) use ($today) {
@@ -320,7 +320,7 @@ class KegiatanAsramaController extends Controller
                 JadwalKegiatanAsrama::select('tanggal_kegiatan')
                     ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_senams.jadwalKegiatanAsrama_id')
             )
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
 
         $dataKegiatanUpacara->each(function ($kegiatan) {
             $kegiatan->formatted_date = Carbon::parse($kegiatan->jadwalKegiatanAsrama->tanggal_kegiatan)->format('d F Y');
@@ -428,7 +428,7 @@ class KegiatanAsramaController extends Controller
                     JadwalKegiatanAsrama::select('tanggal_kegiatan')
                         ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_upacaras.jadwalKegiatanAsrama_id')
                 )
-                ->paginate(20);
+                ->paginate(20)->withQueryString();
 
             $dataKegiatanApel = PresensiApel::with('jadwalKegiatanAsrama')
                 ->where('user_id', $id)
@@ -445,7 +445,7 @@ class KegiatanAsramaController extends Controller
                     JadwalKegiatanAsrama::select('tanggal_kegiatan')
                         ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_apels.jadwalKegiatanAsrama_id')
                 )
-                ->paginate(20);
+                ->paginate(20)->withQueryString();
 
             $dataKegiatanSenam = PresensiSenam::with('jadwalKegiatanAsrama')
                 ->where('user_id', $id)
@@ -462,7 +462,7 @@ class KegiatanAsramaController extends Controller
                     JadwalKegiatanAsrama::select('tanggal_kegiatan')
                         ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_senams.jadwalKegiatanAsrama_id')
                 )
-                ->paginate(20);
+                ->paginate(20)->withQueryString();
 
             $dataKegiatanUpacara->each(function ($kegiatan) {
                 $kegiatan->formatted_date = Carbon::parse($kegiatan->jadwalKegiatanAsrama->tanggal_kegiatan)->format('d F Y');
@@ -498,7 +498,7 @@ class KegiatanAsramaController extends Controller
                     JadwalKegiatanAsrama::select('tanggal_kegiatan')
                         ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_upacaras.jadwalKegiatanAsrama_id')
                 )
-                ->paginate(20);
+                ->paginate(20)->withQueryString();
         } elseif ($model === 'PresensiApel') {
             return PresensiApel::with('jadwalKegiatanAsrama')
                 ->where('user_id', $id)
@@ -509,7 +509,7 @@ class KegiatanAsramaController extends Controller
                     JadwalKegiatanAsrama::select('tanggal_kegiatan')
                         ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_apels.jadwalKegiatanAsrama_id')
                 )
-                ->paginate(20);
+                ->paginate(20)->withQueryString();
         } elseif ($model === 'PresensiSenam') {
             return PresensiSenam::with('jadwalKegiatanAsrama')
                 ->where('user_id', $id)
@@ -520,7 +520,7 @@ class KegiatanAsramaController extends Controller
                     JadwalKegiatanAsrama::select('tanggal_kegiatan')
                         ->whereColumn('jadwal_kegiatan_asramas.id', 'presensi_senams.jadwalKegiatanAsrama_id')
                 )
-                ->paginate(20);
+                ->paginate(20)->withQueryString();
         }
     }
 

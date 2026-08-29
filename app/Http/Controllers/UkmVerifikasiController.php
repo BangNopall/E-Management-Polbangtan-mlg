@@ -39,7 +39,7 @@ class UkmVerifikasiController extends Controller
             ->where('status_verifikasi', '!=', 'draft')
             ->with(['presensis.user', 'verifier'])
             ->latest('tanggal')
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
 
         return view('admin.ukm.verifikasi', compact('ukm', 'jadwals'));
     }

@@ -61,7 +61,13 @@
     </div>
 
     <div class="bg-white rounded-lg p-2 sm:p-5 mt-5 border-2 border-gray-200">
-        <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Daftar Dosen PA</h2>
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 border-b pb-2 gap-3">
+            <h2 class="text-lg font-bold text-gray-800">Daftar Dosen PA</h2>
+            <form action="{{ route('admin.dosen_pa.index') }}" method="GET" class="flex">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Nama Dosen..." class="border-gray-300 rounded-l-md text-sm focus:ring-utama focus:border-utama p-2 border">
+                <button type="submit" class="bg-utama text-white px-3 py-2 rounded-r-md hover:bg-teal-800 text-sm"><i class="ri-search-line"></i> Cari</button>
+            </form>
+        </div>
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg border border-gray-200">
             <table class="w-full text-sm text-left text-gray-500">
                 <thead class="text-xs text-white uppercase bg-utama">
@@ -75,7 +81,7 @@
                 <tbody>
                     @forelse($dosenPas as $idx => $dp)
                         <tr class="bg-white border-b hover:bg-gray-50">
-                            <td class="px-6 py-4">{{ $idx + 1 }}</td>
+                            <td class="px-6 py-4">{{ $dosenPas->firstItem() + $idx }}</td>
                             <td class="px-6 py-4 font-medium text-gray-900">{{ $dp->name }}</td>
                             <td class="px-6 py-4">{{ $dp->email }}</td>
                             <td class="px-6 py-4 flex gap-2 justify-center">
@@ -94,6 +100,9 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+        <div class="mt-4">
+            {{ $dosenPas->links() }}
         </div>
     </div>
 </div>

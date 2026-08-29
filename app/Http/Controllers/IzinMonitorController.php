@@ -14,7 +14,7 @@ class IzinMonitorController extends Controller
     public function index(Request $request)
     {
         $stats = $this->getStatsData();
-        $izins = $this->getMonitorQuery($request)->paginate(20);
+        $izins = $this->getMonitorQuery($request)->paginate(20)->withQueryString();
 
         return view('admin.izin.monitor', compact('stats', 'izins'));
     }

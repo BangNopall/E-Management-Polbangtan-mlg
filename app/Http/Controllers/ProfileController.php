@@ -56,6 +56,7 @@ class ProfileController extends Controller
             'no_kamar' => 'required|numeric',
             'asal_daerah' => 'required|string|max:255',
             'foto-profil' => 'nullable|image|mimes:jpeg,png,jpg,webp,heic|max:10250',
+            'dosen_pa_id' => 'nullable|exists:users,id',
         ];
 
         // Only require NIM and Prodi if user is NOT a student
@@ -88,6 +89,7 @@ class ProfileController extends Controller
             $user->blok_ruangan_id = $request->blok_ruangan_id;
             $user->no_kamar = $request->no_kamar;
             $user->asal_daerah = $request->asal_daerah;
+            if ($request->has('dosen_pa_id')) $user->dosen_pa_id = $request->dosen_pa_id;
             $user->save();
 
             return redirect()->route('admin.profil', $user->id)->with('success', 'Profil berhasil diperbarui.');
@@ -101,6 +103,7 @@ class ProfileController extends Controller
                 $user->blok_ruangan_id = $request->blok_ruangan_id;
                 $user->no_kamar = $request->no_kamar;
                 $user->asal_daerah = $request->asal_daerah;
+                if ($request->has('dosen_pa_id')) $user->dosen_pa_id = $request->dosen_pa_id;
                 $user->save();
 
                 return redirect()->route('home.profilshow', $user->id)->with('success', 'Profil berhasil diperbarui.');

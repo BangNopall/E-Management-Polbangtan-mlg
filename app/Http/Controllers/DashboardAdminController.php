@@ -44,7 +44,7 @@ class DashboardAdminController extends Controller
         if ($role_id == 2) {
             $petugas = $query->orderBy('role_id', 'asc')
                 ->select('id', 'name', 'email', 'role_id', 'image')
-                ->paginate(20);
+                ->paginate(20)->withQueryString();
         } else {
             $petugas = $query->with([
                     'roleId' => function ($q) {
@@ -53,7 +53,7 @@ class DashboardAdminController extends Controller
                 ])
                 ->orderBy('role_id', 'asc')
                 ->select('id', 'name', 'email', 'role_id', 'image')
-                ->paginate(20);
+                ->paginate(20)->withQueryString();
         }
 
         $roles = Role::where('id', '!=', 3)->get();
@@ -146,13 +146,21 @@ class DashboardAdminController extends Controller
 
         if (Auth()->user()->role_id == 2) {
             if ($user->id != Auth()->user()->id) {
-                return redirect()->route('admin.editDataPetugasShow')->with('error', 'Anda tidak memiliki akses untuk mengedit pengguna lain.');
+                return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk mengedit pengguna lain.');
+            }
+
+            if (!Hash::check($request->old_password, $user->password)) {
+                return redirect()->back()->with('error', 'Password reset salah.');
+            }
+
+            if ($request->old_password == $request->new_password) {
+                return redirect()->back()->with('error', 'Password baru tidak boleh sama dengan password lama.');
             }
         }
 
         // Periksa apakah password reset yang dimasukkan benar
         if (!password_verify($validatedData['reset_password'], $user->password)) {
-            return redirect()->route('admin.editDataPetugasShow')->with('error', 'Password reset salah.');
+            return redirect()->back()->with('error', 'Password reset salah.');
         }
 
         // Jika ada password baru, hash password baru dan update pengguna
@@ -218,7 +226,7 @@ class DashboardAdminController extends Controller
             $query->where('date', $searchDate);
         }
 
-        $petugas = $query->paginate(20);
+        $petugas = $query->paginate(20)->withQueryString();
         $users = User::where('role_id', 2)->get();
         $existingDates = JadwalPetugas::pluck('date')->toArray();
 

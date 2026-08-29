@@ -437,6 +437,74 @@
                 event.preventDefault();
                 deleteFoto();
             });
+
+            // Initialize Choices.js for Dosen PA
+            var dosenPaSelect = document.getElementById('dosen_pa_id');
+            if(dosenPaSelect) {
+                new Choices(dosenPaSelect, {
+                    searchEnabled: true,
+                    itemSelectText: '',
+                    placeholderValue: 'Cari Dosen PA...',
+                    shouldSort: false
+                });
+            }
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <style>
+        /* Customize Choices.js to match Tailwind bg-utama and border-teal-900 */
+        .choices {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            margin-bottom: 0;
+        }
+        .choices__inner {
+            background-color: var(--color-utama) !important;
+            border: 1px solid #134e4a !important; /* border-teal-900 */
+            border-radius: 0 0.5rem 0.5rem 0 !important; /* md:rounded-r-lg */
+            color: #f3f4f6 !important; /* text-gray-100 */
+            min-height: 42px;
+            padding: 0.35rem 2.5rem 0.35rem 0.625rem !important; /* match p-2.5 */
+            font-size: 0.875rem !important; /* text-sm */
+            display: flex;
+            align-items: center;
+        }
+        @media (max-width: 768px) {
+            .choices__inner {
+                border-radius: 0 0 0.5rem 0.5rem !important; /* rounded-b-lg on mobile */
+                border-top: none !important;
+            }
+        }
+        .choices__input {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+        }
+        .choices__input::placeholder {
+            color: #d1d5db !important;
+        }
+        .choices__list--dropdown {
+            background-color: var(--color-utama) !important;
+            border-color: #134e4a !important;
+            color: #f3f4f6 !important;
+            z-index: 50 !important;
+        }
+        .choices__list--dropdown .choices__item--selectable.is-highlighted {
+            background-color: #115e59 !important; /* teal-800 for hover */
+            color: white !important;
+        }
+        .choices__list--dropdown .choices__item {
+            color: #f3f4f6 !important;
+        }
+        .choices[data-type*="select-one"]:after {
+            border-color: #f3f4f6 transparent transparent transparent !important;
+        }
+        .choices[data-type*="select-one"].is-open:after {
+            border-color: transparent transparent #f3f4f6 transparent !important;
+        }
+        .choices__item.choices__placeholder {
+            color: #e5e7eb !important;
+            opacity: 0.9;
+        }
+    </style>
 @endsection

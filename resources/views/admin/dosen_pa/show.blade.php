@@ -29,8 +29,14 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-lg p-0 sm:p-5 mt-5 border-2 border-gray-200">
-        <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Daftar Mahasiswa Bimbingan</h2>
+    <div class="bg-white rounded-lg p-2 sm:p-5 mt-5 border-2 border-gray-200">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 border-b pb-2 gap-3">
+            <h2 class="text-lg font-bold text-gray-800">Daftar Mahasiswa Bimbingan</h2>
+            <form action="{{ route('admin.dosen_pa.show', $dosenPa->id) }}" method="GET" class="flex">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Nama / NIM..." class="border-gray-300 rounded-l-md text-sm focus:ring-utama focus:border-utama p-2 border">
+                <button type="submit" class="bg-utama text-white px-3 py-2 rounded-r-md hover:bg-teal-800 text-sm"><i class="ri-search-line"></i> Cari</button>
+            </form>
+        </div>
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg border border-gray-200">
             <table class="w-full text-sm text-left text-gray-500">
                 <thead class="text-xs text-white uppercase bg-utama">
@@ -44,10 +50,10 @@
                 <tbody>
                     @forelse($mahasiswaList as $idx => $mhs)
                         <tr class="bg-white border-b hover:bg-gray-50">
-                            <td class="px-6 py-4">{{ $idx + 1 }}</td>
+                            <td class="px-6 py-4">{{ $mahasiswaList->firstItem() + $idx }}</td>
                             <td class="px-6 py-4 font-medium text-gray-900">{{ $mhs->name }}</td>
                             <td class="px-6 py-4">{{ $mhs->nim ?? '-' }}</td>
-                            <td class="px-6 py-4">{{ $mhs->kelas->nama_kelas ?? '-' }} / {{ $mhs->prodi->nama_prodi ?? '-' }}</td>
+                            <td class="px-6 py-4">{{ $mhs->kelas->nama_kelas ?? '-' }} / {{ $mhs->prodi->prodi ?? '-' }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -56,6 +62,9 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+        <div class="mt-4">
+            {{ $mahasiswaList->links() }}
         </div>
     </div>
 </div>

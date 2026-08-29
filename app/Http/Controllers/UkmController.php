@@ -27,7 +27,7 @@ class UkmController extends Controller
             });
         }
 
-        $ukms = $query->latest()->paginate(20);
+        $ukms = $query->latest()->paginate(20)->withQueryString();
         $stafPelatih = User::whereIn('role_id', [User::PELATIH_ROLE_ID, User::PEMBINA_ROLE_ID])->get();
 
         if ($request->ajax()) {

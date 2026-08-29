@@ -26,7 +26,7 @@ class IzinMahasiswaController extends Controller
         $pengajuanList = PengajuanIzin::where('user_id', auth()->id())
             ->with(['jenisIzin', 'ukm'])
             ->latest()
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
 
         return view('izin.index', compact('pengajuanList'));
     }

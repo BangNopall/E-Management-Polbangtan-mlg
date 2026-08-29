@@ -8,6 +8,9 @@
 @source "../**/*.js";
 @source "../**/*.vue";
 
+/* Disable default media dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* 2. Pengganti 'theme.extend' */
 @theme {
   /* Font Family */

@@ -10,18 +10,37 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class DosenPaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $dosenPas = User::where('role_id', User::DOSEN_PA_ROLE_ID)->get();
-        return view('admin.dosen_pa.index', compact('dosenPas'));
+        $search = $request->input('search');
+
+        $dosenPas = User::where('role_id', User::DOSEN_PA_ROLE_ID)
+            ->when($search, function ($query) use ($search) {
+                return $query->where('name', 'like', "%{$search}%");
+            })
+            ->paginate(20)->withQueryString()
+            ->withQueryString();
+
+        return view('admin.dosen_pa.index', compact('dosenPas', 'search'));
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
+        $search = $request->input('search');
         $dosenPa = User::where('role_id', User::DOSEN_PA_ROLE_ID)->findOrFail($id);
-        $mahasiswaList = $dosenPa->mahasiswaBimbingan()->with(['kelas', 'prodi', 'blok'])->get();
         
-        return view('admin.dosen_pa.show', compact('dosenPa', 'mahasiswaList'));
+        $mahasiswaList = $dosenPa->mahasiswaBimbingan()
+            ->with(['kelas', 'prodi', 'blok'])
+            ->when($search, function ($query) use ($search) {
+                return $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('nim', 'like', "%{$search}%");
+                });
+            })
+            ->paginate(20)->withQueryString()
+            ->withQueryString();
+        
+        return view('admin.dosen_pa.show', compact('dosenPa', 'mahasiswaList', 'search'));
     }
 
     public function destroy($id)
