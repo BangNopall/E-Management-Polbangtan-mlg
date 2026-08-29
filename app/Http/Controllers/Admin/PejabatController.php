@@ -14,7 +14,7 @@ class PejabatController extends Controller
     public function index()
     {
         $pejabats = Pejabat::with('user')->orderBy('created_at', 'desc')->get();
-        $users = User::whereIn('role_id', [1, 2, 4, 5])
+        $users = User::where('role_id', User::PEJABAT_ROLE_ID)
             ->select('id', 'name', 'email', 'role_id')
             ->orderBy('name', 'asc')
             ->get();
