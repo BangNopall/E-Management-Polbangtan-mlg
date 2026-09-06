@@ -15,8 +15,6 @@ use Illuminate\View\View;
 
 class UkmScanController extends Controller
 {
-    use \App\Traits\DecryptsQrPayload;
-
     /**
      * Show generic QR camera scanner page for a specific UKM schedule.
      */
@@ -40,13 +38,6 @@ class UkmScanController extends Controller
      */
     public function store(Request $request, UkmJadwal $jadwal): RedirectResponse
     {
-        try {
-            $this->decryptAndMergePayload($request);
-        } catch (Exception $e) {
-            return redirect()->route('admin.ukm.scan.show', $jadwal->id)
-                ->with('error', $e->getMessage());
-        }
-
         abort_unless($this->isStaffOfUkm(Auth::user(), $jadwal->ukm_id), 403, 'Anda tidak berhak melakukan scan untuk UKM ini.');
 
         if ($jadwal->status_verifikasi !== 'disetujui') {

@@ -39,12 +39,6 @@ class QRControllerKegiatan extends Controller
 
     public function kameraKegiatanUpacaraApi(Request $request)
     {
-        try {
-            $this->decryptAndMergePayload($request);
-        } catch (\Exception $e) {
-            return redirect(route('admin.kameraKegiatanUpacaraShow'))->with('error', $e->getMessage());
-        }
-
         if ($request->scanner == 'absensi') {
             try {
                 $request->validate([
@@ -77,12 +71,6 @@ class QRControllerKegiatan extends Controller
 
     public function kameraKegiatanApelApi(Request $request)
     {
-        try {
-            $this->decryptAndMergePayload($request);
-        } catch (\Exception $e) {
-            return redirect(route('admin.kameraKegiatanApelShow'))->with('error', $e->getMessage());
-        }
-
         if ($request->scanner == 'absensi') {
             try {
                 $request->validate([
@@ -115,12 +103,6 @@ class QRControllerKegiatan extends Controller
 
     public function kameraKegiatanSenamApi(Request $request)
     {
-        try {
-            $this->decryptAndMergePayload($request);
-        } catch (\Exception $e) {
-            return redirect(route('admin.kameraKegiatanSenamShow'))->with('error', $e->getMessage());
-        }
-
         if ($request->scanner == 'absensi') {
             try {
                 $request->validate([

@@ -13,6 +13,8 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QRControllerHukum extends Controller
 {
+    use \App\Traits\DecryptsQrPayload;
+
     public function qrhukum()
     {
         $user = Auth::user();
@@ -52,6 +54,12 @@ class QRControllerHukum extends Controller
 
     public function scanCamPelatihStore(Request $request)
     {
+        try {
+            $this->decryptAndMergePayload($request);
+        } catch (\Exception $e) {
+            return redirect(route('admin.scanCamPelatih'))->with('error', $e->getMessage());
+        }
+
         if ($request->scanner == 'absensi') {
             return redirect(route('admin.scanCamPelatih'))->with('error', 'Anda Tidak Dapat Melakukan Presensi Pada Scanner Pelanggaran');
         } else {

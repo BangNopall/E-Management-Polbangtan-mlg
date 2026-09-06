@@ -1,0 +1,52 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class DataMahasiswaTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_admin_bisa_melihat_dosen_pa_pada_halaman_detail_data_mahasiswa(): void
+    {
+        $admin = User::factory()->create(['role_id' => User::ADMIN_ROLE_ID]);
+        $dosenPa = User::factory()->create(['name' => 'Bapak Budi Santoso', 'role_id' => User::DOSEN_PA_ROLE_ID]);
+        $mahasiswa = User::factory()->create([
+            'name' => 'Siswa Test Dosen PA', 
+            'role_id' => User::USER_ROLE_ID, 
+            'dosen_pa_id' => $dosenPa->id
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.dataMahasiswaEdit', $mahasiswa->id));
+        
+        $response->assertStatus(200);
+        $response->assertSee('Bapak Budi Santoso');
+        $response->assertSee('<option value="' . $dosenPa->id . '" selected>', false);
+    }
+
+    public function test_admin_bisa_mengupdate_dosen_pa_mahasiswa(): void
+    {
+        $admin = User::factory()->create(['role_id' => User::ADMIN_ROLE_ID]);
+        $dosenPa = User::factory()->create(['name' => 'Ibu Siti Aminah', 'role_id' => User::DOSEN_PA_ROLE_ID]);
+        $mahasiswa = User::factory()->create([
+            'name' => 'Siswa Test Edit Dosen PA', 
+            'role_id' => User::USER_ROLE_ID, 
+        ]);
+
+        $response = $this->actingAs($admin)->post(route('admin.dataMahasiswaEditData', $mahasiswa->id), [
+            'name' => 'Siswa Test Edit Dosen PA',
+            'dosen_pa_id' => $dosenPa->id
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect(route('admin.dataMahasiswaEdit', $mahasiswa->id));
+        
+        $this->assertDatabaseHas('users', [
+            'id' => $mahasiswa->id,
+            'dosen_pa_id' => $dosenPa->id
+        ]);
+    }
+}
