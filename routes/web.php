@@ -165,7 +165,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/data-petugas/destroy/{id}', [DashboardAdminController::class, 'destroyDataPetugas'])->name('destroyPetugas');
 
         // EPIC 03: MODUL PERIZINAN — Admin Management Routes (M6)
-    Route::middleware(['role:admin,pejabat'])->group(function () {
+    Route::middleware(['role:admin,pejabat,pelatih'])->group(function () {
         Route::resource('izin/jenis', \App\Http\Controllers\AdminJenisIzinController::class)->names([
             'index' => 'jenis.index',
             'create' => 'jenis.create',
@@ -214,9 +214,11 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('ukm/{ukm}/anggota/{member}', [UkmMemberController::class, 'destroy'])->name('ukm.anggota.destroy');
 
         // EPIC 01: MODUL UKM DINAMIS — Pembina & Admin Verification & Report Routes (US 1.4)
-        Route::middleware(['role:admin,pembina,pejabat'])->group(function () {
+        Route::middleware(['role:pembina'])->group(function () {
             Route::get('ukm/{ukm}/verifikasi', [UkmVerifikasiController::class, 'index'])->name('ukm.verifikasi.index');
             Route::patch('ukm/jadwal/{jadwal}/verifikasi', [UkmVerifikasiController::class, 'update'])->name('ukm.verifikasi.update');
+        });
+        Route::middleware(['role:admin,pembina,pejabat'])->group(function () {
             Route::post('ukm/{ukm}/laporan/pdf', [UkmLaporanController::class, 'pdfReport'])->name('ukm.laporan.pdf');
         });
 
@@ -280,7 +282,7 @@ Route::middleware(['auth'])->group(function () {
 
     });
         // EPIC 03: PERSETUJUAN PERIZINAN (M2b Approver Routes)
-    Route::middleware(['role:admin,pejabat,dosen_pa'])->group(function () {
+    Route::middleware(['role:admin,pejabat,dosen_pa,pelatih'])->group(function () {
         Route::get('/admin/izin/persetujuan', [\App\Http\Controllers\IzinPersetujuanController::class, 'inbox'])->name('izin.persetujuan.inbox');
         Route::get('/admin/izin/persetujuan/{pengajuan}', [\App\Http\Controllers\IzinPersetujuanController::class, 'review'])->name('izin.persetujuan.review');
     Route::get('/admin/izin/persetujuan/{pengajuan}/pdf', [\App\Http\Controllers\IzinPersetujuanController::class, 'downloadPdf'])->name('izin.persetujuan.pdf');

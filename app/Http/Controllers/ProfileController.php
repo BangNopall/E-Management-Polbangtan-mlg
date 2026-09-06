@@ -17,11 +17,11 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role_id == 1 || $user->role_id == 2 || $user->role_id == 4 || $user->role_id == 5) {
+        if (!$user->isUser()) {
             return redirect()->route('admin.profil', $user->id);
         }
 
-        if ($user->role_id == 3) {
+        if ($user->isUser()) {
             return redirect()->route('home.profilshow', $user->id);
         }
     }
@@ -81,7 +81,7 @@ class ProfileController extends Controller
         }
 
         // Update data pengguna dengan data yang baru
-        if ($user->isAdmin() || $user->isOperator() || $user->isPelatih() || $user->isPembina()) {
+        if (!$user->isUser()) {
             $user->nim = $request->nim;
             $user->name = $request->name;
             $user->prodi_id = $request->prodi_id;
@@ -185,14 +185,14 @@ class ProfileController extends Controller
 
             $user->save();
 
-            if ($user->isAdmin() || $user->isOperator() || $user->isPelatih() || $user->isPembina()) {
+            if (!$user->isUser()) {
                 return redirect()->route('admin.profil', $user->id)->with('success-email', 'Informasi akun berhasil diperbarui.');
             } else {
                 return redirect()->route('home.profilshow', $user->id)->with('success-email', 'Informasi akun berhasil diperbarui.');
             }
         } catch (\Exception $e) {
             $user = User::find($id);
-            if ($user->isAdmin() || $user->isOperator() || $user->isPelatih() || $user->isPembina()) {
+            if (!$user->isUser()) {
                 return redirect()->route('admin.profil', $user->id)->with('error-email', 'Informasi akun Gagal diperbarui.');
             } else {
                 return redirect()->route('home.profilshow', $user->id)->with('error-email', 'Informasi akun Gagal diperbarui.');

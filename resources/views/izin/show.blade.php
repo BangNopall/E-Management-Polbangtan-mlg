@@ -26,7 +26,7 @@
             @endif
             @if ($pengajuan->status === 'berjalan' && optional($pengajuan->jenisIzin)->butuh_konfirmasi_tiba)
                 <button type="button" data-modal-target="modal-konfirmasi" data-modal-toggle="modal-konfirmasi" class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
-                    <i class="ri-map-pin-user-line mr-1"></i> Konfirmasi Kedatangan
+                    <i class="ri-map-pin-user-line mr-1"></i> Konfirmasi Kedatangan Lokasi Tujuan
                 </button>
             @endif
         </div>
@@ -38,7 +38,7 @@
         <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start">
             <i class="ri-information-line text-blue-600 text-xl mr-3 mt-0.5"></i>
             <div>
-                <h4 class="text-sm font-bold text-blue-900 mb-1">Menunggu Konfirmasi Kedatangan</h4>
+                <h4 class="text-sm font-bold text-blue-900 mb-1">Menunggu Konfirmasi Kedatangan Lokasi Tujuan</h4>
                 <p class="text-sm text-blue-800 mb-2">Anda sedang dalam masa izin (berjalan). Mohon konfirmasi kedatangan segera setelah tiba di asrama dengan melampirkan foto bukti.</p>
                 <button type="button" data-modal-target="modal-konfirmasi" data-modal-toggle="modal-konfirmasi" class="text-xs px-3 py-1.5 bg-blue-600 text-white rounded font-medium hover:bg-blue-700">Konfirmasi Sekarang</button>
             </div>
@@ -115,7 +115,7 @@
                 
                 @if ($pengajuan->tiba_at)
                     <div class="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                        <h4 class="font-bold text-gray-900 mb-2 flex items-center"><i class="ri-map-pin-user-line text-blue-600 mr-2"></i> Detail Konfirmasi Kedatangan</h4>
+                        <h4 class="font-bold text-gray-900 mb-2 flex items-center"><i class="ri-map-pin-user-line text-blue-600 mr-2"></i> Detail Konfirmasi Kedatangan Lokasi Tujuan</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <div>
                                 <span class="text-xs text-gray-500 block">Waktu Tiba Aktual</span>
@@ -180,14 +180,14 @@
     </div>
 </div>
 
-{{-- Modal Konfirmasi Kedatangan --}}
+{{-- Modal Konfirmasi Kedatangan Lokasi Tujuan --}}
 @if ($pengajuan->status === 'berjalan' && optional($pengajuan->jenisIzin)->butuh_konfirmasi_tiba)
     <div id="modal-konfirmasi" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative p-4 w-full max-w-md max-h-full">
             <div class="relative bg-white rounded-lg shadow">
                 <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
                     <h3 class="text-lg font-semibold text-gray-900">
-                        Konfirmasi Kedatangan
+                        Konfirmasi Kedatangan Lokasi Tujuan
                     </h3>
                     <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="modal-konfirmasi">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">

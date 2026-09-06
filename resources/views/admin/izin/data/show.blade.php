@@ -118,7 +118,36 @@
                         <span class="font-bold text-gray-800">{{ $pengajuan->no_hp_snapshot ?? '-' }}</span>
                     </div>
                 </div>
+        </div>
+
+        @if ($pengajuan->tiba_at || $pengajuan->tiba_bukti_path)
+            <div class="bg-white border-2 border-emerald-100 rounded-xl p-5 shadow-xs mb-6">
+                <h3 class="font-bold text-emerald-900 text-sm sm:text-base mb-3 pb-2 border-b border-emerald-100 flex items-center">
+                    <i class="ri-map-pin-user-line text-emerald-600 mr-2"></i> Detail Konfirmasi Kedatangan Lokasi Tujuan
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-xs text-gray-400 block">Waktu Tiba Dilaporkan</span>
+                        <span class="font-bold text-gray-800">{{ optional($pengajuan->tiba_at)->format('d M Y H:i:s') ?? '-' }} WIB</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-400 block">Dikonfirmasi Oleh (ID)</span>
+                        <span class="font-bold text-gray-800">{{ $pengajuan->tiba_dikonfirmasi_oleh ?? '-' }}</span>
+                    </div>
+                    @if ($pengajuan->tiba_bukti_path)
+                        <div class="sm:col-span-2">
+                            <span class="text-xs text-gray-400 block mb-2">Foto Bukti Tiba</span>
+                            <a href="{{ Storage::url($pengajuan->tiba_bukti_path) }}" target="_blank" class="inline-block relative group">
+                                <img src="{{ Storage::url($pengajuan->tiba_bukti_path) }}" class="h-32 w-auto object-cover rounded-lg border-2 border-emerald-200" alt="Bukti Kedatangan">
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition rounded-lg">
+                                    <i class="ri-search-eye-line text-white text-2xl"></i>
+                                </div>
+                            </a>
+                        </div>
+                    @endif
+                </div>
             </div>
+        @endif
         </div>
 
         <!-- Audit Trail Sidebar -->

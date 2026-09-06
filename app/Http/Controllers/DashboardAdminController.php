@@ -374,7 +374,7 @@ class DashboardAdminController extends Controller
         $jadwalPiket = JadwalPetugas::where('date', now()->format('Y-m-d'))->first();
 
         if ($jadwalPiket == null) {
-            return redirect()->route('admin.piketPetugas')->with('error', 'Jadwal piket untuk hari ini tidak ditemukan silahkan buat jadwal terlebih dahulu.');
+            return redirect()->route('admin.index')->with('error', 'Jadwal piket untuk hari ini tidak ditemukan silahkan hubungi admin/operator untuk membuat jadwal piket terlebih dahulu.');
         }
         $petugas1 = User::where('id', $jadwalPiket->petugas1_id)->value('name');
         $petugas2 = User::where('id', $jadwalPiket->petugas2_id)->value('name');

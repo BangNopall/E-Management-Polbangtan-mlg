@@ -1,0 +1,16 @@
+@@ -48,2 +48,15 @@
+ 
++    public function test_pelatih_ukm_dan_pejabat_ditolak_mengakses_verifikasi(): void
++    {
++        $pelatih = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
++        $pejabat = $this->makeUser(User::PEJABAT_ROLE_ID);
++        $ukm = Ukm::create(['nama' => 'UKM Tolak', 'slug' => 'ukm-tolak']);
++
++        $response = $this->actingAs($pelatih)->get(route('admin.ukm.verifikasi.index', $ukm->id));
++        $response->assertStatus(403);
++
++        $response2 = $this->actingAs($pejabat)->get(route('admin.ukm.verifikasi.index', $ukm->id));
++        $response2->assertStatus(403);
++    }
++
+     public function test_pembina_lain_ditolak_mengakses_verifikasi_ukm_bukan_binaannya(): void

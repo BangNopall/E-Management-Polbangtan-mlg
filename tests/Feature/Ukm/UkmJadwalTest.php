@@ -63,9 +63,43 @@ class UkmJadwalTest extends TestCase
         ]);
     }
 
+    public function test_pembina_dan_pelatih_ukm_bisa_membuat_jadwal_jika_ditugaskan(): void
+    {
+        $pembina = $this->makeUser(User::PEMBINA_ROLE_ID);
+        $pelatihUkm = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Catur', 'slug' => 'ukm-catur']);
+
+        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pembina->id, 'peran' => 'pembina', 'status' => 'aktif']);
+        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pelatihUkm->id, 'peran' => 'pelatih', 'status' => 'aktif']);
+
+        $response = $this->actingAs($pembina)->post(route('admin.ukm.jadwal.store', $ukm->id), [
+            'judul' => 'Latihan Rutin Catur (Pembina)',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-08-11',
+            'mulai_acara' => '16:00:00',
+            'selesai_acara' => '18:00:00',
+            'lokasi' => 'Ruang Catur',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('ukm_jadwals', ['judul' => 'Latihan Rutin Catur (Pembina)']);
+
+        $response2 = $this->actingAs($pelatihUkm)->post(route('admin.ukm.jadwal.store', $ukm->id), [
+            'judul' => 'Latihan Rutin Catur (Pelatih UKM)',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-08-12',
+            'mulai_acara' => '16:00:00',
+            'selesai_acara' => '18:00:00',
+            'lokasi' => 'Ruang Catur',
+        ]);
+
+        $response2->assertRedirect();
+        $this->assertDatabaseHas('ukm_jadwals', ['judul' => 'Latihan Rutin Catur (Pelatih UKM)']);
+    }
+
     public function test_membuat_jadwal_menghasilkan_fan_out_presensi_alpha_untuk_n_anggota_aktif(): void
     {
-        $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $pelatih = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
         $ukm = Ukm::create(['nama' => 'UKM Voli Jadwal Test', 'slug' => 'ukm-voli-jadwal-test']);
 
         UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pelatih->id, 'peran' => 'pelatih', 'status' => 'aktif']);
@@ -118,7 +152,7 @@ class UkmJadwalTest extends TestCase
 
         $mhsAktif = $this->makeUser(User::USER_ROLE_ID);
         $mhsNonaktif = $this->makeUser(User::USER_ROLE_ID);
-        $stafPelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $stafPelatih = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
         $stafPembina = $this->makeUser(User::PEMBINA_ROLE_ID);
 
         // Active student -> SHOULD get presensi
@@ -183,7 +217,7 @@ class UkmJadwalTest extends TestCase
 
     public function test_pelatih_ukm_lain_tidak_bisa_membuat_jadwal_untuk_ukm_bukan_binaannya(): void
     {
-        $pelatihUkmA = $this->makeUser(User::PELATIH_ROLE_ID);
+        $pelatihUkmA = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
         $ukmA = Ukm::create(['nama' => 'UKM Panahan', 'slug' => 'ukm-panahan']);
         $ukmB = Ukm::create(['nama' => 'UKM Renang', 'slug' => 'ukm-renang']);
 
@@ -308,7 +342,7 @@ class UkmJadwalTest extends TestCase
      */
     public function test_pelatih_bisa_menghapus_jadwal_berstatus_draft(): void
     {
-        $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $pelatih = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
         $ukm = Ukm::create(['nama' => 'UKM Robotik Hapus Test', 'slug' => 'ukm-robotik-hapus-test']);
 
         UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pelatih->id, 'peran' => 'pelatih', 'status' => 'aktif']);
@@ -327,12 +361,42 @@ class UkmJadwalTest extends TestCase
 
         $response->assertRedirect(route('admin.ukm.show', $ukm->id));
         $response->assertSessionHas('success');
-        $this->assertDatabaseMissing('ukm_jadwals', ['id' => $jadwal->id]);
+        $this->assertSoftDeleted('ukm_jadwals', ['id' => $jadwal->id]);
+    }
+
+    public function test_pembina_bisa_menghapus_jadwal_dan_mengajukan_verifikasi(): void
+    {
+        $pembina = $this->makeUser(User::PEMBINA_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Robotik Hapus Test 2', 'slug' => 'ukm-robotik-hapus-test-2']);
+
+        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pembina->id, 'peran' => 'pembina', 'status' => 'aktif']);
+
+        $jadwal1 = UkmJadwal::create([
+            'ukm_id' => $ukm->id,
+            'judul' => 'Latihan Robotik Batal',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-09-10',
+            'mulai_acara' => '10:00:00',
+            'selesai_acara' => '12:00:00',
+            'status_verifikasi' => 'draft',
+        ]);
+
+        // Ajukan verifikasi
+        $responseAjukan = $this->actingAs($pembina)->patch(route('admin.ukm.jadwal.ajukanVerifikasi', $jadwal1->id));
+        $responseAjukan->assertRedirect();
+        $this->assertDatabaseHas('ukm_jadwals', ['id' => $jadwal1->id, 'status_verifikasi' => 'menunggu']);
+        
+        // Untuk mengetes hapus, kembalikan ke draft
+        $jadwal1->refresh();
+        $jadwal1->update(['status_verifikasi' => 'draft']);
+        $responseHapus = $this->actingAs($pembina)->delete(route('admin.ukm.jadwal.destroy', $jadwal1->id));
+        $responseHapus->assertRedirect();
+        $this->assertSoftDeleted('ukm_jadwals', ['id' => $jadwal1->id]);
     }
 
     public function test_menghapus_jadwal_bukan_draft_ditolak(): void
     {
-        $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $pelatih = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
         $ukm = Ukm::create(['nama' => 'UKM E-Sport Hapus Test', 'slug' => 'ukm-esport-hapus-test']);
 
         UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pelatih->id, 'peran' => 'pelatih', 'status' => 'aktif']);
@@ -355,8 +419,8 @@ class UkmJadwalTest extends TestCase
 
     public function test_pelatih_ukm_lain_ditolak_menghapus_jadwal_bukan_binaannya(): void
     {
-        $pelatihA = $this->makeUser(User::PELATIH_ROLE_ID);
-        $pelatihB = $this->makeUser(User::PELATIH_ROLE_ID);
+        $pelatihA = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
+        $pelatihB = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
 
         $ukmA = Ukm::create(['nama' => 'UKM A Hapus', 'slug' => 'ukm-a-hapus']);
         $ukmB = Ukm::create(['nama' => 'UKM B Hapus', 'slug' => 'ukm-b-hapus']);
@@ -409,7 +473,7 @@ class UkmJadwalTest extends TestCase
 
     public function test_pelatih_ukm_lain_ditolak_mengambil_events_jadwal_bukan_binaannya(): void
     {
-        $pelatihUkmA = $this->makeUser(User::PELATIH_ROLE_ID);
+        $pelatihUkmA = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
         $ukmA = Ukm::create(['nama' => 'UKM Events A', 'slug' => 'ukm-events-a']);
         $ukmB = Ukm::create(['nama' => 'UKM Events B', 'slug' => 'ukm-events-b']);
 

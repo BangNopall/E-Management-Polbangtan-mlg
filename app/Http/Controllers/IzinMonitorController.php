@@ -61,10 +61,17 @@ class IzinMonitorController extends Controller
     {
         $now = Carbon::now();
 
+        $baseQuery = PengajuanIzin::query();
+        if (auth()->check() && auth()->user()->role_id == \App\Models\User::DOSEN_PA_ROLE_ID) {
+            $baseQuery->whereHas('user', function ($q) {
+                $q->where('dosen_pa_id', auth()->id());
+            });
+        }
+
         return [
-            'sedang_berjalan' => PengajuanIzin::where('status', 'berjalan')->count(),
-            'terlambat' => PengajuanIzin::where('status', 'terlambat')->count(),
-            'mendatang' => PengajuanIzin::where('status', 'disetujui')
+            'sedang_berjalan' => (clone $baseQuery)->where('status', 'berjalan')->count(),
+            'terlambat' => (clone $baseQuery)->where('status', 'terlambat')->count(),
+            'mendatang' => (clone $baseQuery)->where('status', 'disetujui')
                 ->where('waktu_berangkat', '>', $now)
                 ->count(),
         ];
@@ -88,6 +95,12 @@ class IzinMonitorController extends Controller
                 $q->where('nama_snapshot', 'like', "%{$search}%")
                   ->orWhere('tujuan_lokasi', 'like', "%{$search}%")
                   ->orWhere('nomor_surat', 'like', "%{$search}%");
+            });
+        }
+
+        if (auth()->check() && auth()->user()->role_id == \App\Models\User::DOSEN_PA_ROLE_ID) {
+            $query->whereHas('user', function ($q) {
+                $q->where('dosen_pa_id', auth()->id());
             });
         }
 

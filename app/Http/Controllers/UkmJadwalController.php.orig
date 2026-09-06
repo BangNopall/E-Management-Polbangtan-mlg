@@ -28,9 +28,6 @@ class UkmJadwalController extends Controller
                 ->whereIn('peran', ['pelatih', 'pembina'])
                 ->where('status', 'aktif')
                 ->exists();
-            if (!$isStaff) {
-                \Log::info("IDOR Failed! User: {$user->id}, UKM: {$ukm->id}. Members: " . json_encode(UkmMember::all()->toArray()));
-            }
             abort_unless($isStaff, 403, 'Anda tidak berhak menambah jadwal pada UKM ini.');
         }
 

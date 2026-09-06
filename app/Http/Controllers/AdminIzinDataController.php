@@ -109,6 +109,12 @@ class AdminIzinDataController extends Controller
             });
         }
 
+        if (auth()->check() && auth()->user()->role_id == \App\Models\User::DOSEN_PA_ROLE_ID) {
+            $query->whereHas('user', function ($q) {
+                $q->where('dosen_pa_id', auth()->id());
+            });
+        }
+
         return $query->latest('created_at');
     }
 }

@@ -25,13 +25,12 @@
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5"
                         required>
                         <option value="anggota">Anggota (Mahasiswa)</option>
-                        <option value="pelatih">Pelatih (Staf)</option>
+                        <option value="pelatih">Pelatih UKM (Staf)</option>
                         <option value="pembina">Pembina (Staf)</option>
                     </select>
                 </div>
                 <div class="mb-4" id="user-mahasiswa-container">
-                    <label for="user_id_mhs" class="block mb-2 text-sm font-medium text-gray-900">Pilih
-                        Mahasiswa</label>
+                    <label for="user_id_mhs" class="block mb-2 text-sm font-medium text-gray-900">Pilih Mahasiswa</label>
                     <select name="user_id" id="user_id_mhs"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5">
                         <option value="">-- Pilih Mahasiswa --</option>
@@ -62,10 +61,10 @@
 </div>
 
 <script>
-    // Peran#role_id UKM: pelatih => 4 (PELATIH_ROLE_ID), pembina => 5 (PEMBINA_ROLE_ID)
+    // Peran#role_id UKM: pelatih => 6 (PELATIH_UKM_ROLE_ID), pembina => 5 (PEMBINA_ROLE_ID)
     // (lihat App\Models\User) — dipakai untuk memfilter opsi search-dropdown staf.
     const UKM_PERAN_ROLE_ID_MAP = {
-        pelatih: 4,
+        pelatih: 6,
         pembina: 5
     };
     let stafChoicesInstance = null;

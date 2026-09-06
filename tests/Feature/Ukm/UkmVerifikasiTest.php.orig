@@ -69,17 +69,6 @@ class UkmVerifikasiTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_pelatih_ukm_ditolak_mengakses_verifikasi(): void
-    {
-        $pelatih = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
-        $ukm = Ukm::create(['nama' => 'UKM Tolak', 'slug' => 'ukm-tolak']);
-        
-        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pelatih->id, 'peran' => 'pelatih', 'status' => 'aktif']);
-
-        $response = $this->actingAs($pelatih)->get(route('admin.ukm.verifikasi.index', $ukm->id));
-        $response->assertStatus(302);
-    }
-
     public function test_pembina_bisa_menyetujui_jadwal_kegiatan_menunggu(): void
     {
         $pembina = $this->makeUser(User::PEMBINA_ROLE_ID);
@@ -215,12 +204,30 @@ class UkmVerifikasiTest extends TestCase
         ]);
     }
 
-    public function test_admin_ditolak_mengakses_verifikasi(): void
+    public function test_admin_bisa_memverifikasi_jadwal_ukm_mana_saja(): void
     {
         $admin = $this->makeUser(User::ADMIN_ROLE_ID);
         $ukm = Ukm::create(['nama' => 'UKM Futsal', 'slug' => 'ukm-futsal']);
 
-        $response = $this->actingAs($admin)->get(route('admin.ukm.verifikasi.index', $ukm->id));
-        $response->assertStatus(302);
+        $jadwal = UkmJadwal::create([
+            'ukm_id' => $ukm->id,
+            'judul' => 'Sparring',
+            'jenis' => 'latihan',
+            'tanggal' => '2026-08-25',
+            'mulai_acara' => '16:00:00',
+            'selesai_acara' => '18:00:00',
+            'status_verifikasi' => 'menunggu',
+        ]);
+
+        $response = $this->actingAs($admin)->patch(route('admin.ukm.verifikasi.update', $jadwal->id), [
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        $response->assertRedirect(route('admin.ukm.verifikasi.index', $ukm->id));
+        $this->assertDatabaseHas('ukm_jadwals', [
+            'id' => $jadwal->id,
+            'status_verifikasi' => 'disetujui',
+            'verified_by' => $admin->id,
+        ]);
     }
 }

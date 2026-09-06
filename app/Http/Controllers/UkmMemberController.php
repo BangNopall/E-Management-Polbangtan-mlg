@@ -7,21 +7,51 @@ use App\Models\Ukm;
 use App\Models\UkmMember;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class UkmMemberController extends Controller
 {
+    protected function ensureUserCanManageUkm($ukmId)
+    {
+        $user = Auth::user();
+        if ($user->role_id !== User::ADMIN_ROLE_ID) {
+            $isStaff = UkmMember::where('ukm_id', $ukmId)
+                ->where('user_id', $user->id)
+                ->whereIn('peran', ['pelatih', 'pembina'])
+                ->where('status', 'aktif')
+                ->exists();
+            abort_unless($isStaff, 403, 'Anda tidak berhak mengelola anggota pada UKM ini.');
+        }
+    }
+
     public function store(StoreUkmMemberRequest $request, $ukmId)
     {
+        $this->ensureUserCanManageUkm($ukmId);
         try {
             $ukm = Ukm::findOrFail($ukmId);
             $validated = $request->validated();
 
-            $ukm->members()->create([
-                'user_id' => $validated['user_id'],
-                'peran' => $validated['peran'],
-                'status' => 'aktif',
-                'tanggal_bergabung' => now(),
-            ]);
+            $member = $ukm->members()->withTrashed()->where('user_id', $validated['user_id'])->first();
+
+            if ($member) {
+                // Restore if soft-deleted
+                if ($member->trashed()) {
+                    $member->restore();
+                }
+                $member->update([
+                    'peran' => $validated['peran'],
+                    'status' => 'aktif',
+                    'tanggal_bergabung' => now(),
+                ]);
+            } else {
+                $ukm->members()->create([
+                    'user_id' => $validated['user_id'],
+                    'peran' => $validated['peran'],
+                    'status' => 'aktif',
+                    'tanggal_bergabung' => now(),
+                ]);
+            }
 
             return redirect()->back()->with('success', 'Anggota berhasil ditambahkan ke ' . $ukm->nama);
         } catch (\Throwable $th) {
@@ -31,6 +61,7 @@ class UkmMemberController extends Controller
 
     public function destroy($ukmId, $memberId)
     {
+        $this->ensureUserCanManageUkm($ukmId);
         try {
             $member = UkmMember::where('ukm_id', $ukmId)->where('id', $memberId)->firstOrFail();
             $member->delete();
@@ -49,6 +80,7 @@ class UkmMemberController extends Controller
      */
     public function aktifkan($ukmId, $memberId)
     {
+        $this->ensureUserCanManageUkm($ukmId);
         try {
             $ukm = Ukm::findOrFail($ukmId);
             if (! $ukm->is_active) {
@@ -71,6 +103,7 @@ class UkmMemberController extends Controller
      */
     public function aktifkanSemua($ukmId)
     {
+        $this->ensureUserCanManageUkm($ukmId);
         try {
             $ukm = Ukm::findOrFail($ukmId);
             if (! $ukm->is_active) {

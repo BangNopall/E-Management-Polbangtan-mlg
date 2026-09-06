@@ -39,7 +39,7 @@
                     </td>
                     <td class="px-4 py-3">
                         @if ($member->peran === 'pelatih')
-                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Pelatih</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Pelatih UKM</span>
                         @elseif ($member->peran === 'pembina')
                             <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">Pembina</span>
                         @else

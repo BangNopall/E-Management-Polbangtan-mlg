@@ -11,6 +11,10 @@
 /* Disable default media dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
 
+[x-cloak] {
+    display: none !important;
+}
+
 /* 2. Pengganti 'theme.extend' */
 @theme {
   /* Font Family */

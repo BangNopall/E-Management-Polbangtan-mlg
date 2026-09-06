@@ -20,22 +20,20 @@ class StoreUkmJadwalRequest extends FormRequest
             return true;
         }
 
-        // Pelatih (4) may only create schedules for a UKM they are an
+        // Pelatih UKM (6) may only create schedules for a UKM they are an
         // active pelatih of — prevents a pelatih of UKM A from creating
         // jadwal (and triggering the presensi fan-out) for UKM B.
-        if ($user->role_id !== User::PELATIH_ROLE_ID) {
+        if (!in_array($user->role_id, [User::PELATIH_UKM_ROLE_ID, User::PEMBINA_ROLE_ID])) {
             return false;
         }
 
-        // Route uses implicit model binding, so route('ukm') may already be
-        // the resolved Ukm instance rather than a raw ID — normalize it.
         $ukmId = $this->route('ukm') instanceof \App\Models\Ukm
             ? $this->route('ukm')->id
             : $this->route('ukm');
 
         return UkmMember::where('ukm_id', $ukmId)
             ->where('user_id', $user->id)
-            ->where('peran', 'pelatih')
+            ->whereIn('peran', ['pelatih', 'pembina'])
             ->where('status', 'aktif')
             ->exists();
     }

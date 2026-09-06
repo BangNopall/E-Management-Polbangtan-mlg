@@ -21,16 +21,13 @@ class UkmVerifikasiController extends Controller
     {
         $user = Auth::user();
 
-        // Scope check: Admin (1) can access any UKM, Pembina (5) must be registered as pembina of this UKM
-        if ($user->role_id !== User::ADMIN_ROLE_ID) {
-            $isPembinaOfThisUkm = UkmMember::where('ukm_id', $ukm->id)
-                ->where('user_id', $user->id)
-                ->where('peran', 'pembina')
-                ->where('status', 'aktif')
-                ->exists();
+        $isPembinaOfThisUkm = UkmMember::where('ukm_id', $ukm->id)
+            ->where('user_id', $user->id)
+            ->where('peran', 'pembina')
+            ->where('status', 'aktif')
+            ->exists();
 
-            abort_unless($isPembinaOfThisUkm, 403, 'Anda tidak berhak memverifikasi UKM ini.');
-        }
+        abort_unless($isPembinaOfThisUkm, 403, 'Anda tidak berhak memverifikasi UKM ini.');
 
         // Isu #3: jadwal 'draft' belum diajukan Pelatih, jadi tidak boleh masuk
         // antrian Pembina. Alur wajib: draft -> (Ajukan Verifikasi) -> menunggu
@@ -52,15 +49,13 @@ class UkmVerifikasiController extends Controller
         $user = Auth::user();
         $ukm = $jadwal->ukm;
 
-        if ($user->role_id !== User::ADMIN_ROLE_ID) {
-            $isPembinaOfThisUkm = UkmMember::where('ukm_id', $ukm->id)
-                ->where('user_id', $user->id)
-                ->where('peran', 'pembina')
-                ->where('status', 'aktif')
-                ->exists();
+        $isPembinaOfThisUkm = UkmMember::where('ukm_id', $ukm->id)
+            ->where('user_id', $user->id)
+            ->where('peran', 'pembina')
+            ->where('status', 'aktif')
+            ->exists();
 
-            abort_unless($isPembinaOfThisUkm, 403, 'Anda tidak berhak memverifikasi UKM ini.');
-        }
+        abort_unless($isPembinaOfThisUkm, 403, 'Anda tidak berhak memverifikasi UKM ini.');
 
         // Isu #3: Pembina tidak boleh menyetujui/menolak jadwal yang belum
         // diajukan Pelatih. Ditegakkan di server, bukan sekadar menyembunyikan
