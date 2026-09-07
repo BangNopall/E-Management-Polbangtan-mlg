@@ -71,4 +71,24 @@ class PejabatPrivilegeTest extends TestCase
         // But should still see "Kelola Jenis Izin" (or its link)
         $response->assertSee('Kelola Jenis Izin');
     }
+    public function test_pejabat_can_submit_presense_kamera(): void
+    {
+        $pejabat = $this->createPejabatUser();
+        
+        $user = User::factory()->create([
+            'role_id' => 3,
+            'status' => 'didalam',
+        ]);
+
+        $response = $this->actingAs($pejabat)->post(route('admin.presense.api'), [
+            'user_id' => $user->id,
+            'time' => '10:00:00',
+            'date' => now()->toDateString(),
+            'status' => 'diluar',
+            'scanner' => 'absensi',
+        ]);
+
+        $this->assertNotEquals('Akses ditolak: Role Pejabat hanya memiliki akses Read-Only pada modul ini.', session('error'));
+        $response->assertStatus(302);
+    }
 }

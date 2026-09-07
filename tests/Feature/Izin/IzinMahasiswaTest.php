@@ -43,6 +43,9 @@ class IzinMahasiswaTest extends TestCase
             'blok_ruangan_id' => $blok->id,
             'nim' => '123456',
             'no_hp' => '08123456789',
+            'password' => bcrypt('newpassword'),
+            'asal_daerah' => 'Malang',
+            'no_kamar' => '12',
         ]);
 
         $this->kaprodi = User::factory()->create(['role_id' => 1, 'name' => 'Kaprodi User']);
@@ -304,5 +307,38 @@ class IzinMahasiswaTest extends TestCase
         $response->assertRedirect(route('home.izin.show', $pengajuan->id));
 
         $this->assertEquals($operator->id, $pengajuan->approvals->first()->approver_user_id);
+    }
+
+    public function test_konfirmasi_tiba_menyimpan_nama_bukan_id(): void
+    {
+        $this->jenisBiasa->update(['butuh_konfirmasi_tiba' => true]);
+
+        $pengajuan = PengajuanIzin::create([
+            'user_id' => $this->student->id,
+            'jenis_izin_id' => $this->jenisBiasa->id,
+            'keperluan' => 'Konfirmasi Tiba',
+            'tujuan_lokasi' => 'Malang',
+            'waktu_berangkat' => now()->addHours(3),
+            'waktu_kembali' => now()->addHours(8),
+            'nama_snapshot' => $this->student->name,
+            'status' => 'berjalan',
+        ]);
+
+        // Mock upload file
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $file = \Illuminate\Http\Testing\File::image('bukti.jpg');
+
+        $response = $this->actingAs($this->student)
+            ->post(route('home.izin.konfirmasi-tiba', $pengajuan->id), [
+                'foto_bukti' => $file,
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect();
+        
+        $this->assertDatabaseHas('pengajuan_izins', [
+            'id' => $pengajuan->id,
+            'tiba_dikonfirmasi_oleh' => $this->student->name, // Should be name, not ID
+        ]);
     }
 }

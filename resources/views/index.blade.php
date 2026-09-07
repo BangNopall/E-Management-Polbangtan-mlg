@@ -53,7 +53,7 @@
                     <div class="flex flex-col md:flex-row justify-normal md:justify-between">
                         <!-- Icon -->
                         {{-- jika is_active sama dengan 1 dan null --}}
-                        @if ($status->status == 'diluar')
+                        @if ($status->status == 'diluar' || $status->status == 'izin')
                             <div class="flex items-center">
                                 <i class="ri-information-line text-utama text-6xl mr-2"></i>
                                 <!-- Keterangan Alasan -->

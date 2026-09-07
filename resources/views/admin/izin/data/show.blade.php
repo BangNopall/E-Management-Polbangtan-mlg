@@ -131,7 +131,7 @@
                         <span class="font-bold text-gray-800">{{ optional($pengajuan->tiba_at)->format('d M Y H:i:s') ?? '-' }} WIB</span>
                     </div>
                     <div>
-                        <span class="text-xs text-gray-400 block">Dikonfirmasi Oleh (ID)</span>
+                        <span class="text-xs text-gray-400 block">Dikonfirmasi Oleh</span>
                         <span class="font-bold text-gray-800">{{ $pengajuan->tiba_dikonfirmasi_oleh ?? '-' }}</span>
                     </div>
                     @if ($pengajuan->tiba_bukti_path)

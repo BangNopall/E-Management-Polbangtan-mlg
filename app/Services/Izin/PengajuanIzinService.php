@@ -376,6 +376,11 @@ class PengajuanIzinService
 
             // Mahasiswa melakukan scan MASUK kembali ke asrama
             if ($statusTarget === 'didalam' && in_array($freshIzin->status, ['disetujui', 'berjalan'])) {
+                // Cek pelanggaran tidak konfirmasi tiba di lokasi tujuan
+                if (optional($freshIzin->jenisIzin)->butuh_konfirmasi_tiba && is_null($freshIzin->tiba_at)) {
+                    $this->buatPelanggaranTidakKonfirmasiTiba($freshIzin, $user, $now);
+                }
+
                 if ($now->gt($freshIzin->waktu_kembali)) {
                     // TERLAMBAT kembali
                     $freshIzin->update([
@@ -426,6 +431,35 @@ class PengajuanIzinService
         \App\Models\Pelanggaran::create([
             'user_id' => $user->id,
             'jenis_pelanggaran_id' => $jenisTerlambatIzin->id,
+            'date' => $now->toDateString(),
+            'time' => $now->toTimeString(),
+            'statusPelanggaran' => 'submitted',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+    }
+
+    /**
+     * Buat record Pelanggaran otomatis untuk kelalaian konfirmasi tiba di lokasi tujuan.
+     */
+    private function buatPelanggaranTidakKonfirmasiTiba(PengajuanIzin $izin, User $user, \Carbon\Carbon $now): void
+    {
+        $jenisTidakKonfirmasi = \App\Models\JenisPelanggaran::where('jenis_pelanggaran', 'like', '%tidak melakukan konfirmasi kedatangan%')->first();
+
+        if (!$jenisTidakKonfirmasi) {
+            $jenisTidakKonfirmasi = \App\Models\JenisPelanggaran::firstOrCreate(
+                ['jenis_pelanggaran' => 'Tidak melakukan konfirmasi kedatangan di lokasi tujuan'],
+                [
+                    'kategori_id' => 1,
+                    'poin' => 2,
+                    'sub_kategori' => 'Ringan',
+                ]
+            );
+        }
+
+        \App\Models\Pelanggaran::create([
+            'user_id' => $user->id,
+            'jenis_pelanggaran_id' => $jenisTidakKonfirmasi->id,
             'date' => $now->toDateString(),
             'time' => $now->toTimeString(),
             'statusPelanggaran' => 'submitted',

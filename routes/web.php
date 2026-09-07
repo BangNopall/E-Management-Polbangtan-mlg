@@ -282,7 +282,7 @@ Route::middleware(['auth'])->group(function () {
 
     });
         // EPIC 03: PERSETUJUAN PERIZINAN (M2b Approver Routes)
-    Route::middleware(['role:admin,pejabat,dosen_pa,pelatih'])->group(function () {
+    Route::middleware(['role:admin,operator,pejabat,dosen_pa,pelatih'])->group(function () {
         Route::get('/admin/izin/persetujuan', [\App\Http\Controllers\IzinPersetujuanController::class, 'inbox'])->name('izin.persetujuan.inbox');
         Route::get('/admin/izin/persetujuan/{pengajuan}', [\App\Http\Controllers\IzinPersetujuanController::class, 'review'])->name('izin.persetujuan.review');
     Route::get('/admin/izin/persetujuan/{pengajuan}/pdf', [\App\Http\Controllers\IzinPersetujuanController::class, 'downloadPdf'])->name('izin.persetujuan.pdf');

@@ -34,12 +34,12 @@
 
     @include('partials.alert')
 
-    @if ($pengajuan->status === 'berjalan' && optional($pengajuan->jenisIzin)->butuh_konfirmasi_tiba)
+    @if ($pengajuan->status === 'berjalan' && optional($pengajuan->jenisIzin)->butuh_konfirmasi_tiba && is_null($pengajuan->tiba_at))
         <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start">
             <i class="ri-information-line text-blue-600 text-xl mr-3 mt-0.5"></i>
             <div>
                 <h4 class="text-sm font-bold text-blue-900 mb-1">Menunggu Konfirmasi Kedatangan Lokasi Tujuan</h4>
-                <p class="text-sm text-blue-800 mb-2">Anda sedang dalam masa izin (berjalan). Mohon konfirmasi kedatangan segera setelah tiba di asrama dengan melampirkan foto bukti.</p>
+                <p class="text-sm text-blue-800 mb-2">Anda sedang dalam masa izin (berjalan). Mohon konfirmasi kedatangan segera setelah tiba di lokasi tujuan dengan melampirkan foto bukti.</p>
                 <button type="button" data-modal-target="modal-konfirmasi" data-modal-toggle="modal-konfirmasi" class="text-xs px-3 py-1.5 bg-blue-600 text-white rounded font-medium hover:bg-blue-700">Konfirmasi Sekarang</button>
             </div>
         </div>
@@ -199,7 +199,7 @@
                 <form action="{{ route('home.izin.konfirmasi-tiba', $pengajuan->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="p-4 md:p-5">
-                        <p class="text-sm text-gray-500 mb-4">Mohon unggah foto bukti kedatangan Anda di asrama (misal: foto selfie di depan asrama atau bersama petugas).</p>
+                        <p class="text-sm text-gray-500 mb-4">Mohon unggah foto bukti kedatangan Anda di lokasi tujuan.</p>
                         
                         <div class="mb-4">
                             <label class="block mb-2 text-sm font-medium text-gray-900" for="foto_bukti">Upload Foto Bukti <span class="text-red-600">*</span></label>

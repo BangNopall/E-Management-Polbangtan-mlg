@@ -165,7 +165,7 @@ class IzinMahasiswaController extends Controller
         $pengajuan->update([
             'tiba_at' => now(),
             'tiba_bukti_path' => $path,
-            'tiba_dikonfirmasi_oleh' => auth()->id()
+            'tiba_dikonfirmasi_oleh' => auth()->user()->name
         ]);
 
         return redirect()->back()->with('success', 'Konfirmasi kedatangan lokasi tujuan berhasil disimpan.');

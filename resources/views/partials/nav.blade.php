@@ -118,7 +118,7 @@
                             <span class="text-sm">Dashboard Admin</span>
                         </a>
                     </li>
-                    @if (in_array(Auth::user()->role_id, [1, 8, 9]))
+                    @if (in_array(Auth::user()->role_id, [1, 2, 8, 9]))
                         <li class="mb-1 group">
                             <a href="{{ route('admin.izin.monitor') }}"
                                 class="{{ Request::is('admin/izin/monitor*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
@@ -134,7 +134,7 @@
                             <span class="text-sm">Absensi Mahasiswa</span>
                         </a>
                     </li> --}}
-                    @if (in_array(Auth::user()->role_id, [1, 8, 9]))
+                    @if (in_array(Auth::user()->role_id, [1, 2, 8, 9]))
                         <li class="mb-1 group">
                             @php
                                 $pendingApprovalsCount = 0;
