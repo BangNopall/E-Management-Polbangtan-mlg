@@ -113,6 +113,21 @@ class AdminIzinDataController extends Controller
             $query->whereHas('user', function ($q) {
                 $q->where('dosen_pa_id', auth()->id());
             });
+        } elseif (auth()->check() && auth()->user()->role_id == \App\Models\User::PEJABAT_ROLE_ID) {
+            $pejabats = \App\Models\Pejabat::where('user_id', auth()->id())->active()->get();
+            $query->whereHas('user', function ($q) use ($pejabats) {
+                $q->where(function ($subQ) use ($pejabats) {
+                    foreach ($pejabats as $pejabat) {
+                        if ($pejabat->lingkup === 'prodi') {
+                            $subQ->orWhere('prodi_id', $pejabat->lingkup_id);
+                        } elseif ($pejabat->lingkup === 'blok') {
+                            $subQ->orWhere('blok_ruangan_id', $pejabat->lingkup_id);
+                        } elseif ($pejabat->lingkup === 'global') {
+                            $subQ->orWhereRaw('1 = 1');
+                        }
+                    }
+                });
+            });
         }
 
         return $query->latest('created_at');

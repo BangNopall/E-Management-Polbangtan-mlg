@@ -175,6 +175,9 @@ Route::middleware(['auth'])->group(function () {
             'update' => 'jenis.update',
             'destroy' => 'jenis.destroy',
         ]);
+    });
+
+    Route::middleware(['role:admin,pejabat,pelatih,operator,dosen_pa'])->group(function () {
         Route::get('/izin/data', [\App\Http\Controllers\AdminIzinDataController::class, 'index'])->name('izin.data.index');
         Route::get('/izin/data-export/pdf', [\App\Http\Controllers\AdminIzinDataController::class, 'exportPdf'])->name('izin.data.pdf');
         Route::get('/izin/data-export/excel', [\App\Http\Controllers\AdminIzinDataController::class, 'exportExcel'])->name('izin.data.excel');

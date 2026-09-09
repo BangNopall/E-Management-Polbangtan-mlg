@@ -29,6 +29,7 @@ class UkmSmokeTest extends TestCase
     public function test_halaman_ukm_saya_mahasiswa_bisa_dimuat(): void
     {
         $student = User::where('role_id', User::USER_ROLE_ID)->firstOrFail();
+        $student->update(['asal_daerah' => 'Malang', 'no_kamar' => '01', 'no_hp' => '08123', 'blok_ruangan_id' => 1, 'kelas_id' => 1, 'password' => bcrypt('password123')]);
 
         $response = $this->actingAs($student)->get('/dashboard/ukm');
 
@@ -38,6 +39,7 @@ class UkmSmokeTest extends TestCase
     public function test_halaman_riwayat_ukm_mahasiswa_bisa_dimuat(): void
     {
         $student = User::where('role_id', User::USER_ROLE_ID)->firstOrFail();
+        $student->update(['asal_daerah' => 'Malang', 'no_kamar' => '01', 'no_hp' => '08123', 'blok_ruangan_id' => 1, 'kelas_id' => 1, 'password' => bcrypt('password123')]);
 
         $response = $this->actingAs($student)->get('/dashboard/ukm/riwayat');
 

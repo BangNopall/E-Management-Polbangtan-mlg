@@ -162,7 +162,7 @@ class QRControllerKegiatan extends Controller
             ->where('tanggal_kegiatan', $request->date)
             ->where('jenis_kegiatan', $jenis_kegiatan)
             ->get();
-        if ($getJadwal === null) {
+        if ($getJadwal->isEmpty()) {
             $formatted_date = Carbon::parse($request->date)->format('d F Y');
             throw new \Exception(
                 'Tidak Ada Kegiatan ' . $jenis_kegiatan . ' Pada Tanggal ' . $formatted_date . ' Untuk Blok ' . $getUser->blok->name
@@ -176,8 +176,10 @@ class QRControllerKegiatan extends Controller
                 ->where('selesai_acara', '>=', $request->time)
                 ->first();
         }
-        // dd($getJadwal);
-
+        
+        if ($getJadwal === null) {
+            throw new \Exception('Kegiatan ' . $jenis_kegiatan . ' Sedang Tidak Berlangsung Saat Ini');
+        }
         // validasi mulai_acara dan selesai_acara
         $mulai_acara = $getJadwal->mulai_acara;
         $selesai_acara = $getJadwal->selesai_acara;

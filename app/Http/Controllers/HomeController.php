@@ -55,6 +55,17 @@ class HomeController extends Controller
             ->distinct('presence_date');
         $total_days_bulanan_telat = $rekapBulananTelat->count();
 
+        $rekapBulananIzin = Presence::where('user_id', $userAuth->id)
+            ->whereMonth('presence_date', now()->format('m'))
+            ->whereYear('presence_date', now()->format('Y'))
+            ->where('log_status', 'izin')
+            ->distinct('presence_date');
+        $total_days_bulanan_izin = $rekapBulananIzin->count();
+
+        $izinAktif = \App\Models\PengajuanIzin::with('jenisIzin')
+            ->where('user_id', $userAuth->id)
+            ->where('status', 'berjalan')
+            ->first();
 
         $jadwalPiket = JadwalPetugas::where('date', now()->format('y-m-d'))->first();
         if ($jadwalPiket != null) {
@@ -134,7 +145,7 @@ class HomeController extends Controller
             ]
         ];
 
-        return view('index', compact('totaluser', 'activeuser', 'status', 'title', 'petugas1', 'petugas2', 'total_days_bulanan_diluar', 'total_days_bulanan_telat', 'total_point', 'rekapKegiatan'));
+        return view('index', compact('totaluser', 'activeuser', 'status', 'title', 'petugas1', 'petugas2', 'total_days_bulanan_diluar', 'total_days_bulanan_telat', 'total_days_bulanan_izin', 'izinAktif', 'total_point', 'rekapKegiatan'));
     }
     public function riwayat(Request $request)
     {

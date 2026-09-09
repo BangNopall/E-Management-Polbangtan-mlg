@@ -378,7 +378,7 @@
                             </a>
                         </li>
                     @endif
-                    @if (in_array(Auth::user()->role_id, [1, 8, 9]))
+                    @if (in_array(Auth::user()->role_id, [1, 2, 8, 9]))
                         <li class="mb-1 group">
                             <a href="{{ route('admin.izin.data.index') }}"
                                 class="{{ Request::is('admin/izin/data*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama' }} flex items-center px-3 py-1">

@@ -91,4 +91,41 @@ class PejabatPrivilegeTest extends TestCase
         $this->assertNotEquals('Akses ditolak: Role Pejabat hanya memiliki akses Read-Only pada modul ini.', session('error'));
         $response->assertStatus(302);
     }
+
+    public function test_pejabat_melihat_data_perizinan_sesuai_lingkup(): void
+    {
+        $pejabat = $this->createPejabatUser();
+        // Beri pejabat lingkup 'prodi' dengan ID 1
+        \App\Models\Pejabat::create([
+            'user_id' => $pejabat->id,
+            'jabatan' => 'kaprodi',
+            'lingkup' => 'prodi',
+            'lingkup_id' => 1,
+            'is_active' => true,
+        ]);
+
+        $jenisIzin = \App\Models\JenisIzin::create(['kode' => 'IZN01', 'nama' => 'Izin', 'maksimal_hari' => 1]);
+
+        // Mhs 1: Prodi 1 (seharusnya terlihat)
+        $mhsProdi1 = User::factory()->create(['role_id' => 3, 'prodi_id' => 1]);
+        \App\Models\PengajuanIzin::create(['user_id' => $mhsProdi1->id, 'jenis_izin_id' => $jenisIzin->id, 'status' => 'berjalan', 'keperluan' => 'KEP1', 'tujuan_lokasi' => 'LOK_PRODI1', 'waktu_berangkat' => now(), 'waktu_kembali' => now(), 'nama_snapshot' => 'Nama 1']);
+
+        // Mhs 2: Prodi 2 (seharusnya TIDAK terlihat)
+        $mhsProdi2 = User::factory()->create(['role_id' => 3, 'prodi_id' => 2]);
+        \App\Models\PengajuanIzin::create(['user_id' => $mhsProdi2->id, 'jenis_izin_id' => $jenisIzin->id, 'status' => 'berjalan', 'keperluan' => 'KEP2', 'tujuan_lokasi' => 'LOK_PRODI2', 'waktu_berangkat' => now(), 'waktu_kembali' => now(), 'nama_snapshot' => 'Nama 2']);
+
+        // Check Monitor Data API
+        $responseMonitor = $this->actingAs($pejabat)->getJson(route('admin.izin.monitor.data'));
+        $responseMonitor->assertStatus(200);
+        
+        $dataMonitor = $responseMonitor->json('data');
+        $this->assertCount(1, $dataMonitor);
+        $this->assertEquals($mhsProdi1->id, \App\Models\PengajuanIzin::find($dataMonitor[0]['id'])->user_id);
+
+        // Check Data Perizinan Index
+        $responseData = $this->actingAs($pejabat)->get(route('admin.izin.data.index'));
+        $responseData->assertStatus(200);
+        $responseData->assertSee('LOK_PRODI1');
+        $responseData->assertDontSee('LOK_PRODI2');
+    }
 }

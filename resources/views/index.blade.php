@@ -3,32 +3,34 @@
     <!-- start: Main -->
     <div class="px-3 py-6 md:p-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            <div class="bg-white rounded-md border-2 p-4 ">
-                <div class="flex justify-between">
-                    <div>
-                        <div class="text-xl font-semibold mb-12">Pengguna Aktif</div>
-                        <div class="text-sm font-medium text-green-700 flex items-center">
-                            <span class="relative flex h-3 w-3 mr-2">
-                                <span
-                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                            </span>
-                            {{ $activeuser }} Pengguna
+            @if (in_array(Auth::user()->role_id, [1, 2, 8, 9, 7]))
+                <div class="bg-white rounded-md border-2 p-4 ">
+                    <div class="flex justify-between">
+                        <div>
+                            <div class="text-xl font-semibold mb-12">Pengguna Aktif</div>
+                            <div class="text-sm font-medium text-green-700 flex items-center">
+                                <span class="relative flex h-3 w-3 mr-2">
+                                    <span
+                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                </span>
+                                {{ $activeuser }} Pengguna
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="bg-white rounded-md border border-gray-100 p-4 shadow-md shadow-black/5">
-                <div class="flex justify-between">
-                    <div>
-                        <div class="text-xl font-semibold mb-12">Total Pengguna</div>
-                        <div class="text-sm font-medium text-amber-700 flex items-center">
-                            <div class="w-3 h-3 rounded-full bg-amber-500 animate-pulse mr-2"></div>
-                            {{ $totaluser }} Pengguna
+                <div class="bg-white rounded-md border border-gray-100 p-4 shadow-md shadow-black/5">
+                    <div class="flex justify-between">
+                        <div>
+                            <div class="text-xl font-semibold mb-12">Total Pengguna</div>
+                            <div class="text-sm font-medium text-amber-700 flex items-center">
+                                <div class="w-3 h-3 rounded-full bg-amber-500 animate-pulse mr-2"></div>
+                                {{ $totaluser }} Pengguna
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
             <div class="bg-white rounded-md border border-gray-100 p-4 shadow-md shadow-black/5">
                 <div class="flex justify-between">
                     <div>
@@ -53,7 +55,7 @@
                     <div class="flex flex-col md:flex-row justify-normal md:justify-between">
                         <!-- Icon -->
                         {{-- jika is_active sama dengan 1 dan null --}}
-                        @if ($status->status == 'diluar' || $status->status == 'izin')
+                        @if ($status->status == 'diluar')
                             <div class="flex items-center">
                                 <i class="ri-information-line text-utama text-6xl mr-2"></i>
                                 <!-- Keterangan Alasan -->
@@ -64,6 +66,26 @@
                             <div class="text-sm mt-5 md:mt-0 text-gray-500">
                                 Batas Waktu Keluar:<br>
                                 Jam 06.00 WIB - Jam 22.00 WIB
+                            </div>
+                        @endif
+                        @if ($status->status == 'izin')
+                            <div class="flex items-center">
+                                <i class="ri-passport-line text-blue-500 text-6xl mr-2"></i>
+                                <!-- Keterangan Alasan -->
+                                <div>
+                                    <h3 class="text-lg font-semibold">Sedang Dalam Masa Izin</h3>
+                                    @if($izinAktif)
+                                        <div class="text-sm text-gray-600 font-medium">{{ $izinAktif->jenisIzin->nama ?? 'Izin' }} ({{ $izinAktif->tujuan_lokasi }})</div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="text-sm mt-5 md:mt-0 text-gray-500">
+                                Batas Waktu Kembali:<br>
+                                @if($izinAktif && $izinAktif->waktu_kembali)
+                                    <span class="font-bold text-red-500">{{ \Carbon\Carbon::parse($izinAktif->waktu_kembali)->isoFormat('D MMMM Y HH:mm') }} WIB</span>
+                                @else
+                                    <span class="font-bold text-red-500">Menunggu Konfirmasi</span>
+                                @endif
                             </div>
                         @endif
                         @if ($status->status == 'didalam')
@@ -121,6 +143,12 @@
                         Telat Masuk Asrama
                         <span
                             class="float-right bg-utama text-xs p-1 rounded text-white inline-block whitespace-nowrap align-middle leading-none">{{ $total_days_bulanan_telat }}
+                            Hari</span>
+                    </li>
+                    <li class="text-sm border border-gray-300 relative mb-[-1px] p-2 rounded">
+                        Izin Keluar Asrama
+                        <span
+                            class="float-right bg-blue-500 text-xs p-1 rounded text-white inline-block whitespace-nowrap align-middle leading-none">{{ $total_days_bulanan_izin }}
                             Hari</span>
                     </li>
                 </ul>
