@@ -69,17 +69,29 @@ class StorePengajuanIzinRequest extends FormRequest
                 return;
             }
 
-            // Gerbang 2: Tidak Ada Izin Aktif / Berjalan
-            $izinAktifExist = PengajuanIzin::where('user_id', $user->id)
-                ->whereIn('status', ['draft', 'diajukan', 'menunggu', 'disetujui', 'berjalan'])
-                ->exists();
+            // Gerbang 2: Waktu Izin Tidak Boleh Beririsan (Overlapping)
+            $waktuBerangkatStr = $this->input('waktu_berangkat');
+            $waktuKembaliStr = $this->input('waktu_kembali');
 
-            if ($izinAktifExist) {
-                $v->errors()->add(
-                    'status',
-                    'Anda masih memiliki pengajuan izin aktif atau berjalan yang belum selesai.'
-                );
-                return;
+            if ($waktuBerangkatStr && $waktuKembaliStr) {
+                $waktuBerangkat = Carbon::parse($waktuBerangkatStr);
+                $waktuKembali = Carbon::parse($waktuKembaliStr);
+
+                $izinAktifExist = PengajuanIzin::where('user_id', $user->id)
+                    ->whereIn('status', ['draft', 'diajukan', 'menunggu', 'disetujui', 'berjalan'])
+                    ->where(function ($q) use ($waktuBerangkat, $waktuKembali) {
+                        $q->where('waktu_berangkat', '<', $waktuKembali)
+                          ->where('waktu_kembali', '>', $waktuBerangkat);
+                    })
+                    ->exists();
+
+                if ($izinAktifExist) {
+                    $v->errors()->add(
+                        'status',
+                        'Anda memiliki pengajuan izin lain yang beririsan rentang waktunya.'
+                    );
+                    return;
+                }
             }
 
             // Ambillah JenisIzin

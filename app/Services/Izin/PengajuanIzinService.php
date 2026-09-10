@@ -71,12 +71,8 @@ class PengajuanIzinService
             $overlapping = PengajuanIzin::where('user_id', $student->id)
                 ->whereIn('status', ['diajukan', 'disetujui', 'berjalan'])
                 ->where(function ($q) use ($waktuBerangkat, $waktuKembali) {
-                    $q->whereBetween('waktu_berangkat', [$waktuBerangkat, $waktuKembali])
-                        ->orWhereBetween('waktu_kembali', [$waktuBerangkat, $waktuKembali])
-                        ->orWhere(function ($q2) use ($waktuBerangkat, $waktuKembali) {
-                            $q2->where('waktu_berangkat', '<=', $waktuBerangkat)
-                                ->where('waktu_kembali', '>=', $waktuKembali);
-                        });
+                    $q->where('waktu_berangkat', '<', $waktuKembali)
+                        ->where('waktu_kembali', '>', $waktuBerangkat);
                 })
                 ->exists();
 

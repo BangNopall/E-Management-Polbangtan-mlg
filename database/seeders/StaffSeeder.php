@@ -47,5 +47,15 @@ class StaffSeeder extends Seeder
                 'no_hp' => '1512312312312',
             ]
         );
+
+        User::firstOrCreate(
+            ['email' => 'security@polbangtanmalang.ac.id'],
+            [
+                'name' => 'Security',
+                'password' => $password,
+                'role_id' => User::SECURITY_ROLE_ID,
+                'no_hp' => '15123123122114',
+            ]
+        );
     }
 }

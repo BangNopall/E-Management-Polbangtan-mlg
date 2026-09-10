@@ -2,35 +2,7 @@
 @section('container')
     <!-- start: Main -->
     <div class="px-3 py-6 md:p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            @if (in_array(Auth::user()->role_id, [1, 2, 8, 9, 7]))
-                <div class="bg-white rounded-md border-2 p-4 ">
-                    <div class="flex justify-between">
-                        <div>
-                            <div class="text-xl font-semibold mb-12">Pengguna Aktif</div>
-                            <div class="text-sm font-medium text-green-700 flex items-center">
-                                <span class="relative flex h-3 w-3 mr-2">
-                                    <span
-                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                                </span>
-                                {{ $activeuser }} Pengguna
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-md border border-gray-100 p-4 shadow-md shadow-black/5">
-                    <div class="flex justify-between">
-                        <div>
-                            <div class="text-xl font-semibold mb-12">Total Pengguna</div>
-                            <div class="text-sm font-medium text-amber-700 flex items-center">
-                                <div class="w-3 h-3 rounded-full bg-amber-500 animate-pulse mr-2"></div>
-                                {{ $totaluser }} Pengguna
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div class="bg-white rounded-md border border-gray-100 p-4 shadow-md shadow-black/5">
                 <div class="flex justify-between">
                     <div>
@@ -44,8 +16,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="flex flex-col justify-between gap-5">
             <div class="bg-white border-2 p-4 rounded-md">
                 <div class="flex justify-between mb-4 items-start">
                     <div class="font-medium">Status Presensi Keluar Asrama</div>
@@ -74,15 +44,19 @@
                                 <!-- Keterangan Alasan -->
                                 <div>
                                     <h3 class="text-lg font-semibold">Sedang Dalam Masa Izin</h3>
-                                    @if($izinAktif)
-                                        <div class="text-sm text-gray-600 font-medium">{{ $izinAktif->jenisIzin->nama ?? 'Izin' }} ({{ $izinAktif->tujuan_lokasi }})</div>
+                                    @if ($izinAktif)
+                                        <div class="text-sm text-gray-600 font-medium">
+                                            {{ $izinAktif->jenisIzin->nama ?? 'Izin' }} ({{ $izinAktif->tujuan_lokasi }})
+                                        </div>
                                     @endif
                                 </div>
                             </div>
                             <div class="text-sm mt-5 md:mt-0 text-gray-500">
                                 Batas Waktu Kembali:<br>
-                                @if($izinAktif && $izinAktif->waktu_kembali)
-                                    <span class="font-bold text-red-500">{{ \Carbon\Carbon::parse($izinAktif->waktu_kembali)->isoFormat('D MMMM Y HH:mm') }} WIB</span>
+                                @if ($izinAktif && $izinAktif->waktu_kembali)
+                                    <span
+                                        class="font-bold text-red-500">{{ \Carbon\Carbon::parse($izinAktif->waktu_kembali)->isoFormat('D MMMM Y HH:mm') }}
+                                        WIB</span>
                                 @else
                                     <span class="font-bold text-red-500">Menunggu Konfirmasi</span>
                                 @endif
@@ -127,7 +101,7 @@
                     <div id="calendar" class=" text-sm md:text-lg"></div>
                 </div>
             </div>
-            <div class="bg-white border-2 p-4 rounded-md h-[auto] lg:h-[76%]">
+            <div class="bg-white border-2 p-4 rounded-md h-auto">
                 <div class="flex justify-between items-start">
                     <div class="font-medium">Detail Rekapan Anda</div>
                 </div>
@@ -157,13 +131,21 @@
                     <li class="text-sm border border-gray-300 relative mb-[-1px] p-2 rounded">
                         Total Poin
                         @if ($total_point == 0)
-                            <span class="float-right bg-utama p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none"> {{ $total_point }}</span>
+                            <span
+                                class="float-right bg-utama p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">
+                                {{ $total_point }}</span>
                         @elseif ($total_point <= 50)
-                            <span class="float-right bg-yellow-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none"> {{ $total_point }}</span>
+                            <span
+                                class="float-right bg-yellow-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">
+                                {{ $total_point }}</span>
                         @elseif ($total_point >= 50 && $total_point <= 80)
-                            <span class="float-right bg-orange-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none"> {{ $total_point }}</span>
+                            <span
+                                class="float-right bg-orange-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">
+                                {{ $total_point }}</span>
                         @elseif ($total_point >= 100)
-                            <span class="float-right bg-red-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none"> {{ $total_point }}</span>
+                            <span
+                                class="float-right bg-red-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">
+                                {{ $total_point }}</span>
                         @endif
                     </li>
                 </ul>
@@ -172,22 +154,28 @@
                     <li class="text-sm border border-gray-300 relative mb-[-1px] p-2 rounded justify-between flex">
                         Upacara
                         <div class="flex gap-1">
-                            <span class="float-right bg-green-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">{{ $rekapKegiatan['UPACARA']['Hadir'] }}</span>
-                            <span class="float-right bg-red-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">{{ $rekapKegiatan['UPACARA']['Alpha'] }}</span>
+                            <span
+                                class="float-right bg-green-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">{{ $rekapKegiatan['UPACARA']['Hadir'] }}</span>
+                            <span
+                                class="float-right bg-red-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">{{ $rekapKegiatan['UPACARA']['Alpha'] }}</span>
                         </div>
                     </li>
                     <li class="text-sm border border-gray-300 relative mb-[-1px] p-2 rounded justify-between flex">
                         Apel
                         <div class="flex gap-1">
-                            <span class="float-right bg-green-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">{{ $rekapKegiatan['APEL']['Hadir'] }}</span>
-                            <span class="float-right bg-red-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">{{ $rekapKegiatan['APEL']['Alpha'] }}</span>
+                            <span
+                                class="float-right bg-green-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">{{ $rekapKegiatan['APEL']['Hadir'] }}</span>
+                            <span
+                                class="float-right bg-red-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">{{ $rekapKegiatan['APEL']['Alpha'] }}</span>
                         </div>
                     </li>
                     <li class="text-sm border border-gray-300 relative mb-[-1px] p-2 rounded justify-between flex">
                         Senam
                         <div class="flex gap-1">
-                            <span class="float-right bg-green-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">{{ $rekapKegiatan['SENAM']['Hadir'] }}</span>
-                            <span class="float-right bg-red-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">{{ $rekapKegiatan['SENAM']['Alpha'] }}</span>
+                            <span
+                                class="float-right bg-green-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">{{ $rekapKegiatan['SENAM']['Hadir'] }}</span>
+                            <span
+                                class="float-right bg-red-500 p-1 rounded text-xs text-white inline-block whitespace-nowrap align-middle leading-none">{{ $rekapKegiatan['SENAM']['Alpha'] }}</span>
                         </div>
                     </li>
                 </ul>

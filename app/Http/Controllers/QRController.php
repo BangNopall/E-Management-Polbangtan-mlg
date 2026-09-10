@@ -312,18 +312,17 @@ class QRController extends Controller
                                         'user_id' => $request->user_id,
                                         'attendance_id' => $cariAttandeHariIni->id,
                                         'presence_date' => Carbon::now()->format('Y-m-d'),
-                                        'presence_keluar' => $request->time,
                                         'presence_masuk' => $request->time,
                                         'log_status' => 'didalam',
                                     ];
                                     Presence::create($presenceDataDiluarKemarin);
                                     User::where('id', $request->user_id)->update($userDataSiswaDiluar);
-                                    return redirect(route('admin.kamera'))->with('error', 'anda berada diluar asrama kemarin , lakukan presensi kembali untuk masuk asrama ');
+                                    return redirect(route('admin.kamera'))->with('success', 'Anda Berhasil Melakukan Presensi Masuk Asrama (Kembali dari Luar)');
                                 }
 
                                 if (!$cariPresensiKemarin) {
                                     $cariTerakhirAbsen = Presence::where('user_id', $request->user_id)
-                                        ->where('log_status', 'diluar')
+                                        ->whereIn('log_status', ['diluar', 'izin'])
                                         ->where('is_active', 1)
                                         ->latest()
                                         ->first();
@@ -332,24 +331,35 @@ class QRController extends Controller
                                         $startDatediluar = Carbon::parse($cariTerakhirAbsen->presence_date);
                                         $endDatediluar = Carbon::now();
                                         $numberOfDays = $startDatediluar->diffInDays($endDatediluar);
+                                        $lastStatus = $cariTerakhirAbsen->log_status;
 
                                         $cariTerakhirAbsen->delete();
 
                                         for ($i = 0; $i <= $numberOfDays; $i++) {
                                             $currentDate = $startDatediluar->copy()->addDays($i)->format('Y-m-d');
+                                            
+                                            // Get or Create Attendance for this specific past date
+                                            $pastAttendance = Attendance::firstOrCreate(
+                                                ['date' => $currentDate],
+                                                [
+                                                    'title' => 'Absensi Harian',
+                                                    'start_time' => '06:00:00',
+                                                    'end_time' => '22:00:00',
+                                                ]
+                                            );
 
                                             $existingPresence = Presence::where('user_id', $request->user_id)
-                                                ->where('attendance_id', $attendance->id)
+                                                ->where('attendance_id', $pastAttendance->id)
                                                 ->where('presence_date', $currentDate)
                                                 ->first();
 
                                             if (!$existingPresence) {
                                                 $presenceDataDiluarBeberapaHari = [
                                                     'user_id' => $request->user_id,
-                                                    'attendance_id' => $attendance->id,
+                                                    'attendance_id' => $pastAttendance->id,
                                                     'presence_date' => $currentDate,
-                                                    'presence_keluar' => $request->time,
-                                                    'log_status' => 'diluar',
+                                                    'presence_keluar' => $i == 0 ? $request->time : null, // Only first day might have actual time
+                                                    'log_status' => $lastStatus,
                                                 ];
 
                                                 Presence::create($presenceDataDiluarBeberapaHari);
@@ -396,109 +406,5 @@ class QRController extends Controller
         }
     }
 
-    public function presense2(Request $request)
-    {
-        if ($request->payload) {
-            try {
-                $decryptedJson = Crypt::decryptString($request->payload);
-                $payloadData = json_decode($decryptedJson, true);
-                if (is_array($payloadData)) {
-                    $request->merge($payloadData);
-                } else {
-                    return redirect(route('admin.kamera'))->with('error', 'Format QR Code tidak valid.');
-                }
-            } catch (\Exception $e) {
-                return redirect(route('admin.kamera'))->with('error', 'Kode QR tidak valid atau sudah kadaluarsa (Gagal Dekripsi).');
-            }
-        }
 
-        if ($request->scanner == 'pelanggaran') {
-            return redirect(route('admin.kamera'))->with('error', 'Anda Tidak Dapat Melakukan Pelanggaran Pada Scanner Presensi keluar masuk asrama');
-        } else {
-            $oldRequest = $request;
-            // Validasi data berdasarkan Hari Dan jam 
-            $currentTimeParsed = $request->time;
-            $parsedTime = Carbon::createFromFormat('H:i:s', $currentTimeParsed);
-
-            $timeNow = Carbon::now();
-            $timeDifference = $timeNow->diffInSeconds($parsedTime);
-            $maxDifference = 30;
-
-            if ($timeDifference >= $maxDifference) {
-                return redirect(route('admin.kamera'))->with('error', 'kode qr expired');
-            } elseif ($timeDifference <= $maxDifference) {
-                $request = $oldRequest;
-                $attendance = Attendance::where('date', $request['date'])->first();
-                $currentTime = $request->time;
-                // dd($request);
-                // Validasi Hari 
-                if (!$attendance) {
-                    $today = Carbon::now()->format('Y-m-d');
-                    $yesterday = Carbon::now()->subDay()->format('Y-m-d');
-                    $tomorrow = Carbon::now()->addDay()->format('Y-m-d');
-
-                    if ($request->date == $yesterday) {
-                        return redirect(route('admin.kamera'))->with('error', 'Absensi untuk hari kemarin tidak diizinkan');
-                    } elseif ($request->date == $tomorrow) {
-                        return redirect(route('admin.kamera'))->with('error', 'Absensi untuk hari besok tidak diizinkan');
-                    } else {
-                        if ($request->date == $today) {
-                            $createAttendance = [
-                                'title' => 'Absensi Harian',
-                                'date' => $today,
-                                'start_time' => '06:00:00',
-                                'end_time' => '22:00:00',
-                            ];
-                            Attendance::create($createAttendance);
-                            return redirect(route('admin.kamera'))->with('error', 'Terjadi Missing Data, Silahkan Coba kembali');
-                        }
-                    }
-                }
-                if ($attendance){
-                    $this->GeneratePresensi($request, $attendance);
-                }
-            }
-        }
-    }
-
-    private function GeneratePresensi($request, $attendance)
-    {
-        $currentTime = $request->time;
-        $getStatus = $request->status;
-        $presenceData = [
-            'user_id' => $request->user_id,
-            'attendance_id' => $attendance->id,
-            'presence_date' => $request->date,
-        ];
-
-        $userData = [
-            'status' => $getStatus,
-        ];
-
-        $cariPresence = Presence::where('user_id', $request->user_id)
-            ->where('attendance_id', $attendance->id)
-            ->where('presence_date', $request->date)
-            ->latest() // Mengurutkan berdasarkan kolom 'created_at' secara descending
-            ->first(); // Mengambil data terbaru (yang pertama dari hasil urutan)
-
-        if ($cariPresence) {
-            $this->UpdatePresensi($request, $cariPresence, $presenceData, $userData);
-        } else {
-            $this->CreatePresensi($request, $presenceData, $userData);
-        }
-    }
-
-    private function UpdatePresensi($request, $cariPresence, $presenceData, $userData)
-    {
-        $getStatus = $request->status;
-        $presenceData['user_id'] = $request->user_id;
-        $presenceData['attendance_id'] = $cariPresence->attendance_id;
-        $presenceData['presence_date'] = $cariPresence->presence_date;
-
-        if ($getStatus == 'diluar') {
-            $this->UpdatePresensiDiluar($request, $cariPresence, $presenceData, $userData);
-        } elseif ($getStatus == 'didalam') {
-            
-        }
-    }
 }
