@@ -202,7 +202,7 @@ class ApproverResolver
         }
 
         // Fallback: Jika jadwal petugas piket pada tanggal keberangkatan belum dibuat oleh admin,
-        // resolve otomatis murni ke akun staf ber-role Pelatih (tanpa melibatkan Operator).
-        return User::where('role_id', User::PELATIH_ROLE_ID)->get();
+        // resolve otomatis murni ke akun staf ber-role Admin.
+        return User::where('role_id', User::ADMIN_ROLE_ID)->get();
     }
 }

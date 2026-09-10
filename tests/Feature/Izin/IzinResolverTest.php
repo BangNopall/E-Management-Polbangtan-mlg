@@ -187,11 +187,11 @@ class IzinResolverTest extends TestCase
         $this->assertEquals([$petugas1->id, $petugas2->id], $res['candidates']->pluck('id')->all());
     }
 
-    public function test_resolver_petugas_jaga_fallback_ke_role_pelatih_dan_operator_jika_jadwal_null(): void
+    public function test_resolver_petugas_jaga_fallback_ke_role_admin_jika_jadwal_null(): void
     {
-        $pelatih = User::factory()->create([
-            'name' => 'Pelatih Asrama',
-            'role_id' => User::PELATIH_ROLE_ID,
+        $admin = User::factory()->create([
+            'name' => 'Admin Asrama',
+            'role_id' => User::ADMIN_ROLE_ID,
         ]);
 
         $student = User::factory()->create();
@@ -207,14 +207,14 @@ class IzinResolverTest extends TestCase
         ]);
 
         $this->assertNotEmpty($res['candidates']);
-        $this->assertTrue($res['candidates']->contains('id', $pelatih->id));
+        $this->assertTrue($res['candidates']->contains('id', $admin->id));
     }
 
-    public function test_resolver_dosen_pa_fallback_ke_role_operator_jika_dosen_pa_id_null(): void
+    public function test_resolver_dosen_pa_fallback_ke_role_dosen_pa_jika_dosen_pa_id_null(): void
     {
-        $operatorUser = User::factory()->create([
-            'name' => 'Staf Operator',
-            'role_id' => User::OPERATOR_ROLE_ID,
+        $dosenPaUser = User::factory()->create([
+            'name' => 'Staf Dosen PA',
+            'role_id' => User::DOSEN_PA_ROLE_ID,
         ]);
 
         $kelas = Kelas::create([
@@ -235,7 +235,7 @@ class IzinResolverTest extends TestCase
         $res = $this->resolver->resolve($step, ['user' => $student]);
 
         $this->assertNotEmpty($res['candidates']);
-        $this->assertTrue($res['candidates']->contains('id', $operatorUser->id));
+        $this->assertTrue($res['candidates']->contains('id', $dosenPaUser->id));
     }
 
     public function test_resolver_kandidat_kosong_tanpa_fallback(): void

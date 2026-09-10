@@ -506,5 +506,9 @@
             color: #e5e7eb !important;
             opacity: 0.9;
         }
+
+        .choices__item--selectable.is-selected{
+            background-color: #115e59 !important;
+        }
     </style>
 @endsection
