@@ -68,7 +68,7 @@ class PejabatSeeder extends Seeder
             [
                 'name' => 'Unit Kemahasiswaan',
                 'password' => $password,
-                'role_id' => User::OPERATOR_ROLE_ID,
+                'role_id' => User::PEJABAT_ROLE_ID,
                 'no_hp' => '083333333333',
             ]
         );

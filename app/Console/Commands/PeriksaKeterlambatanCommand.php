@@ -43,10 +43,10 @@ class PeriksaKeterlambatanCommand extends Command
             $izin->update(['status' => 'terlambat']);
 
             // Idempoten: Cek apakah Pelanggaran untuk mahasiswa ini pada tanggal ini sudah dibuat
-            $jenisTerlambat = JenisPelanggaran::where('jenis_pelanggaran', 'like', '%lambat kembali%')->first();
+            $jenisTerlambat = JenisPelanggaran::where('jenis_pelanggaran', 'like', '%Terlambat (bangun pagi, mengikuti ibadah dan keluar masuk asrama)%')->first();
             if (!$jenisTerlambat) {
                 $jenisTerlambat = JenisPelanggaran::firstOrCreate(
-                    ['jenis_pelanggaran' => 'Terlambat kembali dari izin resmi'],
+                    ['jenis_pelanggaran' => 'Terlambat (bangun pagi, mengikuti ibadah dan keluar masuk asrama)'],
                     ['kategori_id' => 1, 'poin' => 2, 'sub_kategori' => 'Ringan']
                 );
             }

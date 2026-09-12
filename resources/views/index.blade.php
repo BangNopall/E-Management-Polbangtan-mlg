@@ -40,7 +40,7 @@
                         @endif
                         @if ($status->status == 'izin')
                             <div class="flex items-center">
-                                <i class="ri-passport-line text-blue-500 text-6xl mr-2"></i>
+                                <i class="ri-passport-line text-utama text-6xl mr-2"></i>
                                 <!-- Keterangan Alasan -->
                                 <div>
                                     <h3 class="text-lg font-semibold">Sedang Dalam Masa Izin</h3>
