@@ -181,7 +181,8 @@ class ApproverResolver
     }
 
     /**
-     * Resolve duty officers (petugas_jaga) for a specific date, or fallback to Pelatih & Operator users if no duty officer scheduled.
+     * Resolve duty officers (petugas_jaga / Petugas Piket Asrama) for a specific date,
+     * restricted strictly to Operator role users, or fallback to all Operator users if no duty officer scheduled.
      */
     private function resolvePetugasJaga(?string $date): Collection
     {
@@ -192,7 +193,9 @@ class ApproverResolver
 
             if ($jadwal) {
                 $officers = collect([$jadwal->petugas1, $jadwal->petugas2])
-                    ->filter()
+                    ->filter(function ($user) {
+                        return $user && $user->role_id === User::OPERATOR_ROLE_ID;
+                    })
                     ->values();
 
                 if ($officers->isNotEmpty()) {
@@ -201,8 +204,8 @@ class ApproverResolver
             }
         }
 
-        // Fallback: Jika jadwal petugas piket pada tanggal keberangkatan belum dibuat oleh admin,
-        // resolve otomatis murni ke akun staf ber-role Admin.
-        return User::where('role_id', User::ADMIN_ROLE_ID)->get();
+        // Fallback: Jika jadwal petugas piket pada tanggal keberangkatan belum dibuat oleh admin atau belum ditentukan,
+        // resolve otomatis HANYA ke akun staf ber-role Operator (User::OPERATOR_ROLE_ID).
+        return User::where('role_id', User::OPERATOR_ROLE_ID)->orderBy('name')->get();
     }
 }

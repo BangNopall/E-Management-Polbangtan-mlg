@@ -14,6 +14,11 @@ class UkmPresensi extends Model
 
     public function jadwal()
     {
+        return $this->belongsTo(UkmJadwal::class, 'ukm_jadwal_id');
+    }
+
+    public function jadwalWithTrashed()
+    {
         return $this->belongsTo(UkmJadwal::class, 'ukm_jadwal_id')->withTrashed();
     }
 

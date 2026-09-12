@@ -7,7 +7,10 @@ use App\Models\User;
 use App\Models\Kelas;
 use App\Models\Prodi;
 use App\Models\Presence;
+use App\Models\Attendance;
 use App\Models\BlokRuangan;
+use App\Models\PengajuanIzin;
+use App\Models\UkmJadwal;
 use GuzzleHttp\Psr7\Message;
 use Illuminate\Http\Request;
 use App\Models\LoginPermission;
@@ -23,21 +26,48 @@ class DashboardController extends Controller
         $date = Carbon::now(); // Mendapatkan tanggal dan waktu saat ini
         $formattedDate = $date->format('j F Y'); // Memformat tanggal sesuai dengan format yang diinginkan
 
-        // Mengambil data semua user
-        $user = User::all();
+        // Data statistik utama
+        $userCount = User::where('role_id', User::USER_ROLE_ID)->count();
+        $ruanganTerisi = BlokRuangan::count();
+        $jumlahPetugas = User::whereIn('role_id', [
+            User::ADMIN_ROLE_ID,
+            User::OPERATOR_ROLE_ID,
+            User::PELATIH_ROLE_ID,
+            User::PEMBINA_ROLE_ID,
+            User::PELATIH_UKM_ROLE_ID,
+            User::SECURITY_ROLE_ID,
+            User::DOSEN_PA_ROLE_ID,
+            User::PEJABAT_ROLE_ID,
+        ])->count();
 
-        // Mengambil data semua user yang statusnya adalah diluar
-        $userstatus = $user->where('status', 'diluar')->count();
+        // mahasiswa hari ini
+        $userStatusDidalam = User::where('role_id', User::USER_ROLE_ID)->where('status', 'didalam')->count();
+        $userstatus = User::where('role_id', User::USER_ROLE_ID)->where('status', 'diluar')->count();
+        $userStatusIzin = User::where('role_id', User::USER_ROLE_ID)->where('status', 'izin')->count();
+        $userStatusTelat = User::where('role_id', User::USER_ROLE_ID)->where('status', 'telat')->count();
 
-        // Mengambil data presence selama 7 hari terakhir berdasarkan row presence_date, tabel user dan tabel kelas, 
-        // jika ada data presence_date yang sama maka akan diambil satu
+        // Ringkasan Modul Perizinan (Epic 03)
+        $izinBerjalanCount = PengajuanIzin::where('status', 'berjalan')->count();
+        $izinTerlambatCount = PengajuanIzin::where('status', 'terlambat')->count();
+        $izinPendingCount = PengajuanIzin::whereIn('status', ['diajukan', 'menunggu'])->count();
+
+        // Ringkasan Modul UKM Dinamis (Epic 01)
+        $ukmJadwalHariIniCount = UkmJadwal::whereDate('tanggal', Carbon::today())
+            ->where('status_verifikasi', 'disetujui')
+            ->count();
+
+        // Jam operasional absensi hari ini
+        $attendanceToday = Attendance::whereDate('date', Carbon::today())->first();
+        $jamMulai = $attendanceToday ? substr($attendanceToday->start_time, 0, 5) : '06:00';
+        $jamSelesai = $attendanceToday ? substr($attendanceToday->end_time, 0, 5) : '22:00';
+
+        // Mengambil data presence selama 7 hari terakhir
         $absen7days = Presence::whereDate('presence_date', '>=', now()->subDays(7))
             ->whereDate('presence_date', '<=', now())
-            ->with('user')
-            ->with('user.kelas')
+            ->with(['user', 'user.kelas'])
             ->select('presences.*')
             ->whereIn('id', function ($query) {
-                $query->select(User::raw('MAX(id)'))
+                $query->select(DB::raw('MAX(id)'))
                     ->from('presences')
                     ->groupBy('presence_date', 'user_id');
             })
@@ -48,10 +78,19 @@ class DashboardController extends Controller
             "title" => "Home Admin",
             "absen7days" => $absen7days,
             "userStatus" => $userstatus,
-            "userCount" => $user->where('role_id', 3)->count(),
-            "ruanganTerisi" => $user->where('role_id', 3)->count(),
-            "jumlahPetugas" => User::where('role_id', 1)->orWhere('role_id', 2)->orWhere('role_id', 4)->count(),
-            "formattedDate" => $formattedDate
+            "userStatusDidalam" => $userStatusDidalam,
+            "userStatusIzin" => $userStatusIzin,
+            "userStatusTelat" => $userStatusTelat,
+            "userCount" => $userCount,
+            "ruanganTerisi" => $ruanganTerisi,
+            "jumlahPetugas" => $jumlahPetugas,
+            "izinBerjalanCount" => $izinBerjalanCount,
+            "izinTerlambatCount" => $izinTerlambatCount,
+            "izinPendingCount" => $izinPendingCount,
+            "ukmJadwalHariIniCount" => $ukmJadwalHariIniCount,
+            "jamMulai" => $jamMulai,
+            "jamSelesai" => $jamSelesai,
+            "formattedDate" => $formattedDate,
         ]);
     }
 

@@ -163,7 +163,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/data-petugas/edit/{id}', [DashboardAdminController::class, 'editDataPetugas'])->name('editDataPetugas');
         Route::delete('/data-petugas/destroy/{id}', [DashboardAdminController::class, 'destroyDataPetugas'])->name('destroyPetugas');
 
-        Route::middleware(['role:admin,pejabat,pelatih'])->group(function () {
+        Route::middleware(['role:admin,pejabat'])->group(function () {
             Route::resource('izin/jenis', AdminJenisIzinController::class)->names([
                 'index' => 'jenis.index',
                 'create' => 'jenis.create',
@@ -175,7 +175,7 @@ Route::middleware(['auth'])->group(function () {
             ]);
         });
 
-        Route::middleware(['role:admin,pejabat,pelatih,operator,dosen_pa'])->group(function () {
+        Route::middleware(['role:admin,pejabat,operator,dosen_pa'])->group(function () {
             Route::get('/izin/data', [AdminIzinDataController::class, 'index'])->name('izin.data.index');
             Route::get('/izin/data-export/pdf', [AdminIzinDataController::class, 'exportPdf'])->name('izin.data.pdf');
             Route::get('/izin/data-export/excel', [AdminIzinDataController::class, 'exportExcel'])->name('izin.data.excel');
@@ -275,7 +275,7 @@ Route::middleware(['auth'])->group(function () {
 
         });
 
-        Route::middleware(['role:admin,operator,pejabat,dosen_pa,pelatih'])->group(function () {
+        Route::middleware(['role:admin,operator,pejabat,dosen_pa,pelatih,pembina'])->group(function () {
             Route::get('/admin/izin/persetujuan', [IzinPersetujuanController::class, 'inbox'])->name('izin.persetujuan.inbox');
             Route::get('/admin/izin/persetujuan/{pengajuan}', [IzinPersetujuanController::class, 'review'])->name('izin.persetujuan.review');
             Route::get('/admin/izin/persetujuan/{pengajuan}/pdf', [IzinPersetujuanController::class, 'downloadPdf'])->name('izin.persetujuan.pdf');

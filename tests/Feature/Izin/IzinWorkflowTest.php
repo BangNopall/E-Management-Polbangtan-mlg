@@ -12,6 +12,7 @@ use App\Models\UkmMember;
 use App\Models\User;
 use App\Services\Izin\ApproverResolver;
 use App\Services\Izin\PengajuanIzinService;
+use Carbon\Carbon;
 use Database\Seeders\JenisIzinSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
@@ -26,8 +27,16 @@ class IzinWorkflowTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Carbon::setTestNow('2026-08-01 00:00:00');
+        Pejabat::query()->delete();
         $this->seed(JenisIzinSeeder::class);
         $this->service = new PengajuanIzinService(new ApproverResolver());
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
     }
 
     public function test_happy_path_pengajuan_dan_persetujuan_4_langkah_form_a(): void
@@ -51,7 +60,7 @@ class IzinWorkflowTest extends TestCase
         $pembina = User::factory()->create(['name' => 'Pembina Silat']);
         UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pembina->id, 'peran' => 'pembina', 'status' => 'aktif']);
 
-        $petugas1 = User::factory()->create(['name' => 'Petugas Piket 1']);
+        $petugas1 = User::factory()->create(['name' => 'Petugas Piket 1', 'role_id' => User::OPERATOR_ROLE_ID]);
         JadwalPetugas::create(['date' => '2026-08-15', 'petugas1_id' => $petugas1->id]);
 
         $kaAsrama = User::factory()->create(['name' => 'Ka Asrama']);

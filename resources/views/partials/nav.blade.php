@@ -118,7 +118,7 @@
                             <span class="text-sm">Dashboard Admin</span>
                         </a>
                     </li>
-                    @if (in_array(Auth::user()->role_id, [1, 2, 8, 9]))
+                    @if (in_array(Auth::user()->role_id, [1, 2, 4, 5, 8, 9]))
                         <li class="mb-1 group">
                             <a href="{{ route('admin.izin.monitor') }}"
                                 class="{{ Request::is('admin/izin/monitor*') ? 'text-white bg-utama' : 'text-gray-300 hover:bg-utama hover:text-gray-100' }} flex items-center px-3 py-1">
@@ -134,23 +134,59 @@
                             <span class="text-sm">Absensi Mahasiswa</span>
                         </a>
                     </li> --}}
-                    @if (in_array(Auth::user()->role_id, [1, 2, 8, 9]))
+                    @if (in_array(Auth::user()->role_id, [1, 2, 4, 5, 8, 9]))
                         <li class="mb-1 group">
                             @php
                                 $pendingApprovalsCount = 0;
                                 if (Auth::check()) {
-                                    $pendingApprovalsCount = \App\Models\IzinApproval::where(
-                                        'approver_user_id',
-                                        Auth::id(),
-                                    )
-                                        ->where('status', 'menunggu')
+                                    $authUser = Auth::user();
+                                    $pendingQuery = \App\Models\IzinApproval::where('status', 'menunggu')
                                         ->whereHas('pengajuan', function ($q) {
                                             $q->whereColumn(
                                                 'pengajuan_izins.langkah_aktif',
                                                 'izin_approvals.urutan',
                                             )->whereIn('pengajuan_izins.status', ['diajukan', 'menunggu']);
-                                        })
-                                        ->count();
+                                        });
+
+                                    if ($authUser->role_id === \App\Models\User::OPERATOR_ROLE_ID) {
+                                        $pendingQuery->where(function ($q) use ($authUser) {
+                                            $q->where('approver_user_id', $authUser->id)
+                                              ->orWhere(function ($q2) use ($authUser) {
+                                                  $q2->whereHas('pengajuan.jenisIzin.steps', function ($stepQuery) {
+                                                      $stepQuery->whereColumn('izin_workflow_steps.urutan', 'izin_approvals.urutan')
+                                                                ->where('izin_workflow_steps.resolver', 'petugas_jaga');
+                                                  })
+                                                  ->where(function ($q3) use ($authUser) {
+                                                      $q3->whereHas('pengajuan', function ($pengajuanQuery) use ($authUser) {
+                                                          $pengajuanQuery->whereExists(function ($sub) use ($authUser) {
+                                                              $sub->select(\Illuminate\Support\Facades\DB::raw(1))
+                                                                  ->from('jadwal_petugas')
+                                                                  ->whereColumn('jadwal_petugas.date', \Illuminate\Support\Facades\DB::raw('DATE(pengajuan_izins.waktu_berangkat)'))
+                                                                  ->where(function ($petugasQuery) use ($authUser) {
+                                                                      $petugasQuery->where('petugas1_id', $authUser->id)
+                                                                                   ->orWhere('petugas2_id', $authUser->id);
+                                                                  });
+                                                          });
+                                                      })
+                                                      ->orWhereHas('pengajuan', function ($pengajuanQuery) {
+                                                          $pengajuanQuery->whereNotExists(function ($sub) {
+                                                              $sub->select(\Illuminate\Support\Facades\DB::raw(1))
+                                                                  ->from('jadwal_petugas')
+                                                                  ->whereColumn('jadwal_petugas.date', \Illuminate\Support\Facades\DB::raw('DATE(pengajuan_izins.waktu_berangkat)'))
+                                                                  ->where(function ($petugasQuery) {
+                                                                      $petugasQuery->whereNotNull('petugas1_id')
+                                                                                   ->orWhereNotNull('petugas2_id');
+                                                                  });
+                                                          });
+                                                      });
+                                                  });
+                                              });
+                                        });
+                                    } else {
+                                        $pendingQuery->where('approver_user_id', $authUser->id);
+                                    }
+
+                                    $pendingApprovalsCount = $pendingQuery->count();
                                 }
                             @endphp
                             <a href="{{ route('admin.izin.persetujuan.inbox') }}"

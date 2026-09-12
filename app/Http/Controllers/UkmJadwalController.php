@@ -131,7 +131,11 @@ class UkmJadwalController extends Controller
 
         $ukmId = $jadwal->ukm_id;
         $judul = $jadwal->judul;
-        $jadwal->delete();
+
+        DB::transaction(function () use ($jadwal) {
+            $jadwal->presensis()->delete();
+            $jadwal->delete();
+        });
 
         return redirect()->route('admin.ukm.show', $ukmId)
             ->with('success', 'Jadwal "' . $judul . '" berhasil dihapus.');

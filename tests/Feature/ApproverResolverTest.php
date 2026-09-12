@@ -17,9 +17,15 @@ class ApproverResolverTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(RoleSeeder::class);
-        $this->seed(ProdiSeeder::class);
-        $this->seed(KelasSeeder::class);
+        if (\App\Models\Role::count() === 0) {
+            $this->seed(RoleSeeder::class);
+        }
+        if (\App\Models\Prodi::count() === 0) {
+            $this->seed(ProdiSeeder::class);
+        }
+        if (\App\Models\Kelas::count() === 0) {
+            $this->seed(KelasSeeder::class);
+        }
     }
 
     public function test_resolve_dosen_pa_fallback_only_returns_dosen_pa_role()
@@ -46,21 +52,22 @@ class ApproverResolverTest extends TestCase
         }
     }
 
-    public function test_resolve_petugas_jaga_fallback_only_returns_pelatih_role()
+    public function test_resolve_petugas_jaga_fallback_only_returns_operator_role()
     {
         $resolver = new ApproverResolver();
         
         // Setup users
-        $operator = User::factory()->create(['role_id' => User::OPERATOR_ROLE_ID]);
-        $pelatih1 = User::factory()->create(['role_id' => User::PELATIH_ROLE_ID]);
-        $pelatih2 = User::factory()->create(['role_id' => User::PELATIH_ROLE_ID]);
+        $admin = User::factory()->create(['role_id' => User::ADMIN_ROLE_ID]);
+        $operator1 = User::factory()->create(['role_id' => User::OPERATOR_ROLE_ID]);
+        $operator2 = User::factory()->create(['role_id' => User::OPERATOR_ROLE_ID]);
+        $pelatih = User::factory()->create(['role_id' => User::PELATIH_ROLE_ID]);
         
         // Test with random date where no JadwalPetugas is set
         $candidates = $resolver->resolveStrategy('petugas_jaga', null, 'global', null, null, '2029-01-01', null);
 
         $this->assertTrue($candidates->isNotEmpty(), 'Fallback petugas jaga harus mengembalikan kandidat');
         foreach ($candidates as $candidate) {
-            $this->assertEquals(User::PELATIH_ROLE_ID, $candidate->role_id, 'Kandidat fallback Petugas Jaga harus ber-role Pelatih (bukan operator)');
+            $this->assertEquals(User::OPERATOR_ROLE_ID, $candidate->role_id, 'Kandidat fallback Petugas Jaga harus ber-role Operator');
         }
     }
 }

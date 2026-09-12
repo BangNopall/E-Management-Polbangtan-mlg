@@ -160,6 +160,11 @@ class IzinMahasiswaController extends Controller
             'foto_bukti' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
+        // Hapus file bukti lama dari storage jika ada (mencegah penumpukan file saat re-upload)
+        if ($pengajuan->tiba_bukti_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($pengajuan->tiba_bukti_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($pengajuan->tiba_bukti_path);
+        }
+
         $path = $request->file('foto_bukti')->store('bukti_tiba', 'public');
 
         $pengajuan->update([

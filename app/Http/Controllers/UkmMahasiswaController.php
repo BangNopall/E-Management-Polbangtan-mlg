@@ -41,6 +41,7 @@ class UkmMahasiswaController extends Controller
         $user = Auth::user();
 
         $presensis = UkmPresensi::where('user_id', $user->id)
+            ->whereHas('jadwal')
             ->with(['jadwal.ukm'])
             ->latest()
             ->paginate(20)->withQueryString();
@@ -56,6 +57,7 @@ class UkmMahasiswaController extends Controller
         $user = Auth::user();
 
         $presensis = UkmPresensi::where('user_id', $user->id)
+            ->whereHas('jadwal')
             ->with(['jadwal.ukm'])
             ->latest()
             ->paginate(20)->withQueryString();

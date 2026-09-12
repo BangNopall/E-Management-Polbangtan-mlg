@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
 class DashboardAdminController extends Controller
@@ -221,7 +222,7 @@ class DashboardAdminController extends Controller
         }
 
         $petugas = $query->paginate(20)->withQueryString();
-        $users = User::where('role_id', 2)->get();
+        $users = User::where('role_id', User::OPERATOR_ROLE_ID)->orderBy('name')->get();
         $existingDates = JadwalPetugas::pluck('date')->toArray();
 
         return view('admin.piket-petugas', compact('title', 'petugas', 'users', 'existingDates'));
@@ -231,16 +232,16 @@ class DashboardAdminController extends Controller
     {
         $title = 'Edit Piket Petugas';
         $jadwal = JadwalPetugas::findOrFail($id);
-        $users = User::where('role_id', 2)->get();
+        $users = User::where('role_id', User::OPERATOR_ROLE_ID)->orderBy('name')->get();
 
         return view('admin.piket-petugas-single', compact('title', 'jadwal', 'users'));
     }
 
     public function updatePiketPetugas(Request $request, $id)
     {
-        // Validasi form jika diperlukan
         $request->validate([
-            // Atur aturan validasi sesuai kebutuhan
+            'petugas1' => ['nullable', 'exists:users,id', Rule::exists('users', 'id')->where('role_id', User::OPERATOR_ROLE_ID)],
+            'petugas2' => ['nullable', 'exists:users,id', Rule::exists('users', 'id')->where('role_id', User::OPERATOR_ROLE_ID)],
         ]);
 
         // Ambil data jadwal piket berdasarkan ID
@@ -276,9 +277,8 @@ class DashboardAdminController extends Controller
         try {
             $request->validate([
                 'jadwalDate' => 'required|date|unique:jadwal_petugas,date',
-                'petugas1' => 'required|exists:users,id',
-                'petugas2' => 'required|exists:users,id',
-                // tambahkan aturan validasi lainnya sesuai kebutuhan
+                'petugas1' => ['required', 'exists:users,id', Rule::exists('users', 'id')->where('role_id', User::OPERATOR_ROLE_ID)],
+                'petugas2' => ['required', 'exists:users,id', Rule::exists('users', 'id')->where('role_id', User::OPERATOR_ROLE_ID)],
             ]);
 
             // Proses membuat jadwal baru
@@ -297,8 +297,8 @@ class DashboardAdminController extends Controller
 
     public function piketPetugasGenerateJadwalBulanan()
     {
-        // Ambil data petugas dengan role_id = 2
-        $users = User::where('role_id', 2)->get();
+        // Ambil data petugas dengan role_id Operator
+        $users = User::where('role_id', User::OPERATOR_ROLE_ID)->get();
 
         // Ambil tanggal hari terakhir dari jadwal yang sudah ada
         $lastSchedule = JadwalPetugas::latest('date')->first();
@@ -329,8 +329,8 @@ class DashboardAdminController extends Controller
 
     public function piketPetugasGenerateJadwalMingguan()
     {
-        // Ambil data petugas dengan role_id = 2
-        $users = User::where('role_id', 2)->get();
+        // Ambil data petugas dengan role_id Operator
+        $users = User::where('role_id', User::OPERATOR_ROLE_ID)->get();
 
         // Ambil tanggal hari terakhir dari jadwal yang sudah ada
         $lastSchedule = JadwalPetugas::latest('date')->first();
@@ -369,6 +369,11 @@ class DashboardAdminController extends Controller
         if ($jadwalPiket == null) {
             return redirect()->route('admin.index')->with('error', 'Jadwal piket untuk hari ini tidak ditemukan silahkan hubungi admin/operator untuk membuat jadwal piket terlebih dahulu.');
         }
+
+        if (empty($jadwalPiket->petugas1_id) && empty($jadwalPiket->petugas2_id)) {
+            return redirect()->route('admin.index')->with('error', 'Petugas piket hari ini belum ditentukan. Silakan tetapkan petugas piket terlebih dahulu.');
+        }
+
         $petugas1 = User::where('id', $jadwalPiket->petugas1_id)->value('name');
         $petugas2 = User::where('id', $jadwalPiket->petugas2_id)->value('name');
 

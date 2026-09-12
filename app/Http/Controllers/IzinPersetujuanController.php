@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\IzinApproval;
 use App\Models\PengajuanIzin;
+use App\Models\User;
+use App\Services\Izin\ApproverResolver;
 use App\Services\Izin\PengajuanIzinService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class IzinPersetujuanController extends Controller
 {
@@ -23,23 +26,99 @@ class IzinPersetujuanController extends Controller
      */
     public function inbox(Request $request)
     {
-        $userId = auth()->id();
+        $user = auth()->user();
+        $userId = $user->id;
 
-        $approvals = IzinApproval::with([
+        $query = IzinApproval::with([
                 'pengajuan.user',
                 'pengajuan.jenisIzin',
                 'pengajuan.ukm'
             ])
-            ->where('approver_user_id', $userId)
             ->where('status', 'menunggu')
             ->whereHas('pengajuan', function ($q) {
                 $q->whereColumn('pengajuan_izins.langkah_aktif', 'izin_approvals.urutan')
                   ->whereIn('pengajuan_izins.status', ['diajukan', 'menunggu']);
-            })
-            ->latest('dibuka_at')
+            });
+
+        if ($user->role_id === User::OPERATOR_ROLE_ID) {
+            $query->where(function ($q) use ($userId) {
+                $q->where('approver_user_id', $userId)
+                  ->orWhere(function ($q2) use ($userId) {
+                      $q2->whereHas('pengajuan.jenisIzin.steps', function ($stepQuery) {
+                          $stepQuery->whereColumn('izin_workflow_steps.urutan', 'izin_approvals.urutan')
+                                    ->where('izin_workflow_steps.resolver', 'petugas_jaga');
+                      })
+                      ->where(function ($q3) use ($userId) {
+                          // Kasus 1: Dijadwalkan piket pada tanggal keberangkatan
+                          $q3->whereHas('pengajuan', function ($pengajuanQuery) use ($userId) {
+                              $pengajuanQuery->whereExists(function ($sub) use ($userId) {
+                                  $sub->select(DB::raw(1))
+                                      ->from('jadwal_petugas')
+                                      ->whereColumn('jadwal_petugas.date', DB::raw('DATE(pengajuan_izins.waktu_berangkat)'))
+                                      ->where(function ($petugasQuery) use ($userId) {
+                                          $petugasQuery->where('petugas1_id', $userId)
+                                                       ->orWhere('petugas2_id', $userId);
+                                      });
+                              });
+                          })
+                          // Kasus 2: Fallback (jadwal belum dibuat atau kedua slot petugas kosong pada tanggal keberangkatan)
+                          ->orWhereHas('pengajuan', function ($pengajuanQuery) {
+                              $pengajuanQuery->whereNotExists(function ($sub) {
+                                  $sub->select(DB::raw(1))
+                                      ->from('jadwal_petugas')
+                                      ->whereColumn('jadwal_petugas.date', DB::raw('DATE(pengajuan_izins.waktu_berangkat)'))
+                                      ->where(function ($petugasQuery) {
+                                          $petugasQuery->whereNotNull('petugas1_id')
+                                                       ->orWhereNotNull('petugas2_id');
+                                      });
+                              });
+                          });
+                      });
+                  });
+            });
+        } else {
+            $query->where('approver_user_id', $userId);
+        }
+
+        $approvals = $query->latest('dibuka_at')
             ->paginate(20)->withQueryString();
 
         return view('admin.izin.inbox', compact('approvals'));
+    }
+
+    /**
+     * Cari approval aktif untuk pengajuan ini dan verifikasi apakah user berhak memprosesnya.
+     */
+    protected function getAuthorizedApproval(PengajuanIzin $pengajuan, User $user): ?IzinApproval
+    {
+        $approval = IzinApproval::where('pengajuan_izin_id', $pengajuan->id)
+            ->where('urutan', $pengajuan->langkah_aktif)
+            ->first();
+
+        if (!$approval) {
+            return null;
+        }
+
+        if ($approval->approver_user_id === $user->id) {
+            return $approval;
+        }
+
+        // Jika user bukan approver_user_id spesifik, cek apakah user adalah kandidat sah pada langkah ini
+        $step = $pengajuan->jenisIzin->steps()->where('urutan', $approval->urutan)->first();
+        if ($step) {
+            $context = [
+                'user' => $pengajuan->user,
+                'ukm_id' => $pengajuan->ukm_id,
+                'waktu_berangkat' => optional($pengajuan->waktu_berangkat)->format('Y-m-d'),
+            ];
+
+            $res = app(ApproverResolver::class)->resolve($step, $context);
+            if ($res['candidates']->pluck('id')->contains($user->id)) {
+                return $approval;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -48,11 +127,8 @@ class IzinPersetujuanController extends Controller
      */
     public function review(PengajuanIzin $pengajuan)
     {
-        $userId = auth()->id();
-
-        $approval = IzinApproval::where('pengajuan_izin_id', $pengajuan->id)
-            ->where('approver_user_id', $userId)
-            ->first();
+        $user = auth()->user();
+        $approval = $this->getAuthorizedApproval($pengajuan, $user);
 
         // Security Abort 1: User bukan penandatangan yang berhak
         abort_unless($approval, 403, 'Anda bukan penandatangan yang berhak untuk langkah perizinan ini.');
@@ -89,11 +165,8 @@ class IzinPersetujuanController extends Controller
             'catatan.required_if' => 'Alasan penolakan wajib diisi ketika Anda menolak pengajuan izin.',
         ]);
 
-        $userId = auth()->id();
-
-        $approval = IzinApproval::where('pengajuan_izin_id', $pengajuan->id)
-            ->where('approver_user_id', $userId)
-            ->first();
+        $user = auth()->user();
+        $approval = $this->getAuthorizedApproval($pengajuan, $user);
 
         // 3 Security Aborts (§2.3 SystemFlow)
         abort_unless($approval, 403, 'Anda bukan penandatangan yang berhak untuk langkah perizinan ini.');
@@ -108,10 +181,7 @@ class IzinPersetujuanController extends Controller
             'Langkah persetujuan ini sudah diputuskan.'
         );
 
-        $user = auth()->user();
         $catatan = $request->input('catatan');
-        $ip = $request->ip();
-        $userAgent = $request->userAgent();
 
         if ($request->input('keputusan') === 'setujui') {
             $this->pengajuanService->setujui($approval, $user, $catatan);

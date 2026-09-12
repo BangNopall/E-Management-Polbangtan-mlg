@@ -212,8 +212,12 @@ class QRController extends Controller
                         $getStatus = $request->status;
 
                         $izinAktif = app(\App\Services\Izin\IzinGateResolver::class)->aktifUntuk($request->user_id, Carbon::now());
+                        $isIzinTerlambat = false;
                         if ($izinAktif) {
-                            app(\App\Services\Izin\PengajuanIzinService::class)->catatScanGerbang($izinAktif, User::find($request->user_id), Carbon::now(), $getStatus);
+                            $izinUpdated = app(\App\Services\Izin\PengajuanIzinService::class)->catatScanGerbang($izinAktif, User::find($request->user_id), Carbon::now(), $getStatus);
+                            if ($izinUpdated && $izinUpdated->status === 'terlambat') {
+                                $isIzinTerlambat = true;
+                            }
                         }
 
                         $presenceData = [
@@ -261,6 +265,13 @@ class QRController extends Controller
                             }
                             if ($getStatus == 'didalam') {
                                 $presenceData['presence_masuk'] = $request->time;
+                                if ($isIzinTerlambat) {
+                                    $presenceData['log_status'] = 'telat';
+                                    $presenceData['is_late'] = 1;
+                                    Presence::where('id', $cariPresence->id)->update($presenceData);
+                                    User::where('id', $request->user_id)->update(['status' => 'didalam']);
+                                    return redirect(route('admin.kamera'))->with('error', 'Mahasiswa Berhasil Masuk Asrama, namun TERLAMBAT kembali dari izin resmi (Batas: ' . optional($izinAktif->waktu_kembali)->format('d M H:i') . '). Pelanggaran otomatis dicatat.');
+                                }
                                 $presenceData['log_status'] = 'didalam';
                                 Presence::where('id', $cariPresence->id)->update($presenceData);
                                 User::where('id', $request->user_id)->update($userData);
@@ -313,10 +324,14 @@ class QRController extends Controller
                                         'attendance_id' => $cariAttandeHariIni->id,
                                         'presence_date' => Carbon::now()->format('Y-m-d'),
                                         'presence_masuk' => $request->time,
-                                        'log_status' => 'didalam',
+                                        'log_status' => $isIzinTerlambat ? 'telat' : 'didalam',
+                                        'is_late' => $isIzinTerlambat ? 1 : 0,
                                     ];
                                     Presence::create($presenceDataDiluarKemarin);
                                     User::where('id', $request->user_id)->update($userDataSiswaDiluar);
+                                    if ($isIzinTerlambat) {
+                                        return redirect(route('admin.kamera'))->with('error', 'Mahasiswa Berhasil Masuk Asrama, namun TERLAMBAT kembali dari izin resmi (Batas: ' . optional($izinAktif->waktu_kembali)->format('d M H:i') . '). Pelanggaran otomatis dicatat.');
+                                    }
                                     return redirect(route('admin.kamera'))->with('success', 'Anda Berhasil Melakukan Presensi Masuk Asrama (Kembali dari Luar)');
                                 }
 

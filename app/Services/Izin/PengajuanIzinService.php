@@ -171,6 +171,17 @@ class PengajuanIzinService
                 if (!$firstActive->dibuka_at) {
                     $firstActive->update(['dibuka_at' => Carbon::now()]);
                 }
+
+                $firstStep = $steps->firstWhere('urutan', $firstActive->urutan);
+                if ($firstStep && $firstStep->resolve_saat === 'langkah_aktif' && !$firstActive->approver_user_id) {
+                    $resFirst = $this->resolver->resolve($firstStep, $context);
+                    $firstCand = $resFirst['candidates']->first();
+                    $firstActive->update([
+                        'approver_user_id' => $firstCand?->id,
+                        'approver_nama_snapshot' => $firstCand?->name,
+                        'catatan' => $resFirst['is_fallback'] ? 'Fallback digunakan untuk langkah ini' : null,
+                    ]);
+                }
             }
 
             return $pengajuan;

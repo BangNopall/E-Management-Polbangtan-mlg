@@ -24,7 +24,7 @@
                     </button>
                 </form>
             @endif
-            @if ($pengajuan->status === 'berjalan' && optional($pengajuan->jenisIzin)->butuh_konfirmasi_tiba)
+            @if ($pengajuan->status === 'berjalan' && optional($pengajuan->jenisIzin)->butuh_konfirmasi_tiba && is_null($pengajuan->tiba_at) && is_null($pengajuan->tiba_bukti_path))
                 <button type="button" data-modal-target="modal-konfirmasi" data-modal-toggle="modal-konfirmasi" class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
                     <i class="ri-map-pin-user-line mr-1"></i> Konfirmasi Kedatangan Lokasi Tujuan
                 </button>
@@ -114,9 +114,18 @@
                 @endif
                 
                 @if ($pengajuan->tiba_at)
-                    <div class="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                        <h4 class="font-bold text-gray-900 mb-2 flex items-center"><i class="ri-map-pin-user-line text-blue-600 mr-2"></i> Detail Konfirmasi Kedatangan Lokasi Tujuan</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div class="mt-4 p-4 border border-blue-200 rounded-lg bg-blue-50/40">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-gray-900 flex items-center">
+                                <i class="ri-map-pin-user-line text-blue-600 mr-2"></i> Detail Konfirmasi Kedatangan Lokasi Tujuan
+                            </h4>
+                            @if ($pengajuan->status === 'berjalan')
+                                <button type="button" data-modal-target="modal-konfirmasi" data-modal-toggle="modal-konfirmasi" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold text-blue-700 bg-white border border-blue-300 rounded-lg shadow-2xs hover:bg-blue-50 transition">
+                                    <i class="ri-upload-2-line mr-1"></i> Unggah Ulang Bukti
+                                </button>
+                            @endif
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-3">
                             <div>
                                 <span class="text-xs text-gray-500 block">Waktu Tiba Aktual</span>
                                 <span class="font-bold text-gray-800 block">{{ \Carbon\Carbon::parse($pengajuan->tiba_at)->format('d M Y H:i') }}</span>
@@ -187,7 +196,7 @@
             <div class="relative bg-white rounded-lg shadow">
                 <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
                     <h3 class="text-lg font-semibold text-gray-900">
-                        Konfirmasi Kedatangan Lokasi Tujuan
+                        {{ $pengajuan->tiba_at ? 'Unggah Ulang Bukti Kedatangan' : 'Konfirmasi Kedatangan Lokasi Tujuan' }}
                     </h3>
                     <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="modal-konfirmasi">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -199,7 +208,9 @@
                 <form action="{{ route('home.izin.konfirmasi-tiba', $pengajuan->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="p-4 md:p-5">
-                        <p class="text-sm text-gray-500 mb-4">Mohon unggah foto bukti kedatangan Anda di lokasi tujuan.</p>
+                        <p class="text-sm text-gray-500 mb-4">
+                            {{ $pengajuan->tiba_at ? 'Unggah foto bukti baru untuk menggantikan bukti sebelumnya. File bukti yang lama akan otomatis dihapus dari sistem.' : 'Mohon unggah foto bukti kedatangan Anda di lokasi tujuan.' }}
+                        </p>
                         
                         <div class="mb-4">
                             <label class="block mb-2 text-sm font-medium text-gray-900" for="foto_bukti">Upload Foto Bukti <span class="text-red-600">*</span></label>
@@ -208,7 +219,7 @@
                         </div>
                         
                         <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                            Kirim Bukti Konfirmasi
+                            {{ $pengajuan->tiba_at ? 'Simpan & Ganti Bukti Baru' : 'Kirim Bukti Konfirmasi' }}
                         </button>
                     </div>
                 </form>
