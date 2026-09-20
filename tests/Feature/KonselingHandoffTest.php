@@ -51,17 +51,71 @@ class KonselingHandoffTest extends TestCase
         parse_str(parse_url($location, PHP_URL_QUERY), $query);
 
         $this->assertSame($student->nim, $query['nim']);
+        $this->assertSame('mahasiswa', $query['role']);
 
         $canonical = sprintf('%s|%s|%s', $query['nim'], $query['expires_at'], $query['nonce']);
         $expectedSignature = hash_hmac('sha256', $canonical, self::TEST_SECRET);
         $this->assertTrue(hash_equals($expectedSignature, $query['signature']));
     }
 
-    public function test_non_student_role_is_blocked_by_role_middleware(): void
+    public function test_admin_is_redirected_to_eklinik_sso_endpoint_with_valid_signature(): void
     {
         $admin = User::where('role_id', User::ADMIN_ROLE_ID)->firstOrFail();
 
         $response = $this->actingAs($admin)->get('/handoff/konseling');
+
+        $response->assertStatus(302);
+        $location = $response->headers->get('Location');
+        $this->assertStringStartsWith(self::TEST_URL . '/sso?', $location);
+
+        $query = [];
+        parse_str(parse_url($location, PHP_URL_QUERY), $query);
+
+        $this->assertSame($admin->email, $query['identifier']);
+        $this->assertSame('admin', $query['role']);
+
+        $canonical = sprintf('%s|%s|%s|%s', $query['identifier'], $query['role'], $query['expires_at'], $query['nonce']);
+        $expectedSignature = hash_hmac('sha256', $canonical, self::TEST_SECRET);
+        $this->assertTrue(hash_equals($expectedSignature, $query['signature']));
+    }
+
+    public function test_pejabat_is_redirected_to_eklinik_sso_endpoint_with_valid_signature(): void
+    {
+        $pejabat = User::where('role_id', User::PEJABAT_ROLE_ID)->first() ?? User::create([
+            'name' => 'Bapak Kaprodi Test',
+            'email' => 'kaprodi_test@polbangtanmalang.ac.id',
+            'role_id' => User::PEJABAT_ROLE_ID,
+            'password' => bcrypt('password'),
+        ]);
+
+        $response = $this->actingAs($pejabat)->get('/handoff/konseling');
+
+        $response->assertStatus(302);
+        $location = $response->headers->get('Location');
+        $this->assertStringStartsWith(self::TEST_URL . '/sso?', $location);
+
+        $query = [];
+        parse_str(parse_url($location, PHP_URL_QUERY), $query);
+
+        $this->assertSame($pejabat->email, $query['identifier']);
+        $this->assertSame('pejabat', $query['role']);
+        $this->assertSame($pejabat->name, $query['name']);
+
+        $canonical = sprintf('%s|%s|%s|%s', $query['identifier'], $query['role'], $query['expires_at'], $query['nonce']);
+        $expectedSignature = hash_hmac('sha256', $canonical, self::TEST_SECRET);
+        $this->assertTrue(hash_equals($expectedSignature, $query['signature']));
+    }
+
+    public function test_unauthorized_role_is_blocked_by_role_middleware(): void
+    {
+        $operator = User::where('role_id', User::OPERATOR_ROLE_ID)->first() ?? User::create([
+            'name' => 'Operator Test',
+            'email' => 'operator_test@polbangtanmalang.ac.id',
+            'role_id' => User::OPERATOR_ROLE_ID,
+            'password' => bcrypt('password'),
+        ]);
+
+        $response = $this->actingAs($operator)->get('/handoff/konseling');
 
         // EnsureUserHasRole redirects on failure — not 403 (see AGENTS/CLAUDE.md).
         $response->assertStatus(302);

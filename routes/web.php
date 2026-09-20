@@ -83,7 +83,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard/riwayat-pelanggaran/detail/{id}', [PelanggaranController::class, 'riwayatPelanggaranDetail'])->name('riwayatPelanggaranDetail');
         Route::get('/dashboard/riwayat-aktivitas', [KegiatanAsramaController::class, 'riwayatAktivitasShow'])->name('riwayatAktivitasShow');
         Route::post('/dashboard/delete-foto/{user_id}', [ProfileController::class, 'deleteFotoProfile'])->name('deleteFotoProfile');
-        Route::get('/handoff/konseling', [KonselingHandoffController::class, 'redirect'])->name('konseling');
 
         // EPIC 01: MODUL UKM DINAMIS — Student Routes (US 1.3)
         Route::get('/dashboard/ukm', [UkmMahasiswaController::class, 'index'])->name('ukm.index');
@@ -100,6 +99,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/dashboard/izin/{pengajuan}/batal', [IzinMahasiswaController::class, 'batal'])->name('izin.batal');
         Route::post('/dashboard/izin/{pengajuan}/konfirmasi-tiba', [IzinMahasiswaController::class, 'konfirmasiTiba'])->name('izin.konfirmasi-tiba');
     });
+
+    // SSO Handoff E-Klinik (Mahasiswa, Admin, Pejabat)
+    Route::middleware(['role:user,admin,pejabat'])->group(function () {
+        Route::get('/handoff/konseling', [KonselingHandoffController::class, 'redirect'])->name('home.konseling');
+    });
+
     Route::middleware('role:admin')->name('admin.')->group(function () {
 
         Route::get('/dosen-pa', [DosenPaController::class, 'index'])->name('dosen_pa.index');
