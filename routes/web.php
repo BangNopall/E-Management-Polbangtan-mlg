@@ -195,12 +195,13 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/piket-petugas', [DashboardAdminController::class, 'showPiketPetugas'])->name('piketPetugas');
             Route::get('/piket-petugas/edit/{id}', [DashboardAdminController::class, 'showPiketPetugasSingle'])->name('showPiketPetugasSingle');
             Route::post('/piket-petugas/update/{id}', [DashboardAdminController::class, 'updatePiketPetugas'])->name('updatePiketPetugas');
+            Route::delete('/piket-petugas/destroy/{id}', [DashboardAdminController::class, 'deletePiketPetugasSingle'])->name('deletePiketPetugasSingle');
 
         });
         Route::get('/kamera-pelatih', [QRControllerHukum::class, 'scanCamPelatih'])->name('scanCamPelatih');  // Done Survey
         Route::post('/kamera-pelatih', [QRControllerHukum::class, 'scanCamPelatihStore'])->name('scanCamPelatihStore');  // Done Survey
 
-        Route::middleware(['role:admin,pembina,pelatih_ukm,pejabat'])->group(function () {
+        Route::middleware(['role:admin,pembina,pelatih,pelatih_ukm,pejabat'])->group(function () {
             Route::get('ukm/{ukm}', [UkmController::class, 'show'])->name('ukm.show');
             Route::post('ukm/{ukm}/jadwal', [UkmJadwalController::class, 'store'])->name('ukm.jadwal.store');
             Route::get('ukm/{ukm}/jadwal/events', [UkmJadwalController::class, 'events'])->name('ukm.jadwal.events');
@@ -217,7 +218,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('ukm/{ukm}/verifikasi', [UkmVerifikasiController::class, 'index'])->name('ukm.verifikasi.index');
                 Route::patch('ukm/jadwal/{jadwal}/verifikasi', [UkmVerifikasiController::class, 'update'])->name('ukm.verifikasi.update');
             });
-            Route::middleware(['role:admin,pembina,pejabat'])->group(function () {
+            Route::middleware(['role:admin,pembina,pelatih,pelatih_ukm,pejabat'])->group(function () {
                 Route::post('ukm/{ukm}/laporan/pdf', [UkmLaporanController::class, 'pdfReport'])->name('ukm.laporan.pdf');
             });
 
@@ -230,8 +231,8 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/laporan-pelanggaran', [PelanggaranController::class, 'laporanPelanggaran'])->name('laporanPelanggaran');
             Route::get('/laporan-pelanggaran/{id}', [PelanggaranController::class, 'laporanPelanggaranOpen'])->name('laporanPelanggaranOpen');
             Route::post('/laporan-pelanggaran-rejected/{id}', [PelanggaranController::class, 'laporanPelanggaranRejected'])->name('laporanPelanggaranRejected');
-            Route::get('/laporan-pelanggaran-deleted/{id}', [PelanggaranController::class, 'laporanPelanggaranDeleted'])->name('laporanPelanggaranDeleted');
-            Route::get('/laporan-pelanggaran-done/{id}', [PelanggaranController::class, 'laporanPelanggaranDone'])->name('laporanPelanggaranDone');
+            Route::match(['get', 'delete'], '/laporan-pelanggaran-deleted/{id}', [PelanggaranController::class, 'laporanPelanggaranDeleted'])->name('laporanPelanggaranDeleted');
+            Route::match(['get', 'patch', 'post'], '/laporan-pelanggaran-done/{id}', [PelanggaranController::class, 'laporanPelanggaranDone'])->name('laporanPelanggaranDone');
             Route::post('/laporan-pelanggaran-confirm/{id}', [PelanggaranController::class, 'laporanPelanggaranConfirm'])->name('laporanPelanggaranConfirm');
 
             Route::get('/edit-pelanggaran/{id}', [PelanggaranController::class, 'editPelanggaranIdKategori'])->name('editPelanggaranIdKategori');
@@ -239,8 +240,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/createkategori', [PelanggaranController::class, 'createKategori'])->name('createKategori');
             Route::post('/edit-jenis-pelanggaran/{id_kategori}', [PelanggaranController::class, 'editPelanggaranStore'])->name('editPelanggaranStore');
             Route::post('/createjenispelanggaran/{id}', [PelanggaranController::class, 'createJenisPelanggaran'])->name('createJenisPelanggaran');
-            Route::get('/deletejenispelanggaran/{id}', [PelanggaranController::class, 'deleteJenisPelanggaran'])->name('deleteJenisPelanggaran');
-            Route::get('/deletekategori/{id}', [PelanggaranController::class, 'deleteKategori'])->name('deleteKategori');
+            Route::match(['get', 'delete'], '/deletejenispelanggaran/{id}', [PelanggaranController::class, 'deleteJenisPelanggaran'])->name('deleteJenisPelanggaran');
+            Route::delete('/deletekategori/{id}', [PelanggaranController::class, 'deleteKategori'])->name('deleteKategori');
 
         });
         Route::middleware(['role:admin,operator,security,pejabat'])->group(function () {
@@ -294,5 +295,3 @@ Route::middleware(['auth'])->group(function () {
     // LOGOUT ROUTE
     Route::delete('/logout', [AuthController::class, 'LogoutAccount'])->name('auth.logout');
 });
-
-require __DIR__.'/api.php';

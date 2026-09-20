@@ -30,15 +30,21 @@ class EnsureProfileCompleted
                 $isIncomplete = true;
             }
             
-            // Check default password
-            if (\Illuminate\Support\Facades\Hash::check('password', $user->password)) {
-                $isIncomplete = true;
+            // Check default password without running Bcrypt on every request
+            if (! $user->is_password_changed) {
+                if (\Illuminate\Support\Facades\Hash::check('password', $user->password)) {
+                    $isIncomplete = true;
+                } else {
+                    // Automatically mark existing users with custom password as changed
+                    $user->is_password_changed = true;
+                    $user->save();
+                }
             }
             
             // To prevent redirect loop, check if current route is profile edit
-            $allowedRoutes = ['home.profilshow', 'home.Editprofil', 'home.EditprofilGmail', 'auth.logout'];
+            $allowedRoutes = ['home.profilshow', 'home.Editprofil', 'home.EditprofilGmail', 'home.deleteFotoProfile', 'auth.logout'];
             if ($isIncomplete && !in_array($request->route()->getName(), $allowedRoutes)) {
-                return redirect()->route('home.profilshow', $user->id)
+                return redirect()->route('home.profilshow')
                     ->with('error', 'Untuk melanjutkan, lengkapi seluruh data profil, ubah email dari default, dan ganti password Anda terlebih dahulu.');
             }
         }

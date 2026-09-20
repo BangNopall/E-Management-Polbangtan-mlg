@@ -17,16 +17,26 @@ class EnsureUserHasRole
      */
     public function handle($request, Closure $next, ...$roles)
     {
-        $userRole = Role::find(auth()->user()->role_id);
-        foreach ($roles as $role) {
-            // if ($role === "superadmin" && auth()->user()->isSuperadmin()) return $next($request);
-            if ($userRole->name === $role) {
-                return $next($request);
+        $user = auth()->user();
+        if (! $user) {
+            if ($request->expectsJson()) {
+                abort(401, 'Unauthenticated.');
             }
+            return redirect()->route('auth.login');
         }
 
-        // return abort(403);
-        $route  = $userRole->name === 'user' ? 'home.index' : 'admin.index';
+        $userRole = $user->role ?? ($user->role_id ? Role::find($user->role_id) : null);
+        $roleName = $userRole?->name;
+
+        if ($roleName && in_array($roleName, $roles)) {
+            return $next($request);
+        }
+
+        if ($request->expectsJson()) {
+            abort(403, 'Anda tidak memiliki akses ke halaman tersebut.');
+        }
+
+        $route = $roleName === 'user' ? 'home.index' : 'admin.index';
         return redirect()->route($route)->with('error', 'Anda tidak memiliki akses ke halaman tersebut.');
     }
 }

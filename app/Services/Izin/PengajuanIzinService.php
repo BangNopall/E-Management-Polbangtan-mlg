@@ -211,16 +211,14 @@ class PengajuanIzinService
                 'waktu_berangkat' => optional($pengajuan->waktu_berangkat)->format('Y-m-d'),
             ];
 
-            if ($step && $step->resolve_saat === 'langkah_aktif') {
+            if ($step) {
                 $res = $this->resolver->resolve($step, $context);
                 $candidates = $res['candidates'];
-            } else {
-                $candidates = $freshApproval->approver_user_id ? collect([User::find($freshApproval->approver_user_id)]) : collect();
-                // If primary was empty, try resolving live
-                if ($candidates->isEmpty() && $step) {
-                    $res = $this->resolver->resolve($step, $context);
-                    $candidates = $res['candidates'];
+                if ($freshApproval->approver_user_id && $freshApproval->mode !== 'any') {
+                    $candidates = collect([User::find($freshApproval->approver_user_id)])->filter();
                 }
+            } else {
+                $candidates = $freshApproval->approver_user_id ? collect([User::find($freshApproval->approver_user_id)])->filter() : collect();
             }
 
             abort_unless($candidates->pluck('id')->contains($actor->id), 403, 'Anda bukan penandatangan yang berhak untuk langkah ini.');

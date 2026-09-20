@@ -5,9 +5,10 @@ namespace App\Imports;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class LulusanImport implements ToCollection, WithHeadingRow
+class LulusanImport implements ToCollection, WithHeadingRow, WithChunkReading
 {
     public $deletedCount = 0;
     public $notFoundCount = 0;
@@ -17,7 +18,7 @@ class LulusanImport implements ToCollection, WithHeadingRow
         $nims = [];
         foreach ($rows as $row) {
             if (isset($row['nim'])) {
-                $nims[] = $row['nim'];
+                $nims[] = trim((string) $row['nim']);
             }
         }
 
@@ -34,5 +35,10 @@ class LulusanImport implements ToCollection, WithHeadingRow
             $user->delete();
             $this->deletedCount++;
         }
+    }
+
+    public function chunkSize(): int
+    {
+        return 100;
     }
 }

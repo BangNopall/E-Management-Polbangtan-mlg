@@ -44,6 +44,8 @@ class User extends Authenticatable
         'asal_daerah',
         'password',
         'phone',
+        'no_hp',
+        'is_password_changed',
         'role_id',
         'image',
         'status',

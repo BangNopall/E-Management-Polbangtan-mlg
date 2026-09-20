@@ -91,30 +91,30 @@ class IzinPersetujuanController extends Controller
      */
     protected function getAuthorizedApproval(PengajuanIzin $pengajuan, User $user): ?IzinApproval
     {
+        // 1. Direct assignment
         $approval = IzinApproval::where('pengajuan_izin_id', $pengajuan->id)
-            ->where('urutan', $pengajuan->langkah_aktif)
+            ->where('approver_user_id', $user->id)
             ->first();
 
-        if (!$approval) {
-            return null;
-        }
-
-        if ($approval->approver_user_id === $user->id) {
+        if ($approval) {
             return $approval;
         }
 
-        // Jika user bukan approver_user_id spesifik, cek apakah user adalah kandidat sah pada langkah ini
-        $step = $pengajuan->jenisIzin->steps()->where('urutan', $approval->urutan)->first();
-        if ($step) {
-            $context = [
-                'user' => $pengajuan->user,
-                'ukm_id' => $pengajuan->ukm_id,
-                'waktu_berangkat' => optional($pengajuan->waktu_berangkat)->format('Y-m-d'),
-            ];
+        // 2. Candidate resolution across steps of this pengajuan
+        $approvals = IzinApproval::where('pengajuan_izin_id', $pengajuan->id)->get();
+        foreach ($approvals as $appr) {
+            $step = $pengajuan->jenisIzin->steps()->where('urutan', $appr->urutan)->first();
+            if ($step) {
+                $context = [
+                    'user' => $pengajuan->user,
+                    'ukm_id' => $pengajuan->ukm_id,
+                    'waktu_berangkat' => optional($pengajuan->waktu_berangkat)->format('Y-m-d'),
+                ];
 
-            $res = app(ApproverResolver::class)->resolve($step, $context);
-            if ($res['candidates']->pluck('id')->contains($user->id)) {
-                return $approval;
+                $res = app(ApproverResolver::class)->resolve($step, $context);
+                if ($res['candidates']->pluck('id')->contains($user->id)) {
+                    return $appr;
+                }
             }
         }
 
@@ -201,7 +201,15 @@ class IzinPersetujuanController extends Controller
     {
         $userId = auth()->id();
         $isApprover = $pengajuan->approvals()->where('approver_user_id', $userId)->exists();
-        $isStaffRole = in_array(auth()->user()->role_id, [1, 2, 4, 5]);
+        $isStaffRole = in_array(auth()->user()->role_id, [
+            User::ADMIN_ROLE_ID,
+            User::OPERATOR_ROLE_ID,
+            User::PELATIH_ROLE_ID,
+            User::PEMBINA_ROLE_ID,
+            User::PELATIH_UKM_ROLE_ID,
+            User::DOSEN_PA_ROLE_ID,
+            User::PEJABAT_ROLE_ID,
+        ]);
 
         abort_unless($isApprover || $isStaffRole, 403, 'Anda tidak berhak mengunduh dokumen perizinan ini.');
         abort_unless(in_array($pengajuan->status, ['disetujui', 'berjalan', 'selesai']), 403, 'Surat izin belum disetujui.');

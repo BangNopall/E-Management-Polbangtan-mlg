@@ -16,14 +16,8 @@ class ProdiSeeder extends Seeder
      */
     public function run()
     {
-        Prodi::create([
-            'prodi' => 'PPB',
-        ]);
-        Prodi::create([
-            'prodi' => 'PPKH',
-        ]);
-        Prodi::create([
-            'prodi' => 'Agrinak',
-        ]);
+        Prodi::firstOrCreate(['prodi' => 'PPB']);
+        Prodi::firstOrCreate(['prodi' => 'PPKH']);
+        Prodi::firstOrCreate(['prodi' => 'Agrinak']);
     }
 }

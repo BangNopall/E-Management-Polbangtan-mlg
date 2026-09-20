@@ -41,6 +41,8 @@ class ProfileController extends Controller
 
     public function editProfile(Request $request, $id)
     {
+        abort_unless((int)$id === auth()->id() || auth()->user()->isAdmin(), 403, 'Akses ditolak: Anda tidak memiliki izin mengedit profil pengguna lain.');
+
         // Temukan pengguna berdasarkan ID
         $user = User::find($id);
 
@@ -154,6 +156,8 @@ class ProfileController extends Controller
 
     public function editProfileGmail(Request $request, $id)
     {
+        abort_unless((int)$id === auth()->id() || auth()->user()->isAdmin(), 403, 'Akses ditolak: Anda tidak memiliki izin mengubah informasi akun pengguna lain.');
+
         try {
             $request->validate([
                 'no_hp' => 'required|numeric|digits_between:10,13|unique:users,no_hp,'.$id,
@@ -181,6 +185,7 @@ class ProfileController extends Controller
 
             if ($request->filled('password')) {
                 $user->password = Hash::make($request->password);
+                $user->is_password_changed = true;
             }
 
             $user->save();
@@ -190,21 +195,26 @@ class ProfileController extends Controller
             } else {
                 return redirect()->route('home.profilshow', $user->id)->with('success-email', 'Informasi akun berhasil diperbarui.');
             }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            throw $e;
         } catch (\Exception $e) {
             $user = User::find($id);
-            if (!$user->isUser()) {
-                return redirect()->route('admin.profil', $user->id)->with('error-email', 'Informasi akun Gagal diperbarui.');
+            if (!$user || !$user->isUser()) {
+                return redirect()->route('admin.profil', $id)->with('error-email', 'Informasi akun Gagal diperbarui.');
             } else {
-                return redirect()->route('home.profilshow', $user->id)->with('error-email', 'Informasi akun Gagal diperbarui.');
+                return redirect()->route('home.profilshow', $id)->with('error-email', 'Informasi akun Gagal diperbarui.');
             }
         }
     }
 
     public function deleteFotoProfile($id)
     {
-        // dd($id);
+        abort_unless((int)$id === auth()->id() || auth()->user()->isAdmin(), 403, 'Akses ditolak: Anda tidak memiliki izin menghapus foto profil pengguna lain.');
+
         $user = User::find($id);
-        if ($user->image) {
+        if ($user && $user->image) {
             Storage::delete('/public/images/'.$user->image);
             $user->image = null;
             $user->save();

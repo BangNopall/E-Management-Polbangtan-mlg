@@ -10,8 +10,9 @@ RUN npm run build
 FROM php:8.2-fpm-alpine
 
 # Install dependensi sistem & ekstensi PHP
-RUN apk add --no-cache zip libzip-dev libpng-dev \
-    && docker-php-ext-install pdo_mysql zip
+RUN apk add --no-cache zip libzip-dev libpng-dev libjpeg-turbo-dev freetype-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql zip gd bcmath
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -25,7 +26,7 @@ COPY . .
 COPY --from=frontend /app/public/build ./public/build
 
 # Install dependensi PHP
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache

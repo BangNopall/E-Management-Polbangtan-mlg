@@ -15,7 +15,7 @@ class JenisPelanggaranSeeder extends Seeder
      * @return void
      */
     public function run() {
-        $path = public_path('pelanggaran/dataPelanggaran.sql'); // Ganti 'namafile.sql' dengan nama file SQL Anda
+        $path = database_path('dataPelanggaran.sql');
         $sql = file_get_contents($path);
         DB::unprepared($sql);
     }

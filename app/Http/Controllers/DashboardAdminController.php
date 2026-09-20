@@ -519,7 +519,7 @@ class DashboardAdminController extends Controller
         // dd ($request->all());
 
         $request->validate([
-            'file' => 'required|mimes:xls,xlsx',
+            'file' => 'required|file|mimes:xls,xlsx|max:10240',
         ]);
 
         try {
@@ -527,8 +527,11 @@ class DashboardAdminController extends Controller
             Excel::import($import, $request->file('file'));
 
             return redirect()->route('admin.sistem-admin')->with('success', 'Data users imported successfully.');
-        } catch (\Exception $e) {
-            return redirect()->route('admin.sistem-admin')->with('error', 'Error importing data. '.$e->getMessage());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Import error on sistem-admin: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            return redirect()->route('admin.sistem-admin')->with('error', 'Terjadi kesalahan saat memproses data impor. Silakan periksa kembali format file Anda.');
         }
     }
 

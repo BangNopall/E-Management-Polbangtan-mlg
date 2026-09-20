@@ -22,3 +22,11 @@ laravel_releases.html
 datauserpolbangtan.xlsx
 datauserpolbangtan.sql
 .env.prod
+.DS_Store
+Thumbs.db
+*.orig
+*.rej
+*.tmp
+*.sql
+!database/dataPelanggaran.sql
+.claude/

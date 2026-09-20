@@ -25,19 +25,73 @@ class DummyDataSeeder extends Seeder
     public function run(): void
     {
         // User Development Only
-        User::factory()->create([
-            'name' => 'Pelatih Kedis',
-            'email' => 'pelatihkedis@polbangtanmalang.ac.id',
-            'nim' => '1434567891234',
-            'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first()?->id ?? 1,
-            'kelas_id' => Kelas::first()?->id ?? 1,
-            'no_kamar' => '27',
-            'prodi_id' => Prodi::first()?->id ?? 1,
-            'asal_daerah' => 'Malang',
-            'no_hp' => NULL,
-            'password' => bcrypt('password'),
-            'role_id' => User::PELATIH_ROLE_ID,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'pelatihkedis@polbangtanmalang.ac.id'],
+            [
+                'name' => 'Pelatih Kedis',
+                'nim' => '1434567891234',
+                'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first()?->id ?? 1,
+                'kelas_id' => Kelas::first()?->id ?? 1,
+                'no_kamar' => '27',
+                'prodi_id' => Prodi::first()?->id ?? 1,
+                'asal_daerah' => 'Malang',
+                'no_hp' => NULL,
+                'password' => bcrypt('password'),
+                'is_password_changed' => 1,
+                'role_id' => User::PELATIH_ROLE_ID,
+            ]
+        );
+
+        User::firstOrCreate(
+            ['email' => 'user_dev@polbangtanmalang.ac.id'],
+            [
+                'name' => 'User Development Asrama Polbangtan',
+                'nim' => '1234567891234',
+                'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first()?->id ?? 1,
+                'kelas_id' => Kelas::first()?->id ?? 1,
+                'no_kamar' => '27',
+                'prodi_id' => Prodi::first()?->id ?? 1,
+                'asal_daerah' => 'Malang',
+                'no_hp' => NULL,
+                'password' => bcrypt('password'),
+                'is_password_changed' => 1,
+                'role_id' => User::USER_ROLE_ID,
+            ]
+        );
+
+        User::firstOrCreate(
+            ['email' => 'operator_dev@polbangtanmalang.ac.id'],
+            [
+                'name' => 'Operator Development Asrama Polbangtan',
+                'nim' => '1234566891234',
+                'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first()?->id ?? 1,
+                'kelas_id' => Kelas::first()?->id ?? 1,
+                'no_kamar' => '28',
+                'prodi_id' => Prodi::first()?->id ?? 1,
+                'asal_daerah' => 'Malang',
+                'no_hp' => NULL,
+                'password' => bcrypt('password'),
+                'is_password_changed' => 1,
+                'role_id' => User::OPERATOR_ROLE_ID,
+            ]
+        );
+
+        User::firstOrCreate(
+            ['email' => 'pelatih_dev@polbangtanmalang.ac.id'],
+            [
+                'name' => 'Pelatih Development Asrama Polbangtan',
+                'nim' => '1434567891235',
+                'blok_ruangan_id' => BlokRuangan::where('name', 'B')->first()?->id ?? 1,
+                'kelas_id' => Kelas::first()?->id ?? 1,
+                'no_kamar' => '27',
+                'prodi_id' => Prodi::first()?->id ?? 1,
+                'asal_daerah' => 'Malang',
+                'no_hp' => NULL,
+                'password' => bcrypt('password'),
+                'is_password_changed' => 1,
+                'role_id' => User::PELATIH_ROLE_ID,
+            ]
+        );
         
         // factory Development Only
         User::factory(50)->create();

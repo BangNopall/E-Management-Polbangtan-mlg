@@ -42,28 +42,42 @@ class DatabaseSeeder extends Seeder
         $this->call(KategoriPelanggaranSeeder::class);
         $this->call(JenisPelanggaranSeeder::class);
 
-        User::create([
-            'name' => 'Admin Asrama Polbangtan',
-            'email' => 'admin@polbangtanmalang.ac.id',
-            'password' => bcrypt('password'),
-            'role_id' => User::ADMIN_ROLE_ID,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@polbangtanmalang.ac.id'],
+            [
+                'name' => 'Admin Asrama Polbangtan',
+                'password' => bcrypt('password'),
+                'role_id' => User::ADMIN_ROLE_ID,
+                'is_password_changed' => 1,
+            ]
+        );
 
-        User::create([
-            'name' => 'Developer Asrama Polbangtan',
-            'email' => 'developer@polbangtanmalang.ac.id',
-            'password' => bcrypt('password'),
-            'role_id' => User::ADMIN_ROLE_ID,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'developer@polbangtanmalang.ac.id'],
+            [
+                'name' => 'Developer Asrama Polbangtan',
+                'password' => bcrypt('password'),
+                'role_id' => User::ADMIN_ROLE_ID,
+                'is_password_changed' => 1,
+            ]
+        );
 
-        User::create([
-            'name' => 'user Asrama Polbangtan',
-            'email' => 'user@gmail.com',
-            'nim' => '245150307111006',
-            'password' => bcrypt('password'),
-            'role_id' => User::USER_ROLE_ID,
-            'prodi_id' => 1,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'user@gmail.com'],
+            [
+                'name' => 'user Asrama Polbangtan',
+                'nim' => '245150307111006',
+                'password' => bcrypt('password'),
+                'role_id' => User::USER_ROLE_ID,
+                'prodi_id' => 1,
+                'blok_ruangan_id' => 1,
+                'kelas_id' => 1,
+                'no_kamar' => '101',
+                'asal_daerah' => 'Malang',
+                'no_hp' => '089999999999',
+                'is_password_changed' => 1,
+            ]
+        );
 
         if (app()->environment(['local', 'testing'])) {
             $this->call(DummyDataSeeder::class);

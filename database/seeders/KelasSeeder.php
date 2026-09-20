@@ -18,15 +18,15 @@ class KelasSeeder extends Seeder
     public function run()
     {
         // Seeder untuk Level Kelas
-        LevelKelas::create(['nama_level_kelas' => 'A']);
-        LevelKelas::create(['nama_level_kelas' => 'B']);
-        LevelKelas::create(['nama_level_kelas' => 'C']);
+        LevelKelas::firstOrCreate(['nama_level_kelas' => 'A']);
+        LevelKelas::firstOrCreate(['nama_level_kelas' => 'B']);
+        LevelKelas::firstOrCreate(['nama_level_kelas' => 'C']);
 
         // Seeder untuk Kelas
         foreach (Prodi::all() as $prodis) {
             foreach (LevelKelas::all() as $levelKelas) {
                 for ($i = 1; $i <= 4; $i++) {
-                    Kelas::create([
+                    Kelas::firstOrCreate([
                         'kelas' =>  $i,
                         'nama_kelas' => $prodis->prodi . ' ' . $i . '-' . $levelKelas->nama_level_kelas,
                         'prodi_id' => $prodis->id,
