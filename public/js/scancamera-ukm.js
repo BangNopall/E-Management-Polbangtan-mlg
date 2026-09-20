@@ -8,6 +8,9 @@ const qrCodeSuccessCallback = (decodedText, decodedResult) => {
     beepSound.play();
     qrCodeReader.stop();
 
+    if (document.getElementById("payload")) {
+        document.getElementById("payload").value = payload.payload;
+    }
     document.getElementById("user_id").value = payload.user_id;
     document.getElementById("date").value = payload.date;
     document.getElementById("time").value = payload.time;
@@ -51,6 +54,9 @@ Html5Qrcode.getCameras()
                             beepSound.play();
                             qrCodeReader.stop();
 
+                            if (document.getElementById("payload")) {
+                                document.getElementById("payload").value = payload.payload;
+                            }
                             document.getElementById("user_id").value = payload.user_id;
                             document.getElementById("date").value = payload.date;
                             document.getElementById("time").value = payload.time;

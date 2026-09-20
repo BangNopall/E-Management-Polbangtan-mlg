@@ -1,0 +1,9 @@
+@@ -72,2 +78,8 @@
+     public function kameraKegiatanApelApi(Request $request)
+     {
++        try {
++            $this->decryptAndMergePayload($request);
++        } catch (\Exception $e) {
++            return redirect(route('admin.kameraKegiatanApelShow'))->with('error', $e->getMessage());
++        }
++

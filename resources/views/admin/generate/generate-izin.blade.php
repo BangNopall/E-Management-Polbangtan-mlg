@@ -5,84 +5,109 @@
     <title>Surat Izin Keluar Asrama - {{ $pengajuan->nomor_surat }}</title>
     <style>
         @page {
-            margin: 1.5cm 1.5cm 1.5cm 1.5cm;
+            margin: 1.2cm 1.5cm 1.2cm 1.5cm;
         }
         body {
-            font-family: 'Times New Roman', Times, serif;
+            font-family: 'Arial', Arial, Helvetica, sans-serif;
             font-size: 11pt;
-            line-height: 1.3;
+            line-height: 1.25;
             color: #000;
         }
-        .header-table {
+        .top-meta {
             width: 100%;
-            border-bottom: 2px solid #000;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
-        }
-        .header-logo {
-            width: 70px;
-            text-align: center;
-        }
-        .header-text {
-            text-align: center;
-        }
-        .header-text h3 {
-            margin: 0;
-            font-size: 12pt;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .header-text h4 {
-            margin: 2px 0;
-            font-size: 11pt;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .header-text p {
-            margin: 0;
-            font-size: 9pt;
-            font-style: italic;
+            margin-bottom: 4px;
         }
         .form-code {
-            position: absolute;
-            top: 0;
-            right: 0;
-            font-size: 9pt;
+            float: right;
+            font-size: 8.5pt;
             font-weight: bold;
             border: 1px solid #000;
             padding: 2px 6px;
         }
+
+        /* Styling Kop Surat Resmi Kementan */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2px;
+        }
+        .header-logo {
+            width: 80px;
+            text-align: center;
+            vertical-align: middle;
+            padding-right: 8px;
+        }
+        .header-text {
+            text-align: center;
+            vertical-align: middle;
+        }
+        .header-text .instansi-kementan {
+            margin: 0;
+            font-size: 11pt;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .header-text .instansi-eselon {
+            margin: 1px 0;
+            font-size: 9.5pt;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .header-text .instansi-satker {
+            margin: 2px 0;
+            font-size: 12pt;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .header-text .instansi-alamat {
+            margin: 0;
+            font-size: 8pt;
+            line-height: 1.2;
+        }
+
+        /* Garis Dobel Khas Naskah Dinas Resmi */
+        .kop-separator {
+            width: 100%;
+            border-top: 3px solid #000;
+            border-bottom: 1px solid #000;
+            height: 2px;
+            margin-top: 5px;
+            margin-bottom: 14px;
+        }
+
         .title-section {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .title-section h2 {
             margin: 0;
-            font-size: 13pt;
+            font-size: 12pt;
             font-weight: bold;
             text-decoration: underline;
             text-transform: uppercase;
         }
         .title-section p {
             margin: 2px 0 0 0;
-            font-size: 10pt;
+            font-size: 9.5pt;
             font-weight: bold;
         }
         .info-table {
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             border-collapse: collapse;
         }
         .info-table td {
-            padding: 3px 4px;
+            padding: 2.5px 3px;
             vertical-align: top;
         }
         .info-label {
             width: 28%;
-            font-weight: normal;
         }
         .info-colon {
             width: 2%;
+            text-align: center;
         }
         .info-value {
             width: 70%;
@@ -91,36 +116,40 @@
         .approval-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            margin-bottom: 15px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+            page-break-inside: avoid;
         }
         .approval-table th, .approval-table td {
             border: 1px solid #000;
-            padding: 6px;
+            padding: 5px;
             text-align: center;
-            font-size: 10pt;
+            font-size: 9.5pt;
         }
         .approval-table th {
             background-color: #f0f0f0;
             font-weight: bold;
         }
         .qr-section {
-            margin-top: 15px;
+            margin-top: 8px;
             width: 100%;
+            page-break-inside: avoid;
         }
         .qr-table {
             width: 100%;
+            border-collapse: collapse;
         }
         .manual-box {
-            border: 1px dashed #000;
-            padding: 8px;
-            margin-top: 15px;
-            font-size: 9pt;
+            border: 1px solid #333;
+            padding: 6px 8px;
+            margin-top: 10px;
+            font-size: 8.5pt;
             background-color: #fafafa;
+            page-break-inside: avoid;
         }
         .manual-box h5 {
             margin: 0 0 4px 0;
-            font-size: 9.5pt;
+            font-size: 8.5pt;
             text-transform: uppercase;
             font-weight: bold;
             text-decoration: underline;
@@ -128,23 +157,40 @@
     </style>
 </head>
 <body>
-    <div class="form-code">AR.009</div>
-
-    <!-- Header Kop Surat -->
+    <!-- Header Kop Surat Resmi Sesuai Format Docx -->
     <table class="header-table">
         <tr>
             <td class="header-logo">
-                {{-- <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents(public_path('img/logo-asrama2.jpeg'))) }}" width="60" alt=""> --}}
-                <img src="data:image/jpeg;base64,{!! base64_encode(file_get_contents(public_path('img/logo-asrama2.jpeg'))) !!}" width="60" alt="">
+                @php
+                    // Prioritaskan logo resmi Kementan jika ada di folder img/
+                    $logoKementan = public_path('img/logokementan.png');
+
+                    $logoFinalPath = file_exists($logoKementan) ? $logoKementan 
+                                    : (file_exists($logoPolbangtan) ? $logoPolbangtan 
+                                    : (file_exists($logoAsrama) ? $logoAsrama : null));
+
+                    $logoBase64 = $logoFinalPath ? base64_encode(file_get_contents($logoKementan)) : null;
+                @endphp
+
+                @if ($logoBase64)
+                    <img src="data:image/png;base64,{{ $logoBase64 }}" width="75" alt="Logo Instansi">
+                @endif
             </td>
             <td class="header-text">
-                <h3>KEMENTERIAN PERTANIAN</h3>
-                <h4>BADAN PENYULUHAN DAN PENGEMBANGAN SDM PERTANIAN</h4>
-                <h4>POLITEKNIK PEMBANGUNAN PERTANIAN MALANG</h4>
-                <p>Jl. Dr. Cipto 145 Bedali Lawang Malang 65215 Telp/Fax. (0341) 427771</p>
+                <div class="instansi-kementan">KEMENTERIAN PERTANIAN</div>
+                <div class="instansi-eselon">BADAN PENYULUHAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA PERTANIAN</div>
+                <div class="instansi-satker">POLITEKNIK PEMBANGUNAN PERTANIAN MALANG</div>
+                <div class="instansi-alamat">
+                    Jalan Dr. Cipto 144 A Bedali, Lawang – Malang 65200 Kotak Pos 144<br>
+                    Telepon (0341) 427771, 427772, 427379, Fax. 427774<br>
+                    Website: www.polbangtanmalang.ac.id &nbsp; Email: official@polbangtanmalang.ac.id
+                </div>
             </td>
         </tr>
     </table>
+
+    <!-- Garis Pemisah Kop Ganda (Tebal - Tipis) -->
+    <div class="kop-separator"></div>
 
     <!-- Judul Dokumen -->
     <div class="title-section">
@@ -152,7 +198,7 @@
         <p>Nomor: {{ $pengajuan->nomor_surat }}</p>
     </div>
 
-    <p style="margin-bottom: 8px;">Diberikan izin keluar/meninggalkan asrama kepada mahasiswa di bawah ini:</p>
+    <p style="margin-bottom: 6px;">Diberikan izin keluar/meninggalkan asrama kepada mahasiswa di bawah ini:</p>
 
     <!-- Data Identitas Mahasiswa Snapshot -->
     <table class="info-table">
@@ -169,7 +215,7 @@
         <tr>
             <td class="info-label">Program Studi / Kelas</td>
             <td class="info-colon">:</td>
-            <td class="info-value">{{ $pengajuan->prodi_snapshot }} / {{ $pengajuan->kelas_snapshot }}</td>
+            <td class="info-value">{{ $pengajuan->prodi_snapshot ?? '-' }} / {{ $pengajuan->kelas_snapshot ?? '-' }}</td>
         </tr>
         <tr>
             <td class="info-label">Blok / Ruangan Kamar</td>
@@ -184,17 +230,21 @@
         <tr>
             <td class="info-label">Tujuan Lokasi</td>
             <td class="info-colon">:</td>
-            <td class="info-value">{{ $pengajuan->tujuan_lokasi }} ({{ $pengajuan->alamat_tujuan ?? 'Tidak ada alamat rincian' }})</td>
+            <td class="info-value">{{ $pengajuan->tujuan_lokasi }} ({{ $pengajuan->alamat_tujuan ?? 'Tidak ada rincian alamat' }})</td>
         </tr>
         <tr>
             <td class="info-label">Waktu Keberangkatan</td>
             <td class="info-colon">:</td>
-            <td class="info-value">{{ optional($pengajuan->waktu_berangkat)->format('d F Y H:i') }} WIB</td>
+            <td class="info-value">
+                {{ $pengajuan->waktu_berangkat ? \Carbon\Carbon::parse($pengajuan->waktu_berangkat)->translatedFormat('d F Y H:i') : '-' }} WIB
+            </td>
         </tr>
         <tr>
             <td class="info-label">Waktu Perkiraan Kembali</td>
             <td class="info-colon">:</td>
-            <td class="info-value">{{ optional($pengajuan->waktu_kembali)->format('d F Y H:i') }} WIB</td>
+            <td class="info-value">
+                {{ $pengajuan->waktu_kembali ? \Carbon\Carbon::parse($pengajuan->waktu_kembali)->translatedFormat('d F Y H:i') : '-' }} WIB
+            </td>
         </tr>
         <tr>
             <td class="info-label">Keperluan / Alasan</td>
@@ -204,7 +254,7 @@
     </table>
 
     <!-- Tabel Rantai Persetujuan Pejabat Bertanggal -->
-    <h4 style="margin: 10px 0 4px 0; font-size: 10pt; text-transform: uppercase;">Rantai Persetujuan / Lembar Pengesahan Resmi:</h4>
+    <h4 style="margin: 8px 0 4px 0; font-size: 9.5pt; text-transform: uppercase;">Rantai Persetujuan / Lembar Pengesahan Resmi:</h4>
     <table class="approval-table">
         <thead>
             <tr>
@@ -216,23 +266,27 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($pengajuan->approvals as $app)
+            @forelse ($pengajuan->approvals as $app)
                 <tr>
                     <td>{{ $app->urutan }}</td>
                     <td style="text-align: left;">{{ $app->label_snapshot }}</td>
                     <td style="text-align: left; font-weight: bold;">{{ $app->approver_nama_snapshot ?? '-' }}</td>
-                    <td>{{ $app->acted_at ? $app->acted_at->format('d/m/Y H:i') : '-' }}</td>
+                    <td>{{ $app->acted_at ? \Carbon\Carbon::parse($app->acted_at)->format('d/m/Y H:i') : '-' }}</td>
                     <td>
                         @if ($app->status === 'disetujui')
-                            <span style="color: green; font-weight: bold;">DISETUJUI</span>
+                            <span style="color: #0b730b; font-weight: bold;">DISETUJUI</span>
                         @elseif ($app->status === 'dilewati')
-                            <span style="color: gray;">DILEWATI</span>
+                            <span style="color: #666666;">DILEWATI</span>
                         @else
-                            <span style="color: orange;">{{ strtoupper($app->status) }}</span>
+                            <span style="color: #d97706; font-weight: bold;">{{ strtoupper($app->status) }}</span>
                         @endif
                     </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #888;">Belum ada persetujuan.</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 
@@ -240,18 +294,17 @@
     <div class="qr-section">
         <table class="qr-table">
             <tr>
-                <td style="width: 40%; text-align: center; vertical-align: middle;">
-                    @if ($qrBase64)
-                        {{-- <img src="{{ $qrBase64 }}" width="110" height="110" alt=""> --}}
-                        <img src="{!! $qrBase64 !!}" width="110" height="110" alt="">
-                        <p style="margin: 4px 0 0 0; font-size: 7.5pt; color: #555;">Pindai QR ini untuk verifikasi keabsahan surat resmi</p>
+                <td style="width: 35%; text-align: center; vertical-align: middle;">
+                    @if (!empty($qrBase64))
+                        <img src="{!! $qrBase64 !!}" width="105" height="105" alt="QR Verifikasi">
+                        <p style="margin: 3px 0 0 0; font-size: 7pt; color: #555;">Pindai QR ini untuk verifikasi keabsahan surat resmi</p>
                     @endif
                 </td>
-                <td style="width: 60%; text-align: right; vertical-align: top; font-size: 10pt;">
-                    <p style="margin: 0;">Malang, {{ optional($pengajuan->disetujui_at ?? now())->format('d F Y') }}</p>
+                <td style="width: 65%; text-align: right; vertical-align: top; font-size: 9.5pt;">
+                    <p style="margin: 0;">Malang, {{ \Carbon\Carbon::parse($pengajuan->disetujui_at ?? now())->translatedFormat('d F Y') }}</p>
                     <p style="margin: 2px 0 0 0; font-weight: bold;">Manajemen Asrama Polbangtan Malang</p>
-                    <p style="margin: 40px 0 0 0; font-size: 8pt; color: #666; font-style: italic;">
-                        *Dokumen ini sah secara elektronik & telah disetujui via Sistem Perizinan Asrama
+                    <p style="margin: 35px 0 0 0; font-size: 7.5pt; color: #555; font-style: italic;">
+                        *Dokumen ini sah secara elektronik &amp; telah disetujui via Sistem Perizinan Asrama
                     </p>
                 </td>
             </tr>
@@ -261,13 +314,13 @@
     <!-- Cadangan Manual Pengawasan Lapangan -->
     <div class="manual-box">
         <h5>VERIFIKASI MANUAL KEDATANGAN MAHASISWA DI ASRAMA (CADANGAN BLOK PETUGAS PIKET):</h5>
-        <table style="width: 100%; font-size: 9pt;">
+        <table style="width: 100%; font-size: 8.5pt;">
             <tr>
                 <td style="width: 50%;">Tiba Kembali Pada Tanggal : .................................................</td>
                 <td style="width: 50%;">Jam Tiba Aktual : .................... WIB</td>
             </tr>
             <tr>
-                <td style="width: 50%;">Status Keterlambatan : [  ] Tepat Waktu    [  ] Terlambat</td>
+                <td style="width: 50%;">Status Keterlambatan : [&nbsp;&nbsp;] Tepat Waktu &nbsp;&nbsp;&nbsp; [&nbsp;&nbsp;] Terlambat</td>
                 <td style="width: 50%;">Paraf / Tanda Tangan Petugas Jaga : ............................</td>
             </tr>
         </table>

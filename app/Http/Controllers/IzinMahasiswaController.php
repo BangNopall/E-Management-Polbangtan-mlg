@@ -26,7 +26,7 @@ class IzinMahasiswaController extends Controller
         $pengajuanList = PengajuanIzin::where('user_id', auth()->id())
             ->with(['jenisIzin', 'ukm'])
             ->latest()
-            ->paginate(20);
+            ->paginate(20)->withQueryString();
 
         return view('izin.index', compact('pengajuanList'));
     }
@@ -148,5 +148,31 @@ class IzinMahasiswaController extends Controller
                 ->back()
                 ->with('error', $e->getMessage());
         }
+    }
+
+    public function konfirmasiTiba(Request $request, PengajuanIzin $pengajuan)
+    {
+        abort_unless($pengajuan->user_id === auth()->id(), 403);
+        abort_unless($pengajuan->status === 'berjalan', 403, 'Izin tidak dalam status berjalan.');
+        abort_unless(optional($pengajuan->jenisIzin)->butuh_konfirmasi_tiba, 403, 'Izin ini tidak memerlukan konfirmasi tiba.');
+
+        $request->validate([
+            'foto_bukti' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        // Hapus file bukti lama dari storage jika ada (mencegah penumpukan file saat re-upload)
+        if ($pengajuan->tiba_bukti_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($pengajuan->tiba_bukti_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($pengajuan->tiba_bukti_path);
+        }
+
+        $path = $request->file('foto_bukti')->store('bukti_tiba', 'public');
+
+        $pengajuan->update([
+            'tiba_at' => now(),
+            'tiba_bukti_path' => $path,
+            'tiba_dikonfirmasi_oleh' => auth()->user()->name
+        ]);
+
+        return redirect()->back()->with('success', 'Konfirmasi kedatangan lokasi tujuan berhasil disimpan.');
     }
 }

@@ -277,6 +277,42 @@ class IzinGateIntegrationTest extends TestCase
         // Verifikasi pelanggaran otomatis dengan status 'submitted' (BUKAN 'Done')
         $pelanggaran = Pelanggaran::where('user_id', $this->student->id)->first();
         $this->assertNotNull($pelanggaran);
+    }
+
+    /**
+     * Kembali tanpa konfirmasi tiba di lokasi tujuan -> Pelanggaran dibuat otomatis.
+     */
+    public function test_kembali_tanpa_konfirmasi_tiba_membuat_pelanggaran_otomatis(): void
+    {
+        $now = Carbon::now();
+
+        $this->jenisIzin->update(['butuh_konfirmasi_tiba' => true]);
+
+        // Buat izin disetujui dengan tenggat KEMBALI belum lewat
+        $pengajuan = PengajuanIzin::create([
+            'user_id' => $this->student->id,
+            'jenis_izin_id' => $this->jenisIzin->id,
+            'keperluan' => 'Pulang kampung',
+            'tujuan_lokasi' => 'Kediri',
+            'waktu_berangkat' => $now->copy()->subHours(8),
+            'waktu_kembali' => $now->copy()->addHours(2),  // BELUM LEWAT
+            'nama_snapshot' => $this->student->name,
+            'status' => 'berjalan',
+            'keluar_at' => $now->copy()->subHours(6),
+            'tiba_at' => null, // Belum konfirmasi tiba
+        ]);
+
+        $service = app(PengajuanIzinService::class);
+        $izin = PengajuanIzin::where('user_id', $this->student->id)->first();
+        $service->catatScanGerbang($izin, $this->student, $now, 'didalam');
+
+        // Verifikasi transisi status izin (karena belum lewat waktu kembali, statusnya selesai)
+        $this->assertEquals('selesai', $izin->fresh()->status);
+        $this->assertEquals('didalam', $this->student->fresh()->status);
+
+        // Verifikasi pelanggaran otomatis dengan status 'submitted'
+        $pelanggaran = Pelanggaran::where('user_id', $this->student->id)->first();
+        $this->assertNotNull($pelanggaran);
         $this->assertEquals('submitted', $pelanggaran->statusPelanggaran);
     }
 }

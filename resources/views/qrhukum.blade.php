@@ -62,7 +62,7 @@
                     <div class="relative max-w-sm transition-all duration-300 filter mx-auto w-[60%] mt-5">
                         <img class="rounded-lg w-full" src="{{ asset('img/qr-test-aja.svg') }}" alt="Kode QR">
                         <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="absolute inset-0 bg-black bg-opacity-50 rounded-lg"></div>
+                            <div class="absolute inset-0 bg-black/50 rounded-lg"></div>
                             <div class="relative z-10">
                                 {{-- <form action="" method="get"> --}}
                                 <button id="showQRCodeBtn"

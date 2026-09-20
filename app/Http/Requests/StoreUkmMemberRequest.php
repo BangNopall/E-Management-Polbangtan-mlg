@@ -16,13 +16,14 @@ class StoreUkmMemberRequest extends FormRequest
 
     public function rules(): array
     {
-        $ukmId = $this->route('ukm');
+        $ukmRouteParam = $this->route('ukm');
+        $ukmId = $ukmRouteParam instanceof \App\Models\Ukm ? $ukmRouteParam->id : $ukmRouteParam;
 
         return [
             'user_id' => [
                 'required',
                 'exists:users,id',
-                Rule::unique('ukm_members', 'user_id')->where(fn ($q) => $q->where('ukm_id', $ukmId)),
+                Rule::unique('ukm_members', 'user_id')->where(fn ($q) => $q->where('ukm_id', $ukmId)->whereNull('deleted_at')),
             ],
             'peran' => [
                 'required',
@@ -37,8 +38,8 @@ class StoreUkmMemberRequest extends FormRequest
                         $fail('Peran anggota hanya dapat diberikan kepada mahasiswa.');
                     }
 
-                    if (in_array($value, ['pelatih', 'pembina']) && ! in_array($targetUser->role_id, [User::PELATIH_ROLE_ID, User::PEMBINA_ROLE_ID])) {
-                        $fail('Peran ' . $value . ' hanya dapat diberikan kepada staf (Pelatih / Pembina).');
+                    if (in_array($value, ['pelatih', 'pembina']) && ! in_array($targetUser->role_id, [User::PELATIH_UKM_ROLE_ID, User::PEMBINA_ROLE_ID])) {
+                        $fail('Peran ' . $value . ' hanya dapat diberikan kepada staf (Pelatih UKM / Pembina).');
                     }
                 },
             ],

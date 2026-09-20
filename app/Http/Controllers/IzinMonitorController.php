@@ -14,7 +14,7 @@ class IzinMonitorController extends Controller
     public function index(Request $request)
     {
         $stats = $this->getStatsData();
-        $izins = $this->getMonitorQuery($request)->paginate(20);
+        $izins = $this->getMonitorQuery($request)->paginate(20)->withQueryString();
 
         return view('admin.izin.monitor', compact('stats', 'izins'));
     }
@@ -61,10 +61,32 @@ class IzinMonitorController extends Controller
     {
         $now = Carbon::now();
 
+        $baseQuery = PengajuanIzin::query();
+        if (auth()->check() && auth()->user()->role_id == \App\Models\User::DOSEN_PA_ROLE_ID) {
+            $baseQuery->whereHas('user', function ($q) {
+                $q->where('dosen_pa_id', auth()->id());
+            });
+        } elseif (auth()->check() && auth()->user()->role_id == \App\Models\User::PEJABAT_ROLE_ID) {
+            $pejabats = \App\Models\Pejabat::where('user_id', auth()->id())->active()->get();
+            $baseQuery->whereHas('user', function ($q) use ($pejabats) {
+                $q->where(function ($subQ) use ($pejabats) {
+                    foreach ($pejabats as $pejabat) {
+                        if ($pejabat->lingkup === 'prodi') {
+                            $subQ->orWhere('prodi_id', $pejabat->lingkup_id);
+                        } elseif ($pejabat->lingkup === 'blok') {
+                            $subQ->orWhere('blok_ruangan_id', $pejabat->lingkup_id);
+                        } elseif ($pejabat->lingkup === 'global') {
+                            $subQ->orWhereRaw('1 = 1');
+                        }
+                    }
+                });
+            });
+        }
+
         return [
-            'sedang_berjalan' => PengajuanIzin::where('status', 'berjalan')->count(),
-            'terlambat' => PengajuanIzin::where('status', 'terlambat')->count(),
-            'mendatang' => PengajuanIzin::where('status', 'disetujui')
+            'sedang_berjalan' => (clone $baseQuery)->where('status', 'berjalan')->count(),
+            'terlambat' => (clone $baseQuery)->where('status', 'terlambat')->count(),
+            'mendatang' => (clone $baseQuery)->where('status', 'disetujui')
                 ->where('waktu_berangkat', '>', $now)
                 ->count(),
         ];
@@ -88,6 +110,27 @@ class IzinMonitorController extends Controller
                 $q->where('nama_snapshot', 'like', "%{$search}%")
                   ->orWhere('tujuan_lokasi', 'like', "%{$search}%")
                   ->orWhere('nomor_surat', 'like', "%{$search}%");
+            });
+        }
+
+        if (auth()->check() && auth()->user()->role_id == \App\Models\User::DOSEN_PA_ROLE_ID) {
+            $query->whereHas('user', function ($q) {
+                $q->where('dosen_pa_id', auth()->id());
+            });
+        } elseif (auth()->check() && auth()->user()->role_id == \App\Models\User::PEJABAT_ROLE_ID) {
+            $pejabats = \App\Models\Pejabat::where('user_id', auth()->id())->active()->get();
+            $query->whereHas('user', function ($q) use ($pejabats) {
+                $q->where(function ($subQ) use ($pejabats) {
+                    foreach ($pejabats as $pejabat) {
+                        if ($pejabat->lingkup === 'prodi') {
+                            $subQ->orWhere('prodi_id', $pejabat->lingkup_id);
+                        } elseif ($pejabat->lingkup === 'blok') {
+                            $subQ->orWhere('blok_ruangan_id', $pejabat->lingkup_id);
+                        } elseif ($pejabat->lingkup === 'global') {
+                            $subQ->orWhereRaw('1 = 1');
+                        }
+                    }
+                });
             });
         }
 

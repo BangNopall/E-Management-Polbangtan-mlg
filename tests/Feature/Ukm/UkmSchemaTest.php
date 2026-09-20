@@ -127,8 +127,8 @@ class UkmSchemaTest extends TestCase
 
         $ukm->delete();
 
-        $this->assertDatabaseMissing('ukm_members', ['id' => $member->id]);
-        $this->assertDatabaseMissing('ukm_jadwals', ['id' => $jadwal->id]);
+        $this->assertSoftDeleted('ukm_members', ['id' => $member->id]);
+        $this->assertSoftDeleted('ukm_jadwals', ['id' => $jadwal->id]);
     }
 
     public function test_menghapus_jadwal_menghapus_presensinya(): void
@@ -151,7 +151,7 @@ class UkmSchemaTest extends TestCase
 
         $jadwal->delete();
 
-        $this->assertDatabaseMissing('ukm_presensis', ['id' => $presensi->id]);
+        $this->assertSoftDeleted('ukm_presensis', ['id' => $presensi->id]);
     }
 
     public function test_relasi_anggota_aktif_hanya_mengembalikan_peran_anggota_berstatus_aktif(): void

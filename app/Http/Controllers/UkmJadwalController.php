@@ -21,6 +21,19 @@ class UkmJadwalController extends Controller
      */
     public function store(StoreUkmJadwalRequest $request, Ukm $ukm): RedirectResponse
     {
+        $user = Auth::user();
+        if ($user->role_id !== User::ADMIN_ROLE_ID) {
+            $isStaff = UkmMember::where('ukm_id', $ukm->id)
+                ->where('user_id', $user->id)
+                ->whereIn('peran', ['pelatih', 'pembina'])
+                ->where('status', 'aktif')
+                ->exists();
+            if (!$isStaff) {
+                \Log::info("IDOR Failed! User: {$user->id}, UKM: {$ukm->id}. Members: " . json_encode(UkmMember::all()->toArray()));
+            }
+            abort_unless($isStaff, 403, 'Anda tidak berhak menambah jadwal pada UKM ini.');
+        }
+
         DB::transaction(function () use ($request, $ukm) {
             $jadwal = UkmJadwal::create([
                 'ukm_id' => $ukm->id,
@@ -71,13 +84,13 @@ class UkmJadwalController extends Controller
         $user = Auth::user();
 
         if ($user->role_id !== User::ADMIN_ROLE_ID) {
-            $isPelatihOfThisUkm = UkmMember::where('ukm_id', $jadwal->ukm_id)
+            $isStaff = UkmMember::where('ukm_id', $jadwal->ukm_id)
                 ->where('user_id', $user->id)
-                ->where('peran', 'pelatih')
+                ->whereIn('peran', ['pelatih', 'pembina'])
                 ->where('status', 'aktif')
                 ->exists();
 
-            abort_unless($isPelatihOfThisUkm, 403, 'Anda tidak berhak mengajukan verifikasi jadwal ini.');
+            abort_unless($isStaff, 403, 'Anda tidak berhak mengajukan verifikasi jadwal ini.');
         }
 
         if ($jadwal->status_verifikasi !== 'draft') {
@@ -102,13 +115,13 @@ class UkmJadwalController extends Controller
         $user = Auth::user();
 
         if ($user->role_id !== User::ADMIN_ROLE_ID) {
-            $isPelatihOfThisUkm = UkmMember::where('ukm_id', $jadwal->ukm_id)
+            $isStaff = UkmMember::where('ukm_id', $jadwal->ukm_id)
                 ->where('user_id', $user->id)
-                ->where('peran', 'pelatih')
+                ->whereIn('peran', ['pelatih', 'pembina'])
                 ->where('status', 'aktif')
                 ->exists();
 
-            abort_unless($isPelatihOfThisUkm, 403, 'Anda tidak berhak menghapus jadwal UKM ini.');
+            abort_unless($isStaff, 403, 'Anda tidak berhak menghapus jadwal UKM ini.');
         }
 
         if ($jadwal->status_verifikasi !== 'draft') {
@@ -118,7 +131,11 @@ class UkmJadwalController extends Controller
 
         $ukmId = $jadwal->ukm_id;
         $judul = $jadwal->judul;
-        $jadwal->delete();
+
+        DB::transaction(function () use ($jadwal) {
+            $jadwal->presensis()->delete();
+            $jadwal->delete();
+        });
 
         return redirect()->route('admin.ukm.show', $ukmId)
             ->with('success', 'Jadwal "' . $judul . '" berhasil dihapus.');

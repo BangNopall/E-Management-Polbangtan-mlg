@@ -23,13 +23,13 @@
                             <tr class="bg-white border-b hover:bg-gray-50">
                                 <td class="px-4 py-3 font-medium text-gray-900">{{ $loop->iteration }}</td>
                                 <td class="px-4 py-3 font-medium text-gray-900">
-                                    {{ $presensi->jadwal->ukm->nama ?? '-' }}
+                                    {{ $presensi->jadwal?->ukm?->nama ?? '-' }}
                                 </td>
                                 <td class="px-4 py-3">
-                                    {{ $presensi->jadwal->judul ?? '-' }}
+                                    {{ $presensi->jadwal?->judul ?? '-' }}
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap">
-                                    {{ $presensi->jadwal->tanggal ? \Carbon\Carbon::parse($presensi->jadwal->tanggal)->format('d M Y') : '-' }}
+                                    {{ $presensi->jadwal?->tanggal ? \Carbon\Carbon::parse($presensi->jadwal->tanggal)->format('d M Y') : '-' }}
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     {{ $presensi->jam_kehadiran ? \Carbon\Carbon::parse($presensi->jam_kehadiran)->format('H:i') : '-' }}

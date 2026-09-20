@@ -94,6 +94,7 @@
                         data-modal-toggle="hapusfotoModal">Hapus Foto</button>
                 </div>
             </div>
+            @if(auth()->user()->role_id == 3)
             <div class="border-b border-gray-300 my-3"></div>
             @error('nim')
                 <span class="text-red-500 text-sm mt-1 text-right">{{ $message }}</span>
@@ -112,6 +113,7 @@
                         placeholder="012143" value="{{ $user->nim }}" {{ auth()->user()->role_id == 3 ? 'readonly' : '' }}>
                 </div>
             </div>
+            @endif
             <div class="border-b border-gray-300 my-3"></div>
             @error('name')
                 <span class="text-red-500 text-sm mt-1 text-right">{{ $message }}</span>
@@ -130,6 +132,8 @@
                         placeholder="Suprianto Wijaya" value="{{ $user->name }}">
                 </div>
             </div>
+
+            @if(auth()->user()->role_id == 3)
             <div class="border-b border-gray-300 my-3"></div>
             @error('prodi_id')
                 <span class="text-red-500 text-sm mt-1 text-right">{{ $message }}</span>
@@ -176,6 +180,31 @@
                             <option value="{{ $kelas->id }}"
                                 {{ old('kelas_id', $user->kelas_id) == $kelas->id ? 'selected' : '' }}>
                                 {{ $kelas->nama_kelas }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="border-b border-gray-300 my-3"></div>
+            @error('dosen_pa_id')
+                <span class="text-red-500 text-sm mt-1 text-right">{{ $message }}</span>
+            @enderror
+            <div class="flex flex-col md:flex-row">
+                <div class="text-md text-gray-600 font-medium w-auto md:w-[400px]">
+                    Dosen PA
+                </div>
+                <div class="flex flex-col md:flex-row w-auto md:w-[500px] mt-1 md:mt-0">
+                    <span
+                        class="inline-flex items-center w-10 md:w-auto px-3 text-sm text-white bg-teal-900 border border-r-1 md:border-r-0 border-utama md:rounded-tl-md md:rounded-t-none rounded-t-md md:rounded-l-md">
+                        <i class="ri-user-2-line text-md text-white"></i>
+                    </span>
+                    <select id="dosen_pa_id" name="dosen_pa_id"
+                        class="rounded-none rounded-r-lg rounded-bl-lg md:rounded-bl-none bg-utama border-teal-900 text-gray-100 focus:ring-teal-500 focus:border-teal-500 block flex-1 min-w-0 w-full text-sm p-2.5">
+                        <option selected hidden value="">Pilih Dosen PA</option>
+                        @foreach ($dosenPas as $dp)
+                            <option value="{{ $dp->id }}"
+                                {{ old('dosen_pa_id', $user->dosen_pa_id) == $dp->id ? 'selected' : '' }}>
+                                {{ $dp->name }}
                             </option>
                         @endforeach
                     </select>
@@ -242,6 +271,7 @@
                         placeholder="Kota Malang" value="{{ $user->asal_daerah }}">
                 </div>
             </div>
+            @endif
             </form>
         </div>
 
@@ -407,6 +437,78 @@
                 event.preventDefault();
                 deleteFoto();
             });
+
+            // Initialize Choices.js for Dosen PA
+            var dosenPaSelect = document.getElementById('dosen_pa_id');
+            if(dosenPaSelect) {
+                new Choices(dosenPaSelect, {
+                    searchEnabled: true,
+                    itemSelectText: '',
+                    placeholderValue: 'Cari Dosen PA...',
+                    shouldSort: false
+                });
+            }
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <style>
+        /* Customize Choices.js to match Tailwind bg-utama and border-teal-900 */
+        .choices {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            margin-bottom: 0;
+        }
+        .choices__inner {
+            background-color: var(--color-utama) !important;
+            border: 1px solid #134e4a !important; /* border-teal-900 */
+            border-radius: 0 0.5rem 0.5rem 0 !important; /* md:rounded-r-lg */
+            color: #f3f4f6 !important; /* text-gray-100 */
+            min-height: 42px;
+            padding: 0.35rem 2.5rem 0.35rem 0.625rem !important; /* match p-2.5 */
+            font-size: 0.875rem !important; /* text-sm */
+            display: flex;
+            align-items: center;
+        }
+        @media (max-width: 768px) {
+            .choices__inner {
+                border-radius: 0 0 0.5rem 0.5rem !important; /* rounded-b-lg on mobile */
+                border-top: none !important;
+            }
+        }
+        .choices__input {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+        }
+        .choices__input::placeholder {
+            color: #d1d5db !important;
+        }
+        .choices__list--dropdown {
+            background-color: var(--color-utama) !important;
+            border-color: #134e4a !important;
+            color: #f3f4f6 !important;
+            z-index: 50 !important;
+        }
+        .choices__list--dropdown .choices__item--selectable.is-highlighted {
+            background-color: #115e59 !important; /* teal-800 for hover */
+            color: white !important;
+        }
+        .choices__list--dropdown .choices__item {
+            color: #f3f4f6 !important;
+        }
+        .choices[data-type*="select-one"]:after {
+            border-color: #f3f4f6 transparent transparent transparent !important;
+        }
+        .choices[data-type*="select-one"].is-open:after {
+            border-color: transparent transparent #f3f4f6 transparent !important;
+        }
+        .choices__item.choices__placeholder {
+            color: #e5e7eb !important;
+            opacity: 0.9;
+        }
+
+        .choices__item--selectable.is-selected{
+            background-color: #115e59 !important;
+        }
+    </style>
 @endsection

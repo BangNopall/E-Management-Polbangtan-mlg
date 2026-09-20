@@ -24,6 +24,10 @@ class User extends Authenticatable
     const USER_ROLE_ID = 3;
     const PELATIH_ROLE_ID = 4;
     const PEMBINA_ROLE_ID = 5;
+    const PELATIH_UKM_ROLE_ID = 6;
+    const SECURITY_ROLE_ID = 7;
+    const DOSEN_PA_ROLE_ID = 8;
+    const PEJABAT_ROLE_ID = 9;
 
     /**
      * The attributes that are mass assignable.
@@ -47,6 +51,7 @@ class User extends Authenticatable
         'kelas_id',
         'blok_ruangan_id',
         'prodi_id',
+        'dosen_pa_id',
     ];
 
     /**
@@ -120,6 +125,16 @@ class User extends Authenticatable
         return $this->belongsTo(Prodi::class, 'prodi_id');
     }
 
+    public function dosenPa()
+    {
+        return $this->belongsTo(User::class, 'dosen_pa_id');
+    }
+
+    public function mahasiswaBimbingan()
+    {
+        return $this->hasMany(User::class, 'dosen_pa_id');
+    }
+
     public function scopeOnlyEmployees($query)
     {
         return $query->where('role_id', self::USER_ROLE_ID);
@@ -148,6 +163,26 @@ class User extends Authenticatable
     public function isPembina()
     {
         return $this->role_id === self::PEMBINA_ROLE_ID;
+    }
+
+    public function isPelatihUkm()
+    {
+        return $this->role_id === self::PELATIH_UKM_ROLE_ID;
+    }
+
+    public function isSecurity()
+    {
+        return $this->role_id === self::SECURITY_ROLE_ID;
+    }
+
+    public function isDosenPa()
+    {
+        return $this->role_id === self::DOSEN_PA_ROLE_ID;
+    }
+
+    public function isPejabat()
+    {
+        return $this->role_id === self::PEJABAT_ROLE_ID;
     }
 
     public function ukmMemberships()

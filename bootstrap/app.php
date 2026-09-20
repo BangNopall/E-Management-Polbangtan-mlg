@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
             'ensure.profile.completed' => \App\Http\Middleware\EnsureProfileCompleted::class,
         ]);
+        $middleware->appendToGroup('web', \App\Http\Middleware\EnsurePejabatReadOnly::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

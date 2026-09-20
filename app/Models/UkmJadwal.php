@@ -12,6 +12,17 @@ class UkmJadwal extends Model
 
     protected $guarded = ['id'];
 
+    protected static function booted()
+    {
+        static::deleting(function ($jadwal) {
+            if ($jadwal->isForceDeleting()) {
+                $jadwal->presensis()->forceDelete();
+            } else {
+                $jadwal->presensis()->delete();
+            }
+        });
+    }
+
     public function ukm()
     {
         return $this->belongsTo(Ukm::class);

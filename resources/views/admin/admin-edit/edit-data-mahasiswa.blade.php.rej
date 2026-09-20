@@ -1,0 +1,14 @@
+@@ -199,2 +199,13 @@
+                             </select>
+                         </div>
++
++                        <div class="mb-4 col-span-2">
++                            <label for="dosen_pa_id" class="block mb-2 text-sm font-medium text-gray-900">Dosen Pembimbing Akademik (PA)</label>
++                            <select id="dosen_pa_id" name="dosen_pa_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
++                                <option value="" selected>Pilih Dosen PA</option>
++                                @foreach ($dosenPaOptions as $dosen)
++                                    <option value="{{ $dosen->id }}" {{ $user->dosen_pa_id == $dosen->id ? 'selected' : '' }}>
++                                        {{ $dosen->name }}
++                                    </option>
++                                @endforeach
++                            </select>

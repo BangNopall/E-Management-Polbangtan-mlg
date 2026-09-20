@@ -14,7 +14,7 @@ class PejabatController extends Controller
     public function index()
     {
         $pejabats = Pejabat::with('user')->orderBy('created_at', 'desc')->get();
-        $users = User::whereIn('role_id', [1, 2, 4, 5])
+        $users = User::where('role_id', User::PEJABAT_ROLE_ID)
             ->select('id', 'name', 'email', 'role_id')
             ->orderBy('name', 'asc')
             ->get();
@@ -29,11 +29,9 @@ class PejabatController extends Controller
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
-            'jabatan' => 'required|in:kaprodi,kepala_asrama,unit_kemahasiswaan,wadir_kemahasiswaan',
+            'jabatan' => 'required|in:kaprodi,kepala_asrama,unit_kemahasiswaan',
             'lingkup' => 'required|in:global,prodi,blok',
             'lingkup_id' => 'nullable|integer',
-            'mulai_menjabat' => 'nullable|date',
-            'selesai_menjabat' => 'nullable|date|after_or_equal:mulai_menjabat',
             'is_active' => 'nullable|boolean',
         ]);
 
@@ -48,11 +46,9 @@ class PejabatController extends Controller
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
-            'jabatan' => 'required|in:kaprodi,kepala_asrama,unit_kemahasiswaan,wadir_kemahasiswaan',
+            'jabatan' => 'required|in:kaprodi,kepala_asrama,unit_kemahasiswaan',
             'lingkup' => 'required|in:global,prodi,blok',
             'lingkup_id' => 'nullable|integer',
-            'mulai_menjabat' => 'nullable|date',
-            'selesai_menjabat' => 'nullable|date|after_or_equal:mulai_menjabat',
             'is_active' => 'nullable|boolean',
         ]);
 

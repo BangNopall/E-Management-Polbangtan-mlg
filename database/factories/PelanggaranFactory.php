@@ -17,8 +17,8 @@ class PelanggaranFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => random_int(3, 47),
-            'jenis_pelanggaran_id' => random_int(1, 59),
+            'user_id' => \App\Models\User::inRandomOrder()->value('id') ?? 1,
+            'jenis_pelanggaran_id' => \App\Models\JenisPelanggaran::inRandomOrder()->value('id') ?? 1,
             // 'date' => $this->faker->dateTimeBetween(now()->startOfYear(), now()->endOfYear())->format('Y-m-d'),
             'date' => $this->faker->dateTimeBetween(now()->startOfWeek(), now()->endOfWeek())->format('Y-m-d'),
             'time' => $this->faker->time(),

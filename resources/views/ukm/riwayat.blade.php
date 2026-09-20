@@ -26,15 +26,15 @@
                                 <tr class="bg-white border-b hover:bg-gray-50">
                                     <td class="px-4 py-3 font-medium text-gray-900">{{ $loop->iteration }}</td>
                                     <td class="px-4 py-3 font-medium text-gray-900">
-                                        {{ $presensi->jadwal->ukm->nama ?? '-' }}
+                                        {{ $presensi->jadwal?->ukm?->nama ?? '-' }}
                                     </td>
                                     <td class="px-4 py-3">
-                                        <div>{{ $presensi->jadwal->judul }}</div>
-                                        <div class="text-xs text-gray-400 capitalize">{{ str_replace('_', ' ', $presensi->jadwal->jenis) }}</div>
+                                        <div>{{ $presensi->jadwal?->judul ?? '-' }}</div>
+                                        <div class="text-xs text-gray-400 capitalize">{{ $presensi->jadwal ? str_replace('_', ' ', $presensi->jadwal->jenis) : '-' }}</div>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
-                                        <div>{{ \Carbon\Carbon::parse($presensi->jadwal->tanggal)->format('d M Y') }}</div>
-                                        <div class="text-xs text-gray-400">{{ $presensi->jadwal->mulai_acara }} - {{ $presensi->jadwal->selesai_acara }}</div>
+                                        <div>{{ $presensi->jadwal?->tanggal ? \Carbon\Carbon::parse($presensi->jadwal->tanggal)->format('d M Y') : '-' }}</div>
+                                        <div class="text-xs text-gray-400">{{ $presensi->jadwal?->mulai_acara ?? '-' }} - {{ $presensi->jadwal?->selesai_acara ?? '-' }}</div>
                                     </td>
                                     <td class="px-4 py-3">
                                         {{ $presensi->jam_kehadiran ?? '-' }}

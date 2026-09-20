@@ -98,4 +98,74 @@ class KonselingTicketServiceTest extends TestCase
 
         (new KonselingTicketService())->buildRedirectUrl(new User(['id' => 1, 'nim' => '2201012345']));
     }
+
+    public function test_admin_user_generates_signed_ticket_with_email_and_admin_role(): void
+    {
+        $admin = new User([
+            'id' => 10,
+            'name' => 'Administrator Utama',
+            'email' => 'admin@polbangtanmalang.ac.id',
+            'role_id' => User::ADMIN_ROLE_ID,
+        ]);
+
+        $query = $this->decodeRedirectUrl($this->service()->buildRedirectUrl($admin));
+
+        $this->assertSame('admin@polbangtanmalang.ac.id', $query['identifier']);
+        $this->assertSame('admin', $query['role']);
+        $this->assertSame('Administrator Utama', $query['name']);
+        $this->assertArrayHasKey('expires_at', $query);
+        $this->assertArrayHasKey('nonce', $query);
+
+        $canonical = sprintf('%s|%s|%s|%s', $query['identifier'], $query['role'], $query['expires_at'], $query['nonce']);
+        $expectedSignature = hash_hmac('sha256', $canonical, self::TEST_SECRET);
+        $this->assertTrue(hash_equals($expectedSignature, $query['signature']));
+    }
+
+    public function test_pejabat_user_generates_signed_ticket_with_email_name_and_pejabat_role(): void
+    {
+        $pejabat = new User([
+            'id' => 20,
+            'name' => 'Bapak Kaprodi',
+            'email' => 'kaprodi@polbangtanmalang.ac.id',
+            'role_id' => User::PEJABAT_ROLE_ID,
+        ]);
+
+        $query = $this->decodeRedirectUrl($this->service()->buildRedirectUrl($pejabat));
+
+        $this->assertSame('kaprodi@polbangtanmalang.ac.id', $query['identifier']);
+        $this->assertSame('pejabat', $query['role']);
+        $this->assertSame('Bapak Kaprodi', $query['name']);
+        $this->assertArrayHasKey('expires_at', $query);
+        $this->assertArrayHasKey('nonce', $query);
+
+        $canonical = sprintf('%s|%s|%s|%s', $query['identifier'], $query['role'], $query['expires_at'], $query['nonce']);
+        $expectedSignature = hash_hmac('sha256', $canonical, self::TEST_SECRET);
+        $this->assertTrue(hash_equals($expectedSignature, $query['signature']));
+    }
+
+    public function test_throws_when_admin_email_is_blank(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        $admin = new User([
+            'id' => 10,
+            'email' => null,
+            'role_id' => User::ADMIN_ROLE_ID,
+        ]);
+
+        $this->service()->buildRedirectUrl($admin);
+    }
+
+    public function test_throws_when_unauthorized_role_attempts_sso(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        $operator = new User([
+            'id' => 15,
+            'email' => 'operator@polbangtanmalang.ac.id',
+            'role_id' => User::OPERATOR_ROLE_ID,
+        ]);
+
+        $this->service()->buildRedirectUrl($operator);
+    }
 }

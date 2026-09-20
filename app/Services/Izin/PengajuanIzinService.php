@@ -71,12 +71,8 @@ class PengajuanIzinService
             $overlapping = PengajuanIzin::where('user_id', $student->id)
                 ->whereIn('status', ['diajukan', 'disetujui', 'berjalan'])
                 ->where(function ($q) use ($waktuBerangkat, $waktuKembali) {
-                    $q->whereBetween('waktu_berangkat', [$waktuBerangkat, $waktuKembali])
-                        ->orWhereBetween('waktu_kembali', [$waktuBerangkat, $waktuKembali])
-                        ->orWhere(function ($q2) use ($waktuBerangkat, $waktuKembali) {
-                            $q2->where('waktu_berangkat', '<=', $waktuBerangkat)
-                                ->where('waktu_kembali', '>=', $waktuKembali);
-                        });
+                    $q->where('waktu_berangkat', '<', $waktuKembali)
+                        ->where('waktu_kembali', '>', $waktuBerangkat);
                 })
                 ->exists();
 
@@ -174,6 +170,17 @@ class PengajuanIzinService
                 $pengajuan->update(['langkah_aktif' => $firstActive->urutan]);
                 if (!$firstActive->dibuka_at) {
                     $firstActive->update(['dibuka_at' => Carbon::now()]);
+                }
+
+                $firstStep = $steps->firstWhere('urutan', $firstActive->urutan);
+                if ($firstStep && $firstStep->resolve_saat === 'langkah_aktif' && !$firstActive->approver_user_id) {
+                    $resFirst = $this->resolver->resolve($firstStep, $context);
+                    $firstCand = $resFirst['candidates']->first();
+                    $firstActive->update([
+                        'approver_user_id' => $firstCand?->id,
+                        'approver_nama_snapshot' => $firstCand?->name,
+                        'catatan' => $resFirst['is_fallback'] ? 'Fallback digunakan untuk langkah ini' : null,
+                    ]);
                 }
             }
 
@@ -376,6 +383,11 @@ class PengajuanIzinService
 
             // Mahasiswa melakukan scan MASUK kembali ke asrama
             if ($statusTarget === 'didalam' && in_array($freshIzin->status, ['disetujui', 'berjalan'])) {
+                // Cek pelanggaran tidak konfirmasi tiba di lokasi tujuan
+                if (optional($freshIzin->jenisIzin)->butuh_konfirmasi_tiba && is_null($freshIzin->tiba_at)) {
+                    $this->buatPelanggaranTidakKonfirmasiTiba($freshIzin, $user, $now);
+                }
+
                 if ($now->gt($freshIzin->waktu_kembali)) {
                     // TERLAMBAT kembali
                     $freshIzin->update([
@@ -426,6 +438,35 @@ class PengajuanIzinService
         \App\Models\Pelanggaran::create([
             'user_id' => $user->id,
             'jenis_pelanggaran_id' => $jenisTerlambatIzin->id,
+            'date' => $now->toDateString(),
+            'time' => $now->toTimeString(),
+            'statusPelanggaran' => 'submitted',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+    }
+
+    /**
+     * Buat record Pelanggaran otomatis untuk kelalaian konfirmasi tiba di lokasi tujuan.
+     */
+    private function buatPelanggaranTidakKonfirmasiTiba(PengajuanIzin $izin, User $user, \Carbon\Carbon $now): void
+    {
+        $jenisTidakKonfirmasi = \App\Models\JenisPelanggaran::where('jenis_pelanggaran', 'like', '%tidak melakukan konfirmasi kedatangan%')->first();
+
+        if (!$jenisTidakKonfirmasi) {
+            $jenisTidakKonfirmasi = \App\Models\JenisPelanggaran::firstOrCreate(
+                ['jenis_pelanggaran' => 'Tidak melakukan konfirmasi kedatangan di lokasi tujuan'],
+                [
+                    'kategori_id' => 1,
+                    'poin' => 2,
+                    'sub_kategori' => 'Ringan',
+                ]
+            );
+        }
+
+        \App\Models\Pelanggaran::create([
+            'user_id' => $user->id,
+            'jenis_pelanggaran_id' => $jenisTidakKonfirmasi->id,
             'date' => $now->toDateString(),
             'time' => $now->toTimeString(),
             'statusPelanggaran' => 'submitted',

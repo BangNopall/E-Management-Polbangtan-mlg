@@ -17,7 +17,7 @@ class UkmSeeder extends Seeder
     public function run(): void
     {
         // 1. Ambil user sampel untuk pelatih, pembina, dan anggota
-        $pelatih = User::where('role_id', User::PELATIH_ROLE_ID)->first()
+        $pelatih = User::where('role_id', User::PELATIH_UKM_ROLE_ID)->first()
             ?? User::where('role_id', User::ADMIN_ROLE_ID)->first();
 
         $pembina = User::where('role_id', User::PEMBINA_ROLE_ID)->first()

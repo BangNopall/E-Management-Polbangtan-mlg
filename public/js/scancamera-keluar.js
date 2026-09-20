@@ -38,9 +38,8 @@ qrCodeReader.start({ facingMode: "user" }, config, qrCodeSuccessCallback),
                                     let a = JSON.parse(e);
                                     qrCodeReader.stop(),
                                         beepSound.play(),
-                                        (document.getElementById(
-                                            "user_id"
-                                        ).value = a.user_id),
+                                        (document.getElementById("payload").value = a.payload),
+                                        (document.getElementById("user_id").value = a.user_id),
                                         (document.getElementById("date").value =
                                             a.date),
                                         (document.getElementById("time").value =

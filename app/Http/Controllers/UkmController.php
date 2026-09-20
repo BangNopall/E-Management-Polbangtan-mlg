@@ -27,8 +27,8 @@ class UkmController extends Controller
             });
         }
 
-        $ukms = $query->latest()->paginate(20);
-        $stafPelatih = User::whereIn('role_id', [User::PELATIH_ROLE_ID, User::PEMBINA_ROLE_ID])->get();
+        $ukms = $query->latest()->paginate(20)->withQueryString();
+        $stafPelatih = User::whereIn('role_id', [User::PELATIH_UKM_ROLE_ID, User::PEMBINA_ROLE_ID])->get();
 
         if ($request->ajax()) {
             return response()->json([
@@ -83,7 +83,7 @@ class UkmController extends Controller
             ->paginate(20, ['*'], 'rekap_page');
 
         $mahasiswas = User::where('role_id', User::USER_ROLE_ID)->get();
-        $staf = User::whereIn('role_id', [User::PELATIH_ROLE_ID, User::PEMBINA_ROLE_ID])->get();
+        $staf = User::whereIn('role_id', [User::PELATIH_UKM_ROLE_ID, User::PEMBINA_ROLE_ID])->get();
 
         return view('admin.ukm.show', compact('ukm', 'anggotas', 'jadwals', 'rekapJadwals', 'mahasiswas', 'staf'));
     }

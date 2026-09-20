@@ -1,6 +1,6 @@
 @extends('layouts.publik')
 
-@section('title', 'Konfirmasi Kedatangan Mahasiswa - ' . $pengajuan->nama_snapshot)
+@section('title', 'Konfirmasi Kedatangan Lokasi Tujuan Mahasiswa - ' . $pengajuan->nama_snapshot)
 
 @section('container')
 <div class="space-y-4">
@@ -18,7 +18,7 @@
 
         <div class="bg-white border-2 border-gray-100 rounded-2xl p-5 shadow-xs space-y-3 text-xs">
             <h3 class="font-bold text-gray-900 text-sm pb-2 border-b border-gray-100 flex items-center">
-                <i class="ri-shield-check-line text-teal-700 mr-2 text-base"></i> Tanda Terima Konfirmasi Kedatangan
+                <i class="ri-shield-check-line text-teal-700 mr-2 text-base"></i> Tanda Terima Konfirmasi Kedatangan Lokasi Tujuan
             </h3>
 
             <div class="grid grid-cols-2 gap-3">
@@ -53,7 +53,7 @@
         <div class="bg-white border-2 border-gray-100 rounded-2xl p-5 shadow-xs space-y-4">
             <div class="border-b border-gray-100 pb-3">
                 <span class="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 uppercase">
-                    Konfirmasi Kedatangan Eksternal
+                    Konfirmasi Kedatangan Lokasi Tujuan
                 </span>
                 <h2 class="text-base font-bold text-gray-900 mt-2">Formulir Kedatangan Mahasiswa</h2>
                 <p class="text-xs text-gray-500 mt-0.5">
@@ -93,7 +93,7 @@
 
                 <div class="pt-2">
                     <button type="submit" class="w-full py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-lg shadow-2xs transition flex items-center justify-center">
-                        <i class="ri-send-plane-fill mr-1.5 text-base"></i> Kirim Konfirmasi Kedatangan
+                        <i class="ri-send-plane-fill mr-1.5 text-base"></i> Kirim Konfirmasi Kedatangan Lokasi Tujuan
                     </button>
                 </div>
             </form>

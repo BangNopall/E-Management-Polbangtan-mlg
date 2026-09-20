@@ -98,38 +98,102 @@
                 </div>
             </div>
         </div>
-        <div class="flex flex-col lg:flex-row gap-6 mb-6 mt-5 md:mt-12">
+
+        {{-- Row Kartu Ringkasan Modul Baru (Perizinan & UKM) --}}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-2xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-gray-500 uppercase">Izin Berjalan</span>
+                    <span class="p-1.5 bg-sky-100 text-sky-700 rounded-md text-base"><i class="ri-flight-takeoff-line"></i></span>
+                </div>
+                <div class="mt-2 text-2xl font-bold text-sky-800">{{ $izinBerjalanCount ?? 0 }}</div>
+                <div class="text-xs text-gray-500 mt-1">Mahasiswa sedang di luar</div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-2xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-gray-500 uppercase">Izin Terlambat</span>
+                    <span class="p-1.5 bg-rose-100 text-rose-700 rounded-md text-base"><i class="ri-time-line"></i></span>
+                </div>
+                <div class="mt-2 text-2xl font-bold text-rose-800">{{ $izinTerlambatCount ?? 0 }}</div>
+                <div class="text-xs text-gray-500 mt-1">Lewat batas waktu kembali</div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-2xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-gray-500 uppercase">Menunggu Persetujuan</span>
+                    <span class="p-1.5 bg-amber-100 text-amber-700 rounded-md text-base"><i class="ri-inbox-archive-line"></i></span>
+                </div>
+                <div class="mt-2 text-2xl font-bold text-amber-800">{{ $izinPendingCount ?? 0 }}</div>
+                <div class="text-xs text-gray-500 mt-1">Antrean verifikasi izin</div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-2xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-gray-500 uppercase">Jadwal UKM Hari Ini</span>
+                    <span class="p-1.5 bg-teal-100 text-teal-700 rounded-md text-base"><i class="ri-team-line"></i></span>
+                </div>
+                <div class="mt-2 text-2xl font-bold text-teal-800">{{ $ukmJadwalHariIniCount ?? 0 }}</div>
+                <div class="text-xs text-gray-500 mt-1">Kegiatan klub terverifikasi</div>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-6 mb-6 mt-5 md:mt-8">
             <div class="w-full">
                 <div class="bg-white border-2 shadow-black/5 p-3 rounded-md lg:col-span-2 mb-6">
                     <div class="bg-utama rounded p-3">
-                        <div class="text-white font-semibold text-md">Absensi Siswa Hari ini</div>
+                        <div class="text-white font-semibold text-md">Status Kehadiran Mahasiswa Hari Ini</div>
                         <div class="text-gray-300 text-sm">{{ $formattedDate }}</div>
                     </div>
-                    <div class="my-2 border-2 border-utama rounded">
-                        <ul class="list-group">
-                            <!-- Data "Keluar" -->
-                            <li class="list-group-item flex flex-col md:flex-row justify-between items-center p-2 md:p-3">
-                                <div class="flex flex-col md:flex-row justify-normal md:justify-between">
-                                    <!-- Icon -->
-                                    <div class="flex items-center">
-                                        <i class="ri-information-line text-utama text-4xl mr-2"></i>
-                                        <!-- Keterangan Alasan -->
-                                        <div>
-                                            <h3 class="text-md md:text-lg font-medium">Diluar Asrama</h3>
-                                        </div>
-                                    </div>
+                    <div class="my-3 border border-gray-200 rounded-lg divide-y divide-gray-100">
+                        <!-- Di Dalam Asrama -->
+                        <div class="flex justify-between items-center p-3 hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="ri-home-wifi-line text-emerald-600 text-2xl mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-800">Di Dalam Asrama</h4>
+                                    <span class="text-xs text-gray-500">Mahasiswa berada di lingkungan asrama</span>
                                 </div>
-                                <span class="badge bg-red-500 text-sm text-white p-1 rounded">{{ $userStatus }}
-                                    <small>Mahasiswa</small></span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="flex flex-col md:flex-row justify-normal md:justify-between">
-                        <div class="text-sm font-medium text-gray-500">
-                            Batas Waktu Keluar:
+                            </div>
+                            <span class="px-2.5 py-1 text-xs font-bold bg-emerald-100 text-emerald-800 rounded-full">{{ $userStatusDidalam ?? 0 }} Mhs</span>
                         </div>
-                        <div class="text-sm mt-0 text-gray-500">
-                            Jam 06.00 WIB - Jam 22.00 WIB
+                        <!-- Keluar Asrama Reguler -->
+                        <div class="flex justify-between items-center p-3 hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="ri-walk-line text-amber-600 text-2xl mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-800">Keluar Asrama (Reguler / Harian)</h4>
+                                    <span class="text-xs text-gray-500">Keluar tanpa surat izin (wajib kembali &lt; 22:00)</span>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 text-xs font-bold bg-amber-100 text-amber-800 rounded-full">{{ $userStatus }} Mhs</span>
+                        </div>
+                        <!-- Izin Keluar Resmi -->
+                        <div class="flex justify-between items-center p-3 hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="ri-file-shield-2-line text-sky-600 text-2xl mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-800">Izin Keluar Asrama (Resmi / Berizin)</h4>
+                                    <span class="text-xs text-gray-500">Keluar dengan surat persetujuan resmi (IB / Dinas / Sakit)</span>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 text-xs font-bold bg-sky-100 text-sky-800 rounded-full">{{ $userStatusIzin ?? 0 }} Mhs</span>
+                        </div>
+                        <!-- Terlambat -->
+                        <div class="flex justify-between items-center p-3 hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="ri-alarm-warning-line text-rose-600 text-2xl mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-800">Terlambat Kembali</h4>
+                                    <span class="text-xs text-gray-500">Melebihi batas jam malam atau batas kembali izin</span>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 text-xs font-bold bg-rose-100 text-rose-800 rounded-full">{{ $userStatusTelat ?? 0 }} Mhs</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col md:flex-row justify-normal md:justify-between px-1 text-xs text-gray-500">
+                        <div class="font-medium">
+                            <i class="ri-time-line mr-1"></i> Batas Waktu Gerbang Harian:
+                        </div>
+                        <div>
+                            Jam {{ $jamMulai ?? '06:00' }} WIB - Jam {{ $jamSelesai ?? '22:00' }} WIB
                         </div>
                     </div>
 
@@ -149,17 +213,17 @@
                 </div>
             </div>
 
-            <div class="bg-white border-2 shadow-black/5 w-full lg:w-[80%] p-6 rounded-md">
+            <div class="bg-white border-2 shadow-black/5 w-full h-full lg:w-[80%] p-6 rounded-md">
                 <div class="flex flex-col justify-between mb-3 items-start">
                     <div class="font-medium text-lg">Absensi Keluar Asrama</div>
                     <p class="text-gray-500 text-sm">Data perizinan mahasiswa keluar asrama dalam 7 hari terakhir</p>
                 </div>
                 <div class="border-b border-gray-300 my-2"></div>
-                <div class="h-[550px] overflow-y-auto">
+                <div class="h-screen overflow-y-auto">
                     @foreach ($absen7days as $d)
-                        <div class="flex items-center space-x-4 py-3">
+                        <div class="flex items-center space-x-4 py-3 border-b border-gray-100">
                                 <div class="font-semibold text-sm md:text-lg">{{ $d->user->name }}</div>
-                                @isset($record->user->kelas->nama_kelas)
+                                @isset($d->user->kelas->nama_kelas)
                                     <div class="text-gray-500 text-sm">{{ $d->user->kelas->nama_kelas }} -
                                         {{ strftime('%d %B %Y', strtotime($d->presence_date)) }}</div>
                                 @endisset

@@ -43,7 +43,7 @@ class UkmMemberTest extends TestCase
             'peran' => 'anggota',
         ]);
 
-        $response->assertRedirect();
+        $response->assertRedirect(); 
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('ukm_members', [
@@ -58,14 +58,14 @@ class UkmMemberTest extends TestCase
     {
         $admin = $this->makeUser(User::ADMIN_ROLE_ID);
         $ukm = Ukm::create(['nama' => 'UKM Voli Member Test', 'slug' => 'ukm-voli-member-test']);
-        $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $pelatih = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
 
         $response = $this->actingAs($admin)->post(route('admin.ukm.anggota.store', $ukm->id), [
             'user_id' => $pelatih->id,
             'peran' => 'pelatih',
         ]);
 
-        $response->assertRedirect();
+        $response->assertRedirect(); 
         $this->assertDatabaseHas('ukm_members', [
             'ukm_id' => $ukm->id,
             'user_id' => $pelatih->id,
@@ -98,7 +98,7 @@ class UkmMemberTest extends TestCase
     {
         $admin = $this->makeUser(User::ADMIN_ROLE_ID);
         $ukm = Ukm::create(['nama' => 'UKM Silat', 'slug' => 'ukm-silat']);
-        $pelatih = $this->makeUser(User::PELATIH_ROLE_ID);
+        $pelatih = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
 
         $response = $this->actingAs($admin)->post(route('admin.ukm.anggota.store', $ukm->id), [
             'user_id' => $pelatih->id,
@@ -145,9 +145,9 @@ class UkmMemberTest extends TestCase
 
         $response = $this->actingAs($admin)->delete(route('admin.ukm.anggota.destroy', [$ukm->id, $member->id]));
 
-        $response->assertRedirect();
+        $response->assertRedirect(); 
         $response->assertSessionHas('success');
-        $this->assertDatabaseMissing('ukm_members', ['id' => $member->id]);
+        $this->assertSoftDeleted('ukm_members', ['id' => $member->id]);
     }
 
     /**
@@ -171,7 +171,7 @@ class UkmMemberTest extends TestCase
 
         $response = $this->actingAs($admin)->patch(route('admin.ukm.anggota.aktifkan', [$ukm->id, $member->id]));
 
-        $response->assertRedirect();
+        $response->assertRedirect(); 
         $response->assertSessionHas('success');
         $this->assertDatabaseHas('ukm_members', [
             'id' => $member->id,
@@ -192,7 +192,7 @@ class UkmMemberTest extends TestCase
 
         $response = $this->actingAs($admin)->patch(route('admin.ukm.anggota.aktifkanSemua', $ukm->id));
 
-        $response->assertRedirect();
+        $response->assertRedirect(); 
         $response->assertSessionHas('success');
         $this->assertEquals(2, UkmMember::where('ukm_id', $ukm->id)->where('status', 'aktif')->count());
     }
@@ -231,5 +231,46 @@ class UkmMemberTest extends TestCase
         ]);
 
         $response->assertStatus(302);
+    }
+
+    public function test_pembina_dan_pelatih_bisa_menambah_anggota_jika_ditugaskan(): void
+    {
+        $pembina = $this->makeUser(User::PEMBINA_ROLE_ID);
+        $pelatih = $this->makeUser(User::PELATIH_UKM_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Staf Test', 'slug' => 'ukm-staf-test']);
+        
+        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pembina->id, 'peran' => 'pembina', 'status' => 'aktif']);
+        UkmMember::create(['ukm_id' => $ukm->id, 'user_id' => $pelatih->id, 'peran' => 'pelatih', 'status' => 'aktif']);
+
+        $mahasiswa1 = $this->makeUser(User::USER_ROLE_ID);
+        $mahasiswa2 = $this->makeUser(User::USER_ROLE_ID);
+
+        $response = $this->actingAs($pembina)->post(route('admin.ukm.anggota.store', $ukm->id), [
+            'user_id' => $mahasiswa1->id,
+            'peran' => 'anggota',
+        ]);
+        $response->assertRedirect(); 
+        $this->assertDatabaseHas('ukm_members', ['user_id' => $mahasiswa1->id, 'ukm_id' => $ukm->id]);
+
+        $response2 = $this->actingAs($pelatih)->post(route('admin.ukm.anggota.store', $ukm->id), [
+            'user_id' => $mahasiswa2->id,
+            'peran' => 'anggota',
+        ]);
+        $response2->assertRedirect();
+        $this->assertDatabaseHas('ukm_members', ['user_id' => $mahasiswa2->id, 'ukm_id' => $ukm->id]);
+    }
+
+    public function test_staf_lain_ditolak_menambah_anggota_untuk_ukm_bukan_binaannya(): void
+    {
+        $pembinaLain = $this->makeUser(User::PEMBINA_ROLE_ID);
+        $ukm = Ukm::create(['nama' => 'UKM Staf Lain', 'slug' => 'ukm-staf-lain']);
+        $mahasiswa = $this->makeUser(User::USER_ROLE_ID);
+
+        $response = $this->actingAs($pembinaLain)->post(route('admin.ukm.anggota.store', $ukm->id), [
+            'user_id' => $mahasiswa->id,
+            'peran' => 'anggota',
+        ]);
+
+        $response->assertStatus(403);
     }
 }

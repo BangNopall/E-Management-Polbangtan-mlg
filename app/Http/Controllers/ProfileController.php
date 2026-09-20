@@ -17,11 +17,11 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role_id == 1 || $user->role_id == 2 || $user->role_id == 4 || $user->role_id == 5) {
+        if (!$user->isUser()) {
             return redirect()->route('admin.profil', $user->id);
         }
 
-        if ($user->role_id == 3) {
+        if ($user->isUser()) {
             return redirect()->route('home.profilshow', $user->id);
         }
     }
@@ -32,10 +32,11 @@ class ProfileController extends Controller
         $blocks = BlokRuangan::all();
         $prodis = Prodi::all();
         $kelas = Kelas::all();
+        $dosenPas = User::where('role_id', User::DOSEN_PA_ROLE_ID)->get();
 
         $title = 'Profil';
 
-        return view('profil', compact('user', 'blocks', 'prodis', 'kelas', 'title'));
+        return view('profil', compact('user', 'blocks', 'prodis', 'kelas', 'title', 'dosenPas'));
     }
 
     public function editProfile(Request $request, $id)
@@ -55,6 +56,7 @@ class ProfileController extends Controller
             'no_kamar' => 'required|numeric',
             'asal_daerah' => 'required|string|max:255',
             'foto-profil' => 'nullable|image|mimes:jpeg,png,jpg,webp,heic|max:10250',
+            'dosen_pa_id' => 'nullable|exists:users,id',
         ];
 
         // Only require NIM and Prodi if user is NOT a student
@@ -79,7 +81,7 @@ class ProfileController extends Controller
         }
 
         // Update data pengguna dengan data yang baru
-        if ($user->isAdmin() || $user->isOperator() || $user->isPelatih() || $user->isPembina()) {
+        if (!$user->isUser()) {
             $user->nim = $request->nim;
             $user->name = $request->name;
             $user->prodi_id = $request->prodi_id;
@@ -87,6 +89,7 @@ class ProfileController extends Controller
             $user->blok_ruangan_id = $request->blok_ruangan_id;
             $user->no_kamar = $request->no_kamar;
             $user->asal_daerah = $request->asal_daerah;
+            if ($request->has('dosen_pa_id')) $user->dosen_pa_id = $request->dosen_pa_id;
             $user->save();
 
             return redirect()->route('admin.profil', $user->id)->with('success', 'Profil berhasil diperbarui.');
@@ -100,6 +103,7 @@ class ProfileController extends Controller
                 $user->blok_ruangan_id = $request->blok_ruangan_id;
                 $user->no_kamar = $request->no_kamar;
                 $user->asal_daerah = $request->asal_daerah;
+                if ($request->has('dosen_pa_id')) $user->dosen_pa_id = $request->dosen_pa_id;
                 $user->save();
 
                 return redirect()->route('home.profilshow', $user->id)->with('success', 'Profil berhasil diperbarui.');
@@ -181,14 +185,14 @@ class ProfileController extends Controller
 
             $user->save();
 
-            if ($user->isAdmin() || $user->isOperator() || $user->isPelatih() || $user->isPembina()) {
+            if (!$user->isUser()) {
                 return redirect()->route('admin.profil', $user->id)->with('success-email', 'Informasi akun berhasil diperbarui.');
             } else {
                 return redirect()->route('home.profilshow', $user->id)->with('success-email', 'Informasi akun berhasil diperbarui.');
             }
         } catch (\Exception $e) {
             $user = User::find($id);
-            if ($user->isAdmin() || $user->isOperator() || $user->isPelatih() || $user->isPembina()) {
+            if (!$user->isUser()) {
                 return redirect()->route('admin.profil', $user->id)->with('error-email', 'Informasi akun Gagal diperbarui.');
             } else {
                 return redirect()->route('home.profilshow', $user->id)->with('error-email', 'Informasi akun Gagal diperbarui.');

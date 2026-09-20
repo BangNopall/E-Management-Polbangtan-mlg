@@ -10,9 +10,12 @@ use App\Models\KategoriPelanggaran;
 use App\Models\Pelanggaran;
 use Illuminate\Support\Facades\Auth;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Crypt;
 
 class QRControllerHukum extends Controller
 {
+    use \App\Traits\DecryptsQrPayload;
+
     public function qrhukum()
     {
         $user = Auth::user();
@@ -27,7 +30,19 @@ class QRControllerHukum extends Controller
 
         $title = "QR Hukum";
 
-        $json = json_encode($validateQR);
+        $jsonRaw = json_encode($validateQR);
+        $encryptedPayload = Crypt::encryptString($jsonRaw);
+        
+        $payloadWrapper = [
+            'payload' => $encryptedPayload,
+            // Fallback fields left empty for legacy scanners
+            'user_id' => null,
+            'date' => null,
+            'time' => null,
+            'scanner' => null
+        ];
+
+        $json = json_encode($payloadWrapper);
         $QrCode = QrCode::size(400)->eye('circle')->generate($json);
 
         $status = Pelanggaran::where('user_id', $user->id)
@@ -52,6 +67,12 @@ class QRControllerHukum extends Controller
 
     public function scanCamPelatihStore(Request $request)
     {
+        try {
+            $this->decryptAndMergePayload($request);
+        } catch (\Exception $e) {
+            return redirect(route('admin.scanCamPelatih'))->with('error', $e->getMessage());
+        }
+
         if ($request->scanner == 'absensi') {
             return redirect(route('admin.scanCamPelatih'))->with('error', 'Anda Tidak Dapat Melakukan Presensi Pada Scanner Pelanggaran');
         } else {

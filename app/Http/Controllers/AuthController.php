@@ -66,8 +66,8 @@ class AuthController extends Controller
                 }
             }
 
-            // Jika pengguna memiliki role_id 1, 2, 4, atau 5 (staf: admin/operator/pelatih/pembina)
-            if ($user->role_id == 1 || $user->role_id == 2 || $user->role_id == 4 || $user->role_id == User::PEMBINA_ROLE_ID) {
+            // Jika pengguna memiliki role selain mahasiswa
+            if ($user->role_id != 3) {
                 // Coba otentikasi pengguna dan arahkan ke halaman admin jika berhasil
                 if (Auth::attempt($credentials)) {
                     $user = auth()->user();
@@ -108,7 +108,7 @@ class AuthController extends Controller
 
             return redirect()->route('auth.login')->with('success', 'Anda berhasil keluar.');
         }
-        if ($user->role_id == 1 || $user->role_id == 2 || $user->role_id == 4 || $user->role_id == User::PEMBINA_ROLE_ID) {
+        if ($user->role_id != 3) {
             auth()->logout();
             request()->session()->invalidate();
             request()->session()->regenerateToken();
@@ -121,7 +121,7 @@ class AuthController extends Controller
     public function authDashboard()
     {
         $user = auth()->user();
-        if ($user->role_id == 1 || $user->role_id == 2 || $user->role_id == 4 || $user->role_id == User::PEMBINA_ROLE_ID) {
+        if ($user->role_id != 3) {
             return redirect()->route('admin.index');
         }
         if ($user->role_id == 3) {

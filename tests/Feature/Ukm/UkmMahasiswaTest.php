@@ -31,6 +31,9 @@ class UkmMahasiswaTest extends TestCase
             'kelas_id' => 1,
             'prodi_id' => 1,
             'no_kamar' => '01',
+            'no_hp' => '08123',
+            'asal_daerah' => 'Malang',
+            'password' => bcrypt('password123'),
         ]);
     }
 

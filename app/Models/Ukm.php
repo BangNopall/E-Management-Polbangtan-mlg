@@ -12,6 +12,19 @@ class Ukm extends Model
 
     protected $guarded = ['id'];
 
+    protected static function booted()
+    {
+        static::deleting(function ($ukm) {
+            if ($ukm->isForceDeleting()) {
+                $ukm->members()->forceDelete();
+                $ukm->jadwals()->forceDelete();
+            } else {
+                $ukm->members()->delete();
+                $ukm->jadwals()->delete();
+            }
+        });
+    }
+
     public function members()
     {
         return $this->hasMany(UkmMember::class);

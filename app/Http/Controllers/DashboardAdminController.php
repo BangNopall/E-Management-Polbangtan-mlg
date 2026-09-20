@@ -2,64 +2,74 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\UsersImport;
 use App\Models\JadwalKegiatanAsrama;
+use App\Models\JadwalPetugas;
+use App\Models\Kelas;
 use App\Models\LoginPermission;
 use App\Models\Pelanggaran;
 use App\Models\Presence;
 use App\Models\PresensiApel;
 use App\Models\PresensiSenam;
 use App\Models\PresensiUpacara;
-use Carbon\Carbon;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Kelas;
-use App\Models\BlokRuangan;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Models\JadwalPetugas;
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\UsersImport;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DashboardAdminController extends Controller
 {
-    public function showDataPetugas()
+    public function showDataPetugas(Request $request)
     {
         $role_id = auth()->user()->role_id;
+        $search = $request->input('search');
+        $filter_role = $request->input('role_id');
+
+        $query = User::where('role_id', '!=', 3)
+            ->when($search, function ($q) use ($search) {
+                return $q->where(function ($q2) use ($search) {
+                    $q2->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($filter_role, function ($q) use ($filter_role) {
+                return $q->where('role_id', $filter_role);
+            });
 
         if ($role_id == 2) {
-            $petugas = User::whereIn('role_id', [1, 2, 4, 5])
-                ->orderBy('role_id', 'asc')
+            $petugas = $query->orderBy('role_id', 'asc')
                 ->select('id', 'name', 'email', 'role_id', 'image')
-                ->get();
+                ->paginate(20)->withQueryString();
         } else {
-            $petugas = User::whereIn('role_id', [1, 2, 4, 5])
-                ->with([
-                    'roleId' => function ($query) {
-                        $query->select('id', 'name');
-                    }
-                ])
+            $petugas = $query->with([
+                'roleId' => function ($q) {
+                    $q->select('id', 'name');
+                },
+            ])
                 ->orderBy('role_id', 'asc')
                 ->select('id', 'name', 'email', 'role_id', 'image')
-                ->get();
+                ->paginate(20)->withQueryString();
         }
 
-        $title = "Data Petugas";
+        $roles = Role::where('id', '!=', 3)->get();
+        $title = 'Data Petugas';
 
-        // dd($petugas);
-
-        return view('admin.data-petugas', compact('petugas', 'title'));
+        return view('admin.data-petugas', compact('petugas', 'title', 'roles', 'search', 'filter_role'));
     }
 
     public function createDataPetugasShow()
     {
-        $title = "Tambah Petugas";
+        $title = 'Tambah Petugas';
+        $roles = Role::where('id', '!=', 3)->get();
 
-        return view('admin.admin-edit.create-data-petugas', compact('title'));
+        return view('admin.admin-edit.create-data-petugas', compact('title', 'roles'));
     }
 
-    public function createDataPetugas(request $request)
+    public function createDataPetugas(Request $request)
     {
         // Validasi data yang diterima dari formulir
         $request->validate([
@@ -97,7 +107,7 @@ class DashboardAdminController extends Controller
         }
 
         $user = User::find($id);
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('admin.dataPetugas')->with('error', 'Pengguna tidak ditemukan.');
         }
 
@@ -113,51 +123,43 @@ class DashboardAdminController extends Controller
             }
         }
 
-        $title = "Edit Data Petugas";
+        $title = 'Edit Data Petugas';
 
         // dd($user);
         return view('admin.admin-edit.edit-data-petugas', compact('user', 'roles', 'title'));
     }
+
     public function editDataPetugas(Request $request, $id)
     {
         // Validasi data yang diterima dari formulir
         $validatedData = $request->validate([
-            'email' => 'email',
-            'name' => 'string|max:255',
-            'role_id' => 'integer',
-            'reset_password' => 'string|min:5',
-            'new_password' => 'string|min:5|nullable',
-            'new_password_confirmation' => 'string|min:5|nullable',
+            'email' => 'required|email|unique:users,email,'.$id,
+            'name' => 'required|string|max:255',
+            'role_id' => 'required|integer',
+            'reset_password' => 'required|string|min:5',
+            'new_password' => 'nullable|string|min:5',
+            'new_password_confirmation' => 'nullable|string|min:5|same:new_password',
         ]);
 
         // Ambil pengguna berdasarkan ID dari formulir
         $user = User::findOrFail($id);
 
-
-        // Periksa apakah pengguna ditemukan
-        if (!$user) {
-            return redirect()->route('admin.editDataPetugasShow')->with('error', 'Pengguna tidak ditemukan.');
+        if ($user->id != Auth()->user()->id) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk mengedit pengguna lain.');
         }
 
-        if (Auth()->user()->role_id == 2) {
-            if ($user->id != Auth()->user()->id) {
-                return redirect()->route('admin.editDataPetugasShow')->with('error', 'Anda tidak memiliki akses untuk mengedit pengguna lain.');
-            }
+        if (! Hash::check($request->old_password, $user->password)) {
+            return redirect()->back()->with('error', 'Password lama salah.');
         }
 
-        // dd($validatedData);
+        if ($request->old_password == $request->new_password) {
+            return redirect()->back()->with('error', 'Password baru tidak boleh sama dengan password lama.');
+        }
+
         // Periksa apakah password reset yang dimasukkan benar
-        if (!password_verify($validatedData['reset_password'], $user->password)) {
-            return redirect()->route('admin.editDataPetugasShow')->with('error', 'Password reset salah.');
+        if (! password_verify($validatedData['reset_password'], $user->password)) {
+            return redirect()->back()->with('error', 'Password lama salah.');
         }
-        // dd('password-lolos');
-
-
-        // Periksa apakah new_password dan password_confirmation nilainya sama
-        if ($validatedData['new_password'] !== $validatedData['new_password_confirmation']) {
-            return redirect()->route('admin.editDataPetugasShow')->with('error', 'Password baru dan konfirmasi password tidak cocok.');
-        }
-
 
         // Jika ada password baru, hash password baru dan update pengguna
         if ($request->filled('new_password')) {
@@ -174,16 +176,18 @@ class DashboardAdminController extends Controller
         return redirect()->route('admin.dataPetugas')->with('success', 'Informasi petugas berhasil diperbarui.');
     }
 
-
-
-    public function destroyDataPetugas(request $request, $id)
+    public function destroyDataPetugas(Request $request, $id)
     {
         // Temukan pengguna berdasarkan ID
         $user = User::find($id);
 
         // Periksa apakah pengguna ditemukan
-        if (!$user) {
+        if (! $user) {
             return redirect()->back()->with('error', 'Pengguna tidak ditemukan.');
+        }
+
+        if ($user->id == auth()->id()) {
+            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
         if (Auth()->user()->role_id == 2) {
@@ -206,10 +210,9 @@ class DashboardAdminController extends Controller
         return redirect()->route('admin.dataPetugas')->with('success', 'Pengguna berhasil dihapus.');
     }
 
-
     public function showPiketPetugas(Request $request)
     {
-        $title = "Piket Petugas";
+        $title = 'Piket Petugas';
         $query = JadwalPetugas::with(['petugas1', 'petugas2'])->latest('date');
 
         // Proses pencarian jika parameter 'search' ditemukan
@@ -218,8 +221,8 @@ class DashboardAdminController extends Controller
             $query->where('date', $searchDate);
         }
 
-        $petugas = $query->paginate(10);
-        $users = User::where('role_id', 2)->get();
+        $petugas = $query->paginate(20)->withQueryString();
+        $users = User::where('role_id', User::OPERATOR_ROLE_ID)->orderBy('name')->get();
         $existingDates = JadwalPetugas::pluck('date')->toArray();
 
         return view('admin.piket-petugas', compact('title', 'petugas', 'users', 'existingDates'));
@@ -227,18 +230,18 @@ class DashboardAdminController extends Controller
 
     public function showPiketPetugasSingle(Request $request, $id)
     {
-        $title = "Edit Piket Petugas";
+        $title = 'Edit Piket Petugas';
         $jadwal = JadwalPetugas::findOrFail($id);
-        $users = User::where('role_id', 2)->get();
+        $users = User::where('role_id', User::OPERATOR_ROLE_ID)->orderBy('name')->get();
 
         return view('admin.piket-petugas-single', compact('title', 'jadwal', 'users'));
     }
 
     public function updatePiketPetugas(Request $request, $id)
     {
-        // Validasi form jika diperlukan
         $request->validate([
-            // Atur aturan validasi sesuai kebutuhan
+            'petugas1' => ['nullable', 'exists:users,id', Rule::exists('users', 'id')->where('role_id', User::OPERATOR_ROLE_ID)],
+            'petugas2' => ['nullable', 'exists:users,id', Rule::exists('users', 'id')->where('role_id', User::OPERATOR_ROLE_ID)],
         ]);
 
         // Ambil data jadwal piket berdasarkan ID
@@ -260,7 +263,6 @@ class DashboardAdminController extends Controller
         return redirect()->route('admin.piketPetugas')->with('success', 'Jadwal piket berhasil diperbarui.');
     }
 
-
     public function deletePiketPetugasSingle($id)
     {
         // Temukan dan hapus data piket petugas berdasarkan ID
@@ -275,9 +277,8 @@ class DashboardAdminController extends Controller
         try {
             $request->validate([
                 'jadwalDate' => 'required|date|unique:jadwal_petugas,date',
-                'petugas1' => 'required|exists:users,id',
-                'petugas2' => 'required|exists:users,id',
-                // tambahkan aturan validasi lainnya sesuai kebutuhan
+                'petugas1' => ['required', 'exists:users,id', Rule::exists('users', 'id')->where('role_id', User::OPERATOR_ROLE_ID)],
+                'petugas2' => ['required', 'exists:users,id', Rule::exists('users', 'id')->where('role_id', User::OPERATOR_ROLE_ID)],
             ]);
 
             // Proses membuat jadwal baru
@@ -290,14 +291,14 @@ class DashboardAdminController extends Controller
 
             return redirect()->route('admin.piketPetugas')->with('success', 'Jadwal berhasil dibuat!');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: '.$e->getMessage());
         }
     }
 
-
-    public function piketPetugasGenerateJadwalBulanan(){
-        // Ambil data petugas dengan role_id = 2
-        $users = User::where('role_id', 2)->get();
+    public function piketPetugasGenerateJadwalBulanan()
+    {
+        // Ambil data petugas dengan role_id Operator
+        $users = User::where('role_id', User::OPERATOR_ROLE_ID)->get();
 
         // Ambil tanggal hari terakhir dari jadwal yang sudah ada
         $lastSchedule = JadwalPetugas::latest('date')->first();
@@ -306,7 +307,7 @@ class DashboardAdminController extends Controller
         $startDate = $lastSchedule ? Carbon::parse($lastSchedule->date)->addDay() : Carbon::today();
 
         // Jika tidak ada jadwal yang ada, mulai dari hari ini
-        if (!$lastSchedule) {
+        if (! $lastSchedule) {
             $startDate = Carbon::today();
         }
 
@@ -328,8 +329,8 @@ class DashboardAdminController extends Controller
 
     public function piketPetugasGenerateJadwalMingguan()
     {
-        // Ambil data petugas dengan role_id = 2
-        $users = User::where('role_id', 2)->get();
+        // Ambil data petugas dengan role_id Operator
+        $users = User::where('role_id', User::OPERATOR_ROLE_ID)->get();
 
         // Ambil tanggal hari terakhir dari jadwal yang sudah ada
         $lastSchedule = JadwalPetugas::latest('date')->first();
@@ -338,7 +339,7 @@ class DashboardAdminController extends Controller
         $startDate = $lastSchedule ? Carbon::parse($lastSchedule->date)->addDay() : Carbon::today();
 
         // Jika tidak ada jadwal yang ada, mulai dari hari ini
-        if (!$lastSchedule) {
+        if (! $lastSchedule) {
             $startDate = Carbon::today();
         }
 
@@ -360,22 +361,28 @@ class DashboardAdminController extends Controller
 
     public function showKamera()
     {
-        $title = "Scan QR Absen Keluar";
+        $title = 'Scan QR Absen Keluar';
         $user = auth()->user();
 
-        $jadwalPiket = JadwalPetugas::where('date', now()->format('y-m-d'))->first();
+        $jadwalPiket = JadwalPetugas::where('date', now()->format('Y-m-d'))->first();
 
         if ($jadwalPiket == null) {
-            return redirect()->route('admin.piketPetugas')->with('error', 'Jadwal piket untuk hari ini tidak ditemukan silahkan buat jadwal terlebih dahulu.');
+            return redirect()->route('admin.index')->with('error', 'Jadwal piket untuk hari ini tidak ditemukan silahkan hubungi admin/operator untuk membuat jadwal piket terlebih dahulu.');
         }
+
+        if (empty($jadwalPiket->petugas1_id) && empty($jadwalPiket->petugas2_id)) {
+            return redirect()->route('admin.index')->with('error', 'Petugas piket hari ini belum ditentukan. Silakan tetapkan petugas piket terlebih dahulu.');
+        }
+
         $petugas1 = User::where('id', $jadwalPiket->petugas1_id)->value('name');
         $petugas2 = User::where('id', $jadwalPiket->petugas2_id)->value('name');
+
         return view('admin.kamera', compact('title', 'petugas1', 'petugas2', 'user'));
     }
 
     public function showSistemAdmin()
     {
-        $title = "Sistem Admin";
+        $title = 'Sistem Admin';
 
         return view('admin.sistem', compact('title'));
     }
@@ -383,10 +390,11 @@ class DashboardAdminController extends Controller
     public function downloadExcelTemplate()
     {
         $fileTemplate = public_path('excel/datauser-template.xlsx');
+
         return response()->download($fileTemplate, 'datauser-template.xlsx', [
             'Cache-Control' => 'no-cache, no-store, must-revalidate',
             'Pragma' => 'no-cache',
-            'Expires' => '0'
+            'Expires' => '0',
         ]);
     }
 
@@ -399,8 +407,9 @@ class DashboardAdminController extends Controller
             $kelas = $this->findClassById($currentClassId);
             // dd($kelas);
 
-            if (!$kelas) {
+            if (! $kelas) {
                 $this->handleClassNotFound($user);
+
                 continue;
             }
 
@@ -413,6 +422,7 @@ class DashboardAdminController extends Controller
             if ($data->isEmpty()) {
                 $this->handleNewClassNotFound($user);
                 $this->deleteUser($user);
+
                 continue;
             }
             $this->updateUserClass($user);
@@ -458,13 +468,11 @@ class DashboardAdminController extends Controller
         $user->delete();
     }
 
-
     private function updateUserClass($user)
     {
         $user->update(['kelas_id' => null]);
         $user->update(['blok_ruangan_id' => null]);
         $user->update(['no_kamar' => null]);
-
 
         // lanjut ngoding buat hapus data pelanggaran dan presensi absen keluar masuk dan absen kegiatan wajib
         $presensi = Presence::where('user_id', $user->id)->get();
@@ -495,7 +503,7 @@ class DashboardAdminController extends Controller
         $jadwalKegiatanAsrama = JadwalKegiatanAsrama::where('blok_id', $user->blok_ruangan_id)->get();
 
         // Pengecekan apakah hasil query tidak kosong
-        if (!$jadwalKegiatanAsrama->isEmpty()) {
+        if (! $jadwalKegiatanAsrama->isEmpty()) {
             // Menghapus semua data jadwal kegiatan
             JadwalKegiatanAsrama::where('blok_id', $user->blok_ruangan_id)->delete();
         }
@@ -515,15 +523,14 @@ class DashboardAdminController extends Controller
         ]);
 
         try {
-            $import = new UsersImport();
+            $import = new UsersImport;
             Excel::import($import, $request->file('file'));
 
             return redirect()->route('admin.sistem-admin')->with('success', 'Data users imported successfully.');
         } catch (\Exception $e) {
-            return redirect()->route('admin.sistem-admin')->with('error', 'Error importing data. ' . $e->getMessage());
+            return redirect()->route('admin.sistem-admin')->with('error', 'Error importing data. '.$e->getMessage());
         }
     }
-
 
     // { END OF IMPORT CLASS SISTEM ADMIN }
 

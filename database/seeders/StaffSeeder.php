@@ -13,11 +13,11 @@ class StaffSeeder extends Seeder
      */
     public function run(): void
     {
-        $password = Hash::make('password');
+        $password = bcrypt('password');
 
         // 1. Akun Operator
         User::firstOrCreate(
-            ['email' => 'operator@asramapolbangtan-mlg.com'],
+            ['email' => 'operator@polbangtanmalang.ac.id'],
             [
                 'name' => 'Operator Asrama',
                 'password' => $password,
@@ -28,23 +28,33 @@ class StaffSeeder extends Seeder
 
         // 2. Akun Pelatih
         User::firstOrCreate(
-            ['email' => 'pelatih@asramapolbangtan-mlg.com'],
+            ['email' => 'pelatihukm@polbangtanmalang.ac.id'],
             [
-                'name' => 'Pelatih Asrama',
+                'name' => 'Pelatih UKM',
                 'password' => $password,
-                'role_id' => User::PELATIH_ROLE_ID,
+                'role_id' => User::PELATIH_UKM_ROLE_ID,
                 'no_hp' => '081234567890',
             ]
         );
 
         // 3. Akun Pembina
         User::firstOrCreate(
-            ['email' => 'pembina@asramapolbangtan-mlg.com'],
+            ['email' => 'pembina@polbangtanmalang.ac.id'],
             [
-                'name' => 'Pembina Asrama',
+                'name' => 'Pembina UKM',
                 'password' => $password,
                 'role_id' => User::PEMBINA_ROLE_ID,
                 'no_hp' => '1512312312312',
+            ]
+        );
+
+        User::firstOrCreate(
+            ['email' => 'security@polbangtanmalang.ac.id'],
+            [
+                'name' => 'Security',
+                'password' => $password,
+                'role_id' => User::SECURITY_ROLE_ID,
+                'no_hp' => '15123123122114',
             ]
         );
     }
