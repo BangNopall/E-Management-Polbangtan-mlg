@@ -36,3 +36,5 @@ Thumbs.db
 /public/pdf/BLOK_*
 /public/pdf/Laporan-*
 /public/pelanggaran/*.xlsx
+composer.lock
+package-lock.json

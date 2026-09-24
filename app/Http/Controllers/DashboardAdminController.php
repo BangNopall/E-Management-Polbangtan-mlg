@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Hash;
 
 class DashboardAdminController extends Controller
 {
@@ -158,7 +159,7 @@ class DashboardAdminController extends Controller
 
         // Periksa apakah password reset yang dimasukkan benar
         if (! password_verify($validatedData['reset_password'], $user->password)) {
-            return redirect()->back()->with('error', 'Password lama salah.');
+            return redirect()->back()->with('error', 'Password reset salah.');
         }
 
         // Jika ada password baru, hash password baru dan update pengguna
