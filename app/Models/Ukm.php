@@ -17,10 +17,10 @@ class Ukm extends Model
         static::deleting(function ($ukm) {
             if ($ukm->isForceDeleting()) {
                 $ukm->members()->forceDelete();
-                $ukm->jadwals()->forceDelete();
+                $ukm->jadwals()->each(fn ($jadwal) => $jadwal->forceDelete());
             } else {
                 $ukm->members()->delete();
-                $ukm->jadwals()->delete();
+                $ukm->jadwals()->each(fn ($jadwal) => $jadwal->delete());
             }
         });
     }

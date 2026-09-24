@@ -21,6 +21,34 @@ services:
     depends_on:
       - asrama-app
 
+  asrama-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: polbangtan_worker
+    restart: unless-stopped
+    command: php artisan queue:work --verbose --tries=3 --timeout=120
+    volumes:
+      - ./.env:/var/www/html/.env
+      - ./storage:/var/www/html/storage
+    depends_on:
+      - asrama-app
+      - asrama-db
+
+  asrama-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: polbangtan_scheduler
+    restart: unless-stopped
+    command: php artisan schedule:work
+    volumes:
+      - ./.env:/var/www/html/.env
+      - ./storage:/var/www/html/storage
+    depends_on:
+      - asrama-app
+      - asrama-db
+
   asrama-db:
     image: mysql:8.0
     container_name: polbangtan_db

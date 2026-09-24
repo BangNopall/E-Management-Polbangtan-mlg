@@ -37,4 +37,18 @@ class RestfulRouteSecurityTest extends TestCase
             'Route admin.deletePiketPetugasSingle must be registered'
         );
     }
+
+    public function test_hapus_jenis_pelanggaran_menolak_metode_get(): void
+    {
+        $admin = User::where('role_id', User::ADMIN_ROLE_ID)->firstOrFail();
+        $response = $this->actingAs($admin)->get('/deletejenispelanggaran/1');
+        $response->assertStatus(405);
+    }
+
+    public function test_hapus_laporan_pelanggaran_menolak_metode_get(): void
+    {
+        $admin = User::where('role_id', User::ADMIN_ROLE_ID)->firstOrFail();
+        $response = $this->actingAs($admin)->get('/laporan-pelanggaran-deleted/1');
+        $response->assertStatus(405);
+    }
 }

@@ -127,9 +127,17 @@ class PelanggaranController extends Controller
 
     public function riwayatPelanggaranDetail($id)
     {
+        $data = Pelanggaran::find($id);
+        if (!$data) {
+            abort(404, 'Pelanggaran tidak ditemukan');
+        }
+
+        if (Auth::check() && Auth::user()->role_id == User::USER_ROLE_ID && $data->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak berhak melihat riwayat pelanggaran mahasiswa lain.');
+        }
+
         try {
             $title = 'Detail Pelanggaran';
-            $data = Pelanggaran::where('id', $id)->first();
             if ($data->statusPelanggaran == 'submitted') {
                 return redirect()->route('home.riwayatPelanggaran')->with('error', 'Pelanggaran belum di proses');
             }

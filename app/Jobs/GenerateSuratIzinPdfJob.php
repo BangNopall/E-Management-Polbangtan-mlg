@@ -47,7 +47,7 @@ class GenerateSuratIzinPdfJob implements ShouldQueue
 
         $pdf = Pdf::setOptions([
             'isHtml5ParserEnabled' => true,
-            'isRemoteEnabled' => true,
+            'isRemoteEnabled' => false,
             'chroot' => public_path(),
         ])->loadView('admin.generate.generate-izin', [
             'pengajuan' => $pengajuan,

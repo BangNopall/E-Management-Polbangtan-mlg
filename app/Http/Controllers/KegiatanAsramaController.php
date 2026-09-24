@@ -576,12 +576,23 @@ class KegiatanAsramaController extends Controller
 
     private function getDataFromDatabase($selectdb, $combinedData)
     {
-        $presensiIds = array_column($combinedData, 'presensi_id');
+        $allowedTables = ['presensi_upacaras', 'presensi_apels', 'presensi_senams'];
+        if (!in_array($selectdb, $allowedTables, true)) {
+            throw new \InvalidArgumentException('Tabel presensi tidak valid.');
+        }
 
-        // Dapatkan data dari database berdasarkan $selectdb dan $presensiIds
+        $presensiIds = array_values(array_filter(array_map('intval', array_column($combinedData, 'presensi_id')), fn($id) => $id > 0));
+
+        if (empty($presensiIds)) {
+            return collect();
+        }
+
+        $placeholders = implode(',', array_fill(0, count($presensiIds), '?'));
+
+        // Dapatkan data dari database berdasarkan $selectdb dan $presensiIds secara aman
         return DB::table($selectdb)
             ->whereIn('id', $presensiIds)
-            ->orderBy(DB::raw('FIELD(id, ' . implode(',', $presensiIds) . ')'))
+            ->orderByRaw("FIELD(id, {$placeholders})", $presensiIds)
             ->get();
     }
 

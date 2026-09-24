@@ -30,3 +30,9 @@ Thumbs.db
 *.sql
 !database/dataPelanggaran.sql
 .claude/
+.superpowers/
+/public/excel/BLOK_*
+/public/excel/Laporan-*
+/public/pdf/BLOK_*
+/public/pdf/Laporan-*
+/public/pelanggaran/*.xlsx
