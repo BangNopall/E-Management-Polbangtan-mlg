@@ -146,14 +146,16 @@ class DashboardAdminController extends Controller
         $user = User::findOrFail($id);
 
         if ($user->id != Auth()->user()->id) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk mengedit pengguna lain.');
+            if (Auth()->user()->role_id == 2) {
+                return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk mengedit pengguna lain.');
+            }
         }
 
-        if (! Hash::check($request->old_password, $user->password)) {
+        if (! Hash::check($request->reset_password, $user->password)) {
             return redirect()->back()->with('error', 'Password lama salah.');
         }
 
-        if ($request->old_password == $request->new_password) {
+        if ($request->reset_password == $request->new_password) {
             return redirect()->back()->with('error', 'Password baru tidak boleh sama dengan password lama.');
         }
 
