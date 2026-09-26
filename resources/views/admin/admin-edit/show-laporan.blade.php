@@ -164,8 +164,10 @@
                         </table>
                     </div>
                 </div>
-                <form action="{{ route('admin.laporanPelanggaranConfirm', $data->id) }}" method="post">
-                    @csrf
+                @if ($data->statusPelanggaran == 'submitted')
+                    <form id="confirmForm" action="{{ route('admin.laporanPelanggaranConfirm', $data->id) }}" method="post">
+                        @csrf
+                @endif
                     <div class="bg-white rounded-lg p-3 border-2 mt-3">
                         <div class="text-lg font-medium">Hukuman / Sanksi</div>
                         <div class="border-b border-gray-300 my-1"></div>
@@ -185,6 +187,9 @@
                     </div>
                     <button type="button" onclick="window.location.href='/laporan-pelanggaran'"
                         class="mt-2 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-2 focus:ring-red-300 font-medium rounded-lg text-sm px-2.5 py-1.5 me-2">Kembali</button>
+                @if ($data->statusPelanggaran == 'submitted')
+                    </form>
+                @endif
             </div>
             <div class="rounded w-full sm:w-[320px]">
 
@@ -201,7 +206,6 @@
                     <button type="button" id="deleteButton" data-modal-target="hukumModal"
                         data-modal-toggle="hukumModal"
                         class="bg-yellow-300 rounded px-3 py-3 text-yellow-950 w-full hover:bg-yellow-500 text-sm">Hukum</button>
-                    </form>
                     <form id="rejectionForm" action="{{ route('admin.laporanPelanggaranRejected', $data->id) }}"
                         method="post">
                         @csrf

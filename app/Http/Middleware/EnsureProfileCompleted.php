@@ -45,6 +45,13 @@ class EnsureProfileCompleted
                 // To prevent redirect loop, check if current route is profile edit
                 $allowedRoutes = ['home.profilshow', 'home.Editprofil', 'home.EditprofilGmail', 'home.deleteFotoProfile', 'auth.logout', 'user.profil', 'auth.dashboard'];
                 if ($isIncomplete && !in_array($request->route()?->getName(), $allowedRoutes)) {
+                    if ($request->expectsJson() || $request->ajax()) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Lengkapi profil atau ganti password default akun Anda untuk melanjutkan.'
+                        ], 403);
+                    }
+
                     return redirect()->route('home.profilshow')
                         ->with('error', 'Untuk melanjutkan, lengkapi seluruh data profil, ubah email dari default, dan ganti password Anda terlebih dahulu.');
                 }
@@ -54,6 +61,13 @@ class EnsureProfileCompleted
                     if (\Illuminate\Support\Facades\Hash::check('password', $user->password)) {
                         $allowedAdminRoutes = ['admin.profil', 'admin.editProfile', 'admin.editProfileGmail', 'admin.deleteFotoProfile', 'admin.deleteFotoProfileMahasiswa', 'auth.logout', 'user.profil', 'auth.dashboard'];
                         if (!in_array($request->route()?->getName(), $allowedAdminRoutes)) {
+                            if ($request->expectsJson() || $request->ajax()) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Untuk keamanan akun, Anda wajib mengubah password default terlebih dahulu.'
+                                ], 403);
+                            }
+
                             return redirect()->route('admin.profil', $user->id)
                                 ->with('error', 'Untuk keamanan akun, Anda wajib mengubah password default terlebih dahulu.');
                         }

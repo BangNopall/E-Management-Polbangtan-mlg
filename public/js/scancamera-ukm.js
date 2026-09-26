@@ -4,20 +4,39 @@ let beepSound = new Audio("/audio/beep.mp3"),
     config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
 const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-    let payload = JSON.parse(decodedText);
+    let payload;
+    try {
+        payload = JSON.parse(decodedText);
+    } catch (e) {
+        console.warn("Format QR Code tidak valid / bukan JSON:", decodedText);
+        return;
+    }
+
+    if (!payload || typeof payload !== "object") return;
+
     beepSound.play();
     qrCodeReader.stop();
 
     if (document.getElementById("payload")) {
-        document.getElementById("payload").value = payload.payload;
+        document.getElementById("payload").value = payload.payload || "";
     }
-    document.getElementById("user_id").value = payload.user_id;
-    document.getElementById("date").value = payload.date;
-    document.getElementById("time").value = payload.time;
-    document.getElementById("scanner").value = payload.scanner;
+    if (document.getElementById("user_id")) {
+        document.getElementById("user_id").value = payload.user_id || "";
+    }
+    if (document.getElementById("date")) {
+        document.getElementById("date").value = payload.date || "";
+    }
+    if (document.getElementById("time")) {
+        document.getElementById("time").value = payload.time || "";
+    }
+    if (document.getElementById("scanner")) {
+        document.getElementById("scanner").value = payload.scanner || "";
+    }
 
     const form = document.getElementById("form");
-    form.submit();
+    if (form) {
+        form.submit();
+    }
 };
 
 qrCodeReader.start({ facingMode: "user" }, config, qrCodeSuccessCallback)
@@ -49,21 +68,9 @@ Html5Qrcode.getCameras()
                     .start(
                         selectedId,
                         { fps: 10, qrbox: { width: 350, height: 350 } },
-                        (decodedText) => {
-                            let payload = JSON.parse(decodedText);
-                            beepSound.play();
-                            qrCodeReader.stop();
-
-                            if (document.getElementById("payload")) {
-                                document.getElementById("payload").value = payload.payload;
-                            }
-                            document.getElementById("user_id").value = payload.user_id;
-                            document.getElementById("date").value = payload.date;
-                            document.getElementById("time").value = payload.time;
-                            document.getElementById("scanner").value = payload.scanner;
-
-                            const form = document.getElementById("form");
-                            form.submit();
+                        (decodedText, decodedResult) => {
+                            qrCodeSuccessCallback(decodedText, decodedResult);
+                            cameraSelect.disabled = false;
                         },
                         (err) => {
                             console.log(`Scan error: ${err}`);
