@@ -1,0 +1,60 @@
+# ==============================================================================
+# Host Nginx Configuration Template for Debian Linux VPS
+# Lokasi di VPS: /etc/nginx/sites-available/asrama.polbangtanmalang.ac.id
+# ==============================================================================
+
+# 1. HTTP Server - Redirect ke HTTPS & Acmetool / Certbot Challenge
+server {
+    listen 80;
+    listen [::]:80;
+    server_name asrama.polbangtanmalang.ac.id;
+
+    # Let's Encrypt / Certbot challenge validation
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+
+    # Redirect seluruh HTTP ke HTTPS
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# 2. HTTPS Server - SSL Termination & Reverse Proxy ke Docker (127.0.0.1:8000)
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name asrama.polbangtanmalang.ac.id;
+
+    # Sertifikat SSL Let's Encrypt (Dibuat otomatis via certbot --nginx)
+    ssl_certificate /etc/letsencrypt/live/asrama.polbangtanmalang.ac.id/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/asrama.polbangtanmalang.ac.id/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Batas ukuran upload file (disesuaikan dengan upload berkas mahasiswa & excel)
+    client_max_body_size 50M;
+
+    # Reverse Proxy Header Forwarding
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+
+        # WebSocket support (jika dibutuhkan untuk event real-time)
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        # Buffer & Timeout Tuning untuk ekspor PDF/Excel
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
+        proxy_buffering off;
+    }
+}
