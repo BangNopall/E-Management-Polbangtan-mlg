@@ -62,6 +62,7 @@ COPY . .
 
 # Copy compiled frontend assets from Stage 1
 COPY --from=frontend /app/public/build ./public/build
+COPY --from=frontend /app/public/build /var/www/html/public_build_cache
 
 # Copy custom PHP & Opcache configurations
 COPY docker/php/custom.ini $PHP_INI_DIR/conf.d/99-custom.ini

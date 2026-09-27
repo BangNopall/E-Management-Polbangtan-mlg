@@ -14,6 +14,12 @@ mkdir -p \
     /var/www/html/storage/app/private/izins \
     /var/www/html/bootstrap/cache
 
+# Sinkronisasi aset build Vite dari image ke shared volume public/build
+if [ -d "/var/www/html/public_build_cache" ]; then
+    mkdir -p /var/www/html/public/build
+    cp -rf /var/www/html/public_build_cache/* /var/www/html/public/build/ || true
+fi
+
 # 2. Sinkronisasi kepemilikan dan hak akses (mengatasi UID clash pada Debian VPS)
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true

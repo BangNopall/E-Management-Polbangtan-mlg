@@ -17,6 +17,7 @@ services:
       - ./.env:/var/www/html/.env
       - asrama_storage:/var/www/html/storage
       - asrama_bootstrap_cache:/var/www/html/bootstrap/cache
+      - asrama_public_build:/var/www/html/public/build
     depends_on:
       asrama-db:
         condition: service_healthy
@@ -48,6 +49,7 @@ services:
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./public:/var/www/html/public:ro
+      - asrama_public_build:/var/www/html/public/build:ro
       - asrama_storage:/var/www/html/storage:ro
     depends_on:
       - asrama-app
@@ -197,6 +199,8 @@ volumes:
     name: polbangtan_prod_storage
   asrama_bootstrap_cache:
     name: polbangtan_prod_bootstrap_cache
+  asrama_public_build:
+    name: polbangtan_prod_public_build
 
 networks:
   polbangtan_net:
