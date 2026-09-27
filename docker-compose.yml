@@ -14,7 +14,7 @@ services:
     container_name: polbangtan_prod_app
     restart: always
     volumes:
-      - ./.env:/var/www/html/.env:ro
+      - ./.env:/var/www/html/.env
       - asrama_storage:/var/www/html/storage
       - asrama_bootstrap_cache:/var/www/html/bootstrap/cache
     depends_on:
