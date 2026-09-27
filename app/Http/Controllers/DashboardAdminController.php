@@ -167,6 +167,7 @@ class DashboardAdminController extends Controller
         // Jika ada password baru, hash password baru dan update pengguna
         if ($request->filled('new_password')) {
             $user->password = bcrypt($validatedData['new_password']);
+            $user->is_password_changed = true;
         }
 
         // Update pengguna dengan data baru

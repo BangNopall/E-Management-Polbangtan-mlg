@@ -51,10 +51,10 @@
             </div>
         @endif
         <div class="bg-white rounded-md border-2 border-gray-300 px-3 py-5 md:p-6">
-            @if ($user->isAdmin() || $user->isOperator() || $user->isPelatih())
+            @if (!$user->isUser())
                 <form action="{{ route('admin.editProfile', $user->id) }}" method="post" enctype="multipart/form-data">
-                @else
-                    <form action="{{ route('home.Editprofil', $user->id) }}" method="post" enctype="multipart/form-data">
+            @else
+                <form action="{{ route('home.Editprofil', $user->id) }}" method="post" enctype="multipart/form-data">
             @endif
             @csrf
             <div class="flex justify-between items-center">
@@ -323,10 +323,10 @@
                     </button>
                 </div>
             @endif
-            @if ($user->isAdmin() || $user->isOperator() || $user->isPelatih())
+            @if (!$user->isUser())
                 <form action="{{ route('admin.editProfileGmail', $user->id) }}" method="post">
-                @else
-                    <form action="{{ route('home.EditprofilGmail', $user->id) }}" method="post">
+            @else
+                <form action="{{ route('home.EditprofilGmail', $user->id) }}" method="post">
             @endif
             @csrf
             <div class="flex justify-between items-center">

@@ -130,28 +130,28 @@ class QRController extends Controller
 
             if (app()->environment('testing') || $timeDifference <= $maxDifference) {
                 $request = $oldRequest;
+                $today = Carbon::now()->format('Y-m-d');
+                $yesterday = Carbon::now()->subDay()->format('Y-m-d');
+                $tomorrow = Carbon::now()->addDay()->format('Y-m-d');
+
+                if ($request->date == $yesterday) {
+                    return redirect(route('admin.kamera'))->with('error', 'Absensi untuk hari kemarin tidak diizinkan');
+                } elseif ($request->date == $tomorrow) {
+                    return redirect(route('admin.kamera'))->with('error', 'Absensi untuk hari besok tidak diizinkan');
+                }
+
                 $attendance = Attendance::where('date', $request['date'])->first();
                 $currentTime = $request->time;
                 if (!$attendance) {
-                    $today = Carbon::now()->format('Y-m-d');
-                    $yesterday = Carbon::now()->subDay()->format('Y-m-d');
-                    $tomorrow = Carbon::now()->addDay()->format('Y-m-d');
-
-                    if ($request->date == $yesterday) {
-                        return redirect(route('admin.kamera'))->with('error', 'Absensi untuk hari kemarin tidak diizinkan');
-                    } elseif ($request->date == $tomorrow) {
-                        return redirect(route('admin.kamera'))->with('error', 'Absensi untuk hari besok tidak diizinkan');
-                    } else {
-                        if ($request->date == $today) {
-                            $createAttendance = [
-                                'title' => 'Absensi Harian',
-                                'date' => $today,
-                                'start_time' => '06:00:00',
-                                'end_time' => '22:00:00',
-                            ];
-                            Attendance::create($createAttendance);
-                            return redirect(route('admin.kamera'))->with('error', 'Terjadi Missing Data, Silahkan Coba kembali');
-                        }
+                    if ($request->date == $today) {
+                        $createAttendance = [
+                            'title' => 'Absensi Harian',
+                            'date' => $today,
+                            'start_time' => '06:00:00',
+                            'end_time' => '22:00:00',
+                        ];
+                        Attendance::create($createAttendance);
+                        return redirect(route('admin.kamera'))->with('error', 'Terjadi Missing Data, Silahkan Coba kembali');
                     }
                 }
                 if ($attendance) {

@@ -59,7 +59,18 @@ class EnsureProfileCompleted
                 // Staff / Admin / Operator / Dosen PA / Pejabat / Pelatih / Pembina
                 if (! $user->is_password_changed) {
                     if (\Illuminate\Support\Facades\Hash::check('password', $user->password)) {
-                        $allowedAdminRoutes = ['admin.profil', 'admin.editProfile', 'admin.editProfileGmail', 'admin.deleteFotoProfile', 'admin.deleteFotoProfileMahasiswa', 'auth.logout', 'user.profil', 'auth.dashboard'];
+                        $allowedAdminRoutes = [
+                            'admin.profil',
+                            'admin.editProfile',
+                            'admin.editProfileGmail',
+                            'admin.deleteFotoProfile',
+                            'admin.deleteFotoProfileMahasiswa',
+                            'admin.editDataPetugasShow',
+                            'admin.editDataPetugas',
+                            'auth.logout',
+                            'user.profil',
+                            'auth.dashboard',
+                        ];
                         if (!in_array($request->route()?->getName(), $allowedAdminRoutes)) {
                             if ($request->expectsJson() || $request->ajax()) {
                                 return response()->json([
