@@ -44,6 +44,8 @@ class User extends Authenticatable
         'asal_daerah',
         'password',
         'phone',
+        'no_hp',
+        'is_password_changed',
         'role_id',
         'image',
         'status',
@@ -93,14 +95,14 @@ class User extends Authenticatable
     }
 
     public function petugas1()
-     {
-         return $this->belongsTo(JadwalPetugas::class, 'petugas1_id');
-     }
- 
-     public function petugas2()
-     {
-         return $this->belongsTo(JadwalPetugas::class, 'petugas2_id');
-     }
+    {
+        return $this->hasMany(JadwalPetugas::class, 'petugas1_id');
+    }
+
+    public function petugas2()
+    {
+        return $this->hasMany(JadwalPetugas::class, 'petugas2_id');
+    }
 
     public function presenses()
     {

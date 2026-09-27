@@ -206,10 +206,6 @@
                         <div class="font-medium text-lg">Grafik Asrama Polbangtan Malang</div>
                         <p class="text-gray-500 text-sm">Jumlah perizinan mahasiswa keluar asrama dalam 7 hari terakhir</p>
                     </div>
-                    <div class="border-b border-gray-300 my-2"></div>
-                    <a href="/absensi-mahasiswa" class="text-utama text-sm">
-                        <i class="ri-list-check mr-1"></i>Lihat Data
-                    </a>
                 </div>
             </div>
 

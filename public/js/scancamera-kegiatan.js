@@ -3,11 +3,39 @@ const cameraSelect = document.getElementById("cameraSelect"),
 let beepSound = new Audio("/audio/beep.mp3"),
     config = { fps: 10, qrbox: { width: 250, height: 250 } };
 const qrCodeSuccessCallback = (e, t) => {
-    let a = JSON.parse(e);
-    beepSound.play(),
-        qrCodeReader.stop(),
-        (document.getElementById("payload").value = a.payload),
-        document.getElementById("form").submit();
+    let a;
+    try {
+        a = JSON.parse(e);
+    } catch (err) {
+        console.warn("Format QR Code tidak valid:", e);
+        return;
+    }
+
+    if (!a || typeof a !== "object") return;
+
+    beepSound.play();
+    qrCodeReader.stop();
+
+    if (document.getElementById("payload")) {
+        document.getElementById("payload").value = a.payload || "";
+    }
+    if (document.getElementById("user_id")) {
+        document.getElementById("user_id").value = a.user_id || "";
+    }
+    if (document.getElementById("date")) {
+        document.getElementById("date").value = a.date || "";
+    }
+    if (document.getElementById("time")) {
+        document.getElementById("time").value = a.time || "";
+    }
+    if (document.getElementById("scanner")) {
+        document.getElementById("scanner").value = a.scanner || "";
+    }
+
+    const form = document.getElementById("form");
+    if (form) {
+        form.submit();
+    }
 };
 qrCodeReader.start({ facingMode: "user" }, config, qrCodeSuccessCallback),
     Html5Qrcode.getCameras()
@@ -35,22 +63,8 @@ qrCodeReader.start({ facingMode: "user" }, config, qrCodeSuccessCallback),
                                 e,
                                 { fps: 10, qrbox: { width: 350, height: 350 } },
                                 (e, t) => {
-                                    let a = JSON.parse(e);
-                                    beepSound.play(),
-                                        qrCodeReader.stop(),
-                                        (document.getElementById("payload").value = a.payload),
-                                        (document.getElementById("user_id").value = a.user_id),
-                                        (document.getElementById("date").value =
-                                            a.date),
-                                        (document.getElementById("time").value =
-                                            a.time),
-                                        (document.getElementById(
-                                            "scanner"
-                                        ).value = a.scanner),
-                                        document
-                                            .getElementById("form")
-                                            .submit(),
-                                        (cameraSelect.disabled = !1);
+                                    qrCodeSuccessCallback(e, t);
+                                    cameraSelect.disabled = !1;
                                 },
                                 (e) => {
                                     console.log(`KODE QR TIDAK ADA ( ${e} )`);

@@ -134,4 +134,30 @@ class UkmJadwalCascadeDeleteTest extends TestCase
         $response2->assertStatus(200);
         $response2->assertDontSee('Latihan Persiapan Lomba Robot');
     }
+
+    public function test_soft_delete_ukm_mengalirkan_soft_delete_ke_presensi_anak(): void
+    {
+        $jadwal = UkmJadwal::create([
+            'ukm_id' => $this->ukm->id,
+            'judul' => 'Latihan Utama Robotika',
+            'jenis' => 'latihan',
+            'tanggal' => now()->toDateString(),
+            'mulai_acara' => '15:00:00',
+            'selesai_acara' => '17:00:00',
+            'status_verifikasi' => 'draft',
+        ]);
+
+        $presensi = UkmPresensi::create([
+            'ukm_jadwal_id' => $jadwal->id,
+            'user_id' => $this->student->id,
+            'status_kehadiran' => 'Alpha',
+        ]);
+
+        // Soft delete UKM
+        $this->ukm->delete();
+
+        $this->assertSoftDeleted('ukms', ['id' => $this->ukm->id]);
+        $this->assertSoftDeleted('ukm_jadwals', ['id' => $jadwal->id]);
+        $this->assertSoftDeleted('ukm_presensis', ['id' => $presensi->id]);
+    }
 }

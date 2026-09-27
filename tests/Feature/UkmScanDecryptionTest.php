@@ -16,6 +16,18 @@ class UkmScanDecryptionTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Carbon::setTestNow(Carbon::parse('2026-10-01 14:00:00'));
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
+    }
+
     public function test_scanner_ukm_berhasil_mendekripsi_dan_melakukan_presensi(): void
     {
         $pembina = User::factory()->create(['role_id' => User::PEMBINA_ROLE_ID]);

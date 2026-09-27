@@ -28,12 +28,12 @@
         @foreach ($izins as $index => $item)
             <tr>
                 <td style="text-align: center;">{{ $index + 1 }}</td>
-                <td>{{ $item->nomor_surat ?? '-' }}</td>
-                <td>{{ $item->nama_snapshot }}</td>
-                <td>{{ $item->nirm_snapshot ?? '-' }}</td>
-                <td>{{ $item->prodi_snapshot }} ({{ $item->kelas_snapshot }})</td>
-                <td>{{ optional($item->jenisIzin)->nama ?? '-' }}</td>
-                <td>{{ $item->tujuan_lokasi }}</td>
+                <td>{!! \App\Helpers\SecurityHelper::escapeFormula(e($item->nomor_surat ?? '-')) !!}</td>
+                <td>{!! \App\Helpers\SecurityHelper::escapeFormula(e($item->nama_snapshot)) !!}</td>
+                <td>{!! \App\Helpers\SecurityHelper::escapeFormula(e($item->nirm_snapshot ?? '-')) !!}</td>
+                <td>{!! \App\Helpers\SecurityHelper::escapeFormula(e($item->prodi_snapshot)) !!} ({!! \App\Helpers\SecurityHelper::escapeFormula(e($item->kelas_snapshot)) !!})</td>
+                <td>{!! \App\Helpers\SecurityHelper::escapeFormula(e(optional($item->jenisIzin)->nama ?? '-')) !!}</td>
+                <td>{!! \App\Helpers\SecurityHelper::escapeFormula(e($item->tujuan_lokasi)) !!}</td>
                 <td>{{ optional($item->waktu_berangkat)->format('d/m/Y H:i') }}</td>
                 <td>{{ optional($item->waktu_kembali)->format('d/m/Y H:i') }}</td>
                 <td style="font-weight: bold;">{{ strtoupper($item->status) }}</td>

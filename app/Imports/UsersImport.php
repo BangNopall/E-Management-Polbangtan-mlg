@@ -11,6 +11,20 @@ use Illuminate\Support\Facades\Hash;
 
 class UsersImport implements ToModel, WithBatchInserts, WithChunkReading, WithStartRow
 {
+    private function sanitizeFormula(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $trimmed = trim($value);
+        if ($trimmed !== '' && in_array($trimmed[0], ['=', '+', '-', '@', "\t", "\r"])) {
+            return "'" . $trimmed;
+        }
+
+        return $trimmed;
+    }
+
     /**
      * @param array $row
      *
@@ -20,12 +34,14 @@ class UsersImport implements ToModel, WithBatchInserts, WithChunkReading, WithSt
     {
         if (empty($row[0])) return null;
 
-        $nim = $row[0];
-        $email = !empty($row[3]) ? $row[3] : str_replace('.', '', $nim) . '@ganti.email';
+        $nim = $this->sanitizeFormula((string) $row[0]);
+        $rawName = isset($row[1]) ? (string) $row[1] : 'Unknown';
+        $name = $this->sanitizeFormula($rawName);
+        $email = !empty($row[3]) ? $this->sanitizeFormula((string) $row[3]) : str_replace('.', '', $nim) . '@ganti.email';
 
         return new User([
             'nim' => $nim,
-            'name' => $row[1] ?? 'Unknown',
+            'name' => $name,
             'prodi_id' => $row[2] ?? null,
             'email' => $email,
             'password' => Hash::make("password"), 

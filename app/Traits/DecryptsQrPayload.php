@@ -14,20 +14,33 @@ trait DecryptsQrPayload
      */
     protected function decryptAndMergePayload(Request $request): void
     {
-        if ($request->filled('payload')) {
-            try {
-                $decryptedJson = Crypt::decryptString($request->input('payload'));
-                $payloadData = json_decode($decryptedJson, true);
-                
-                if (is_array($payloadData)) {
-                    $request->merge($payloadData);
-                } else {
-                    throw new Exception('Format QR Code terenkripsi tidak valid.');
+        if (! $request->filled('payload')) {
+            throw new Exception('Payload QR Code wajib disertakan.');
+        }
+
+        try {
+            $decryptedJson = Crypt::decryptString($request->input('payload'));
+            $payloadData = json_decode($decryptedJson, true);
+
+            if (is_array($payloadData)) {
+                // Anti-replay check via nonce with 60-second TTL
+                if (! empty($payloadData['nonce'])) {
+                    $nonce = $payloadData['nonce'];
+                    $cacheKey = "qr_nonce:{$nonce}";
+                    if (! \Illuminate\Support\Facades\Cache::add($cacheKey, true, 60)) {
+                        throw new Exception('Kode QR ini sudah pernah digunakan.');
+                    }
                 }
-            } catch (Exception $e) {
-                // Lempar ke pemanggil untuk dihandle return redirect()->back()->with('error',...)
-                throw new Exception('Kode QR tidak valid atau telah kadaluarsa (Gagal Dekripsi).');
+
+                $request->merge($payloadData);
+            } else {
+                throw new Exception('Format QR Code terenkripsi tidak valid.');
             }
+        } catch (Exception $e) {
+            if (in_array($e->getMessage(), ['Kode QR ini sudah pernah digunakan.', 'Payload QR Code wajib disertakan.'])) {
+                throw $e;
+            }
+            throw new Exception('Kode QR tidak valid atau telah kadaluarsa (Gagal Dekripsi).');
         }
     }
 }

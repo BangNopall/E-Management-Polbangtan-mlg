@@ -55,14 +55,17 @@ class DosenPaController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xls,xlsx,csv'
+            'file' => 'required|file|mimes:xls,xlsx,csv|max:10240'
         ]);
 
         try {
             Excel::import(new DosenPaImport, $request->file('file'));
             return redirect()->route('admin.dosen_pa.index')->with('success', 'Import file excel berhasil.');
-        } catch (\Exception $e) {
-            return redirect()->route('admin.dosen_pa.index')->with('error', 'Gagal import: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Import error on dosen_pa: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            return redirect()->route('admin.dosen_pa.index')->with('error', 'Terjadi kesalahan saat memproses data impor Dosen PA. Silakan periksa format file Anda.');
         }
     }
 }

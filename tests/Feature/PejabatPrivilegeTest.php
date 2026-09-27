@@ -47,12 +47,12 @@ class PejabatPrivilegeTest extends TestCase
         $response->assertStatus(302);
     }
 
-    public function test_pejabat_cannot_delete_jenis_pelanggaran_via_get(): void
+    public function test_pejabat_cannot_delete_jenis_pelanggaran(): void
     {
         $pejabat = $this->createPejabatUser();
 
-        // Simulate GET request to delete a pelanggaran (ID 1 exists due to seeder)
-        $response = $this->actingAs($pejabat)->get(route('admin.deleteJenisPelanggaran', ['id' => 1]));
+        // Simulate DELETE request to delete a pelanggaran (ID 1 exists due to seeder)
+        $response = $this->actingAs($pejabat)->delete(route('admin.deleteJenisPelanggaran', ['id' => 1]));
 
         // Should return a redirect back with error message
         $response->assertStatus(302);

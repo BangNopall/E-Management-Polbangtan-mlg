@@ -19,9 +19,13 @@ class UkmBatch3Test extends TestCase
     {
         return User::factory()->create([
             'role_id' => $roleId,
-            'blok_ruangan_id' => null,
-            'kelas_id' => null,
-            'prodi_id' => null,
+            'blok_ruangan_id' => 1,
+            'kelas_id' => 1,
+            'prodi_id' => 1,
+            'no_kamar' => '01',
+            'no_hp' => '08' . fake()->unique()->numerify('##########'),
+            'asal_daerah' => 'Malang',
+            'is_password_changed' => 1,
         ]);
     }
 

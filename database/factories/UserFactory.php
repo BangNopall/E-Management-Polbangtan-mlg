@@ -18,18 +18,21 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $kelas = \App\Models\Kelas::inRandomOrder()->first();
+        $prodiId = $kelas?->prodi_id ?? (\App\Models\Prodi::inRandomOrder()->value('id') ?? 1);
+
         return [
             'name' => $this->faker->name,
             'email' => $this->faker->unique()->safeEmail,
             'nim' => $this->faker->numerify('##########'), // Generates a 10-digit number
             'blok_ruangan_id' => \App\Models\BlokRuangan::inRandomOrder()->value('id') ?? 1,
             'no_kamar' => $this->faker->numerify('##'), // Generates a 2-digit number
-            'kelas_id' => \App\Models\Kelas::inRandomOrder()->value('id') ?? 1,
-            // Add other fields as needed
-            'prodi_id' => \App\Models\Prodi::inRandomOrder()->value('id') ?? 1,
+            'kelas_id' => $kelas?->id ?? 1,
+            'prodi_id' => $prodiId,
             'asal_daerah' => $this->faker->city,
-            'no_hp' => $this->faker->numerify('###########'), // Generates a 12-digit number
+            'no_hp' => $this->faker->unique()->numerify('###########'), // Generates a 11-digit number
             'password' => bcrypt('password'), // Default password is 'password'
+            'is_password_changed' => 1,
             'role_id' => 3, // Assuming there are 3 different roles
             // 'remember_token' => Str::random(10),
         ];

@@ -52,6 +52,8 @@ class IzinBugFixTest extends TestCase
 
     public function test_overlapping_izin_dengan_waktu_berurutan_diperbolehkan(): void
     {
+        Carbon::setTestNow(Carbon::parse('2026-10-01 08:00:00'));
+
         PengajuanIzin::create([
             'user_id' => $this->student->id,
             'jenis_izin_id' => $this->jenisIzin->id,
@@ -73,5 +75,9 @@ class IzinBugFixTest extends TestCase
 
         $this->withoutExceptionHandling();
         $response = $this->actingAs($this->student)->post(route('home.izin.store'), $payload);
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('pengajuan_izins', ['keperluan' => 'Test Berurutan']);
+
+        Carbon::setTestNow(); // Reset time
     }
 }

@@ -36,6 +36,11 @@ class EnsurePejabatReadOnly
                     return $next($request);
                 }
 
+                // Allow own profile and password updates
+                if ($request->routeIs('admin.editProfile') || $request->routeIs('admin.editProfileGmail') || $request->routeIs('admin.deleteFotoProfile')) {
+                    return $next($request);
+                }
+
                 // Allow perizinan routes and presensi (kamera scan)
                 if ($request->routeIs('izin.*') || $request->routeIs('admin.izin.*') || $request->routeIs('jenis.*') || $request->routeIs('admin.jenis.*') || $request->routeIs('publik.*') || $request->is('*/izin/*') || $request->is('*/jenis/*') || $request->routeIs('admin.presense.api')) {
                     return $next($request);

@@ -16,20 +16,10 @@ class BlokRuanganSeeder extends Seeder
      */
     public function run()
     {
-        BlokRuangan::create([
-            'name' => 'A',
-        ]);
-        BlokRuangan::create([
-            'name' => 'B',
-        ]);
-        BlokRuangan::create([
-            'name' => 'C',
-        ]);
-        BlokRuangan::create([
-            'name' => 'D',
-        ]);
-        BlokRuangan::create([
-            'name' => 'E',
-        ]);
+        BlokRuangan::firstOrCreate(['name' => 'A']);
+        BlokRuangan::firstOrCreate(['name' => 'B']);
+        BlokRuangan::firstOrCreate(['name' => 'C']);
+        BlokRuangan::firstOrCreate(['name' => 'D']);
+        BlokRuangan::firstOrCreate(['name' => 'E']);
     }
 }

@@ -40,18 +40,18 @@ class UkmScanController extends Controller
      */
     public function store(Request $request, UkmJadwal $jadwal): RedirectResponse
     {
-        try {
-            $this->decryptAndMergePayload($request);
-        } catch (Exception $e) {
-            return redirect()->route('admin.ukm.scan.show', $jadwal->id)
-                ->with('error', $e->getMessage());
-        }
-
         abort_unless($this->isStaffOfUkm(Auth::user(), $jadwal->ukm_id), 403, 'Anda tidak berhak melakukan scan untuk UKM ini.');
 
         if ($jadwal->status_verifikasi !== 'disetujui') {
             return redirect()->route('admin.ukm.show', $jadwal->ukm_id)
                 ->with('error', $this->pesanBelumDisetujui($jadwal));
+        }
+
+        try {
+            $this->decryptAndMergePayload($request);
+        } catch (Exception $e) {
+            return redirect()->route('admin.ukm.scan.show', $jadwal->id)
+                ->with('error', $e->getMessage());
         }
 
         if ($request->input('scanner') !== 'absensi') {

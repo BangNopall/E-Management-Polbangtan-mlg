@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\IzinApproval;
+use App\Models\Pejabat;
 use App\Models\PengajuanIzin;
+use App\Models\UkmMember;
 use App\Models\User;
 use App\Services\Izin\ApproverResolver;
 use App\Services\Izin\PengajuanIzinService;
@@ -76,6 +78,56 @@ class IzinPersetujuanController extends Controller
                       });
                   });
             });
+        } elseif ($user->role_id === User::PEJABAT_ROLE_ID || Pejabat::where('user_id', $userId)->where('is_active', true)->exists()) {
+            $myPejabats = Pejabat::where('user_id', $userId)->where('is_active', true)->get();
+            $myJabatans = $myPejabats->pluck('jabatan')->filter()->toArray();
+            $peerUserIds = Pejabat::whereIn('jabatan', $myJabatans)
+                ->where('is_active', true)
+                ->pluck('user_id')
+                ->push($userId)
+                ->unique()
+                ->toArray();
+
+            $query->where(function ($q) use ($userId, $peerUserIds, $myPejabats) {
+                $q->where('approver_user_id', $userId)
+                  ->orWhere(function ($q2) use ($peerUserIds, $myPejabats) {
+                      $q2->whereIn('approver_user_id', $peerUserIds);
+
+                      // Scope filtering for non-global pejabat
+                      $isGlobal = $myPejabats->contains('lingkup', 'global');
+                      if (!$isGlobal) {
+                          $q2->whereHas('pengajuan.user', function ($uQ) use ($myPejabats) {
+                              $uQ->where(function ($sub) use ($myPejabats) {
+                                  foreach ($myPejabats as $pj) {
+                                      if ($pj->lingkup === 'prodi') {
+                                          $sub->orWhere('prodi_id', $pj->lingkup_id);
+                                      } elseif ($pj->lingkup === 'blok') {
+                                          $sub->orWhere('blok_ruangan_id', $pj->lingkup_id);
+                                      }
+                                  }
+                              });
+                          });
+                      }
+                  });
+            });
+        } elseif ($user->role_id === User::DOSEN_PA_ROLE_ID) {
+            $query->where(function ($q) use ($userId) {
+                $q->where('approver_user_id', $userId)
+                  ->orWhereHas('pengajuan.user', function ($uQ) use ($userId) {
+                      $uQ->where('dosen_pa_id', $userId)
+                        ->orWhereHas('kelas', fn($kQ) => $kQ->where('dosen_pa_id', $userId));
+                  });
+            });
+        } elseif ($user->role_id === User::PEMBINA_ROLE_ID) {
+            $myUkmIds = UkmMember::where('user_id', $userId)
+                ->where('peran', 'pembina')
+                ->where('status', 'aktif')
+                ->pluck('ukm_id');
+
+            $query->where(function ($q) use ($userId, $myUkmIds) {
+                $q->where('approver_user_id', $userId)
+                  ->orWhereHas('pengajuan', fn($pQ) => $pQ->whereIn('ukm_id', $myUkmIds));
+            });
         } else {
             $query->where('approver_user_id', $userId);
         }
@@ -91,30 +143,43 @@ class IzinPersetujuanController extends Controller
      */
     protected function getAuthorizedApproval(PengajuanIzin $pengajuan, User $user): ?IzinApproval
     {
+        // 1. Direct assignment
         $approval = IzinApproval::where('pengajuan_izin_id', $pengajuan->id)
-            ->where('urutan', $pengajuan->langkah_aktif)
+            ->where('approver_user_id', $user->id)
             ->first();
 
-        if (!$approval) {
-            return null;
-        }
-
-        if ($approval->approver_user_id === $user->id) {
+        if ($approval) {
             return $approval;
         }
 
-        // Jika user bukan approver_user_id spesifik, cek apakah user adalah kandidat sah pada langkah ini
-        $step = $pengajuan->jenisIzin->steps()->where('urutan', $approval->urutan)->first();
-        if ($step) {
-            $context = [
-                'user' => $pengajuan->user,
-                'ukm_id' => $pengajuan->ukm_id,
-                'waktu_berangkat' => optional($pengajuan->waktu_berangkat)->format('Y-m-d'),
-            ];
+        // 2. Peer Pejabat authorization
+        if ($user->role_id === User::PEJABAT_ROLE_ID) {
+            $myJabatans = Pejabat::where('user_id', $user->id)->where('is_active', true)->pluck('jabatan')->toArray();
+            $peerApproval = IzinApproval::where('pengajuan_izin_id', $pengajuan->id)
+                ->whereIn('approver_user_id', function ($sub) use ($myJabatans) {
+                    $sub->select('user_id')->from('pejabats')->whereIn('jabatan', $myJabatans)->where('is_active', true);
+                })
+                ->first();
+            if ($peerApproval) {
+                return $peerApproval;
+            }
+        }
 
-            $res = app(ApproverResolver::class)->resolve($step, $context);
-            if ($res['candidates']->pluck('id')->contains($user->id)) {
-                return $approval;
+        // 3. Candidate resolution across steps of this pengajuan
+        $approvals = IzinApproval::where('pengajuan_izin_id', $pengajuan->id)->get();
+        foreach ($approvals as $appr) {
+            $step = $pengajuan->jenisIzin?->steps()->where('urutan', $appr->urutan)->first();
+            if ($step) {
+                $context = [
+                    'user' => $pengajuan->user,
+                    'ukm_id' => $pengajuan->ukm_id,
+                    'waktu_berangkat' => optional($pengajuan->waktu_berangkat)->format('Y-m-d'),
+                ];
+
+                $res = app(ApproverResolver::class)->resolve($step, $context);
+                if ($res['candidates']->pluck('id')->contains($user->id)) {
+                    return $appr;
+                }
             }
         }
 
@@ -201,7 +266,15 @@ class IzinPersetujuanController extends Controller
     {
         $userId = auth()->id();
         $isApprover = $pengajuan->approvals()->where('approver_user_id', $userId)->exists();
-        $isStaffRole = in_array(auth()->user()->role_id, [1, 2, 4, 5]);
+        $isStaffRole = in_array(auth()->user()->role_id, [
+            User::ADMIN_ROLE_ID,
+            User::OPERATOR_ROLE_ID,
+            User::PELATIH_ROLE_ID,
+            User::PEMBINA_ROLE_ID,
+            User::PELATIH_UKM_ROLE_ID,
+            User::DOSEN_PA_ROLE_ID,
+            User::PEJABAT_ROLE_ID,
+        ]);
 
         abort_unless($isApprover || $isStaffRole, 403, 'Anda tidak berhak mengunduh dokumen perizinan ini.');
         abort_unless(in_array($pengajuan->status, ['disetujui', 'berjalan', 'selesai']), 403, 'Surat izin belum disetujui.');

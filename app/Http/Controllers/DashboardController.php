@@ -130,7 +130,7 @@ class DashboardController extends Controller
     {
         $blokRuangan = BlokRuangan::all();
         $kelas = Kelas::all();
-        $mahasiswa = User::with(['dosenPa'])->where('role_id', 3)->paginate(20)->withQueryString();
+        $mahasiswa = User::with(['dosenPa', 'kelas', 'blok'])->where('role_id', 3)->paginate(20)->withQueryString();
 
         $title = "Data Mahasiswa";
 

@@ -27,6 +27,22 @@ class AdminIzinDataController extends Controller
      */
     public function show(PengajuanIzin $pengajuan)
     {
+        if (auth()->check()) {
+            $user = auth()->user();
+            if ($user->role_id == \App\Models\User::DOSEN_PA_ROLE_ID) {
+                abort_unless($pengajuan->user?->dosen_pa_id === $user->id, 403, 'Anda tidak berhak melihat izin mahasiswa bimbingan dosen lain.');
+            } elseif ($user->role_id == \App\Models\User::PEJABAT_ROLE_ID) {
+                $pejabats = \App\Models\Pejabat::where('user_id', $user->id)->active()->get();
+                $hasAccess = $pejabats->contains(function ($pejabat) use ($pengajuan) {
+                    if ($pejabat->lingkup === 'global') return true;
+                    if ($pejabat->lingkup === 'prodi') return $pengajuan->user?->prodi_id == $pejabat->lingkup_id;
+                    if ($pejabat->lingkup === 'blok') return $pengajuan->user?->blok_ruangan_id == $pejabat->lingkup_id;
+                    return false;
+                });
+                abort_unless($hasAccess, 403, 'Anda tidak berhak melihat perizinan di luar lingkup wewenang.');
+            }
+        }
+
         $pengajuan->load([
             'user',
             'jenisIzin',

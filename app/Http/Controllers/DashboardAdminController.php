@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Hash;
 
 class DashboardAdminController extends Controller
 {
@@ -145,25 +146,28 @@ class DashboardAdminController extends Controller
         $user = User::findOrFail($id);
 
         if ($user->id != Auth()->user()->id) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk mengedit pengguna lain.');
+            if (Auth()->user()->role_id == 2) {
+                return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk mengedit pengguna lain.');
+            }
         }
 
-        if (! Hash::check($request->old_password, $user->password)) {
+        if (! Hash::check($request->reset_password, $user->password)) {
             return redirect()->back()->with('error', 'Password lama salah.');
         }
 
-        if ($request->old_password == $request->new_password) {
+        if ($request->reset_password == $request->new_password) {
             return redirect()->back()->with('error', 'Password baru tidak boleh sama dengan password lama.');
         }
 
         // Periksa apakah password reset yang dimasukkan benar
         if (! password_verify($validatedData['reset_password'], $user->password)) {
-            return redirect()->back()->with('error', 'Password lama salah.');
+            return redirect()->back()->with('error', 'Password reset salah.');
         }
 
         // Jika ada password baru, hash password baru dan update pengguna
         if ($request->filled('new_password')) {
             $user->password = bcrypt($validatedData['new_password']);
+            $user->is_password_changed = true;
         }
 
         // Update pengguna dengan data baru
@@ -519,7 +523,7 @@ class DashboardAdminController extends Controller
         // dd ($request->all());
 
         $request->validate([
-            'file' => 'required|mimes:xls,xlsx',
+            'file' => 'required|file|mimes:xls,xlsx|max:10240',
         ]);
 
         try {
@@ -527,8 +531,11 @@ class DashboardAdminController extends Controller
             Excel::import($import, $request->file('file'));
 
             return redirect()->route('admin.sistem-admin')->with('success', 'Data users imported successfully.');
-        } catch (\Exception $e) {
-            return redirect()->route('admin.sistem-admin')->with('error', 'Error importing data. '.$e->getMessage());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Import error on sistem-admin: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            return redirect()->route('admin.sistem-admin')->with('error', 'Terjadi kesalahan saat memproses data impor. Silakan periksa kembali format file Anda.');
         }
     }
 

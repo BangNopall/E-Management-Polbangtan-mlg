@@ -13,7 +13,7 @@ class LulusanController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xls,xlsx,csv'
+            'file' => 'required|file|mimes:xls,xlsx,csv|max:10240'
         ]);
 
         DB::beginTransaction();
@@ -24,10 +24,13 @@ class LulusanController extends Controller
             DB::commit();
             return redirect()->route('admin.sistem-admin')
                 ->with('success', "Berhasil menghapus {$import->deletedCount} mahasiswa. Data tidak ditemukan: {$import->notFoundCount}");
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Import error on lulusan: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
             return redirect()->route('admin.sistem-admin')
-                ->with('error', 'Gagal memproses data: ' . $e->getMessage());
+                ->with('error', 'Terjadi kesalahan saat memproses data impor kelulusan. Silakan periksa format file Anda.');
         }
     }
 }

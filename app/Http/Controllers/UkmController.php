@@ -110,7 +110,7 @@ class UkmController extends Controller
         try {
             $ukm = Ukm::findOrFail($id);
             $nama = $ukm->nama;
-            $ukm->delete();
+            $ukm->forceDelete();
 
             return redirect()->route('admin.ukm.index')->with('success', 'UKM ' . $nama . ' berhasil dihapus.');
         } catch (\Throwable $th) {

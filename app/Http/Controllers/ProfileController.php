@@ -41,6 +41,8 @@ class ProfileController extends Controller
 
     public function editProfile(Request $request, $id)
     {
+        abort_unless((int)$id === auth()->id() || auth()->user()->isAdmin(), 403, 'Akses ditolak: Anda tidak memiliki izin mengedit profil pengguna lain.');
+
         // Temukan pengguna berdasarkan ID
         $user = User::find($id);
 
@@ -49,26 +51,34 @@ class ProfileController extends Controller
             return redirect()->back()->with('error', 'Pengguna tidak ditemukan.');
         }
 
-        $rules = [
-            'name' => 'required|string|max:255',
-            'kelas_id' => 'required|exists:kelas,id',
-            'blok_ruangan_id' => 'required|exists:blok_ruangans,id',
-            'no_kamar' => 'required|numeric',
-            'asal_daerah' => 'required|string|max:255',
-            'foto-profil' => 'nullable|image|mimes:jpeg,png,jpg,webp,heic|max:10250',
-            'dosen_pa_id' => 'nullable|exists:users,id',
-        ];
-
-        // Only require NIM and Prodi if user is NOT a student
-        if (!$user->isUser()) {
-            $rules['nim'] = 'required|numeric|min:11|unique:users,nim,'.$id;
-            $rules['prodi_id'] = 'required';
+        if ($user->isUser()) {
+            $rules = [
+                'name' => 'required|string|max:255',
+                'kelas_id' => 'required|exists:kelas,id',
+                'blok_ruangan_id' => 'required|exists:blok_ruangans,id',
+                'no_kamar' => 'required|numeric',
+                'asal_daerah' => 'required|string|max:255',
+                'foto-profil' => 'nullable|image|mimes:jpeg,png,jpg,webp,heic|max:10250',
+                'dosen_pa_id' => 'nullable|exists:users,id',
+            ];
+        } else {
+            $rules = [
+                'name' => 'required|string|max:255',
+                'foto-profil' => 'nullable|image|mimes:jpeg,png,jpg,webp,heic|max:10250',
+                'nim' => 'nullable|numeric|min:11|unique:users,nim,'.$id,
+                'prodi_id' => 'nullable',
+                'kelas_id' => 'nullable|exists:kelas,id',
+                'blok_ruangan_id' => 'nullable|exists:blok_ruangans,id',
+                'no_kamar' => 'nullable|numeric',
+                'asal_daerah' => 'nullable|string|max:255',
+                'dosen_pa_id' => 'nullable|exists:users,id',
+            ];
         }
 
         // Validasi data dari formulir
         $request->validate($rules);
 
-        if (!$user->isUser()) {
+        if (!$user->isUser() && $request->filled('nim')) {
             $existingUser = User::where('nim', $request->nim)->first();
             if ($existingUser && $existingUser->id != $user->id) {
                 return redirect()->back()->with('error', 'NIM sudah digunakan oleh pengguna lain.');
@@ -82,21 +92,21 @@ class ProfileController extends Controller
 
         // Update data pengguna dengan data yang baru
         if (!$user->isUser()) {
-            $user->nim = $request->nim;
             $user->name = $request->name;
-            $user->prodi_id = $request->prodi_id;
-            $user->kelas_id = $request->kelas_id;
-            $user->blok_ruangan_id = $request->blok_ruangan_id;
-            $user->no_kamar = $request->no_kamar;
-            $user->asal_daerah = $request->asal_daerah;
-            if ($request->has('dosen_pa_id')) $user->dosen_pa_id = $request->dosen_pa_id;
+            if ($request->filled('nim')) $user->nim = $request->nim;
+            if ($request->filled('prodi_id')) $user->prodi_id = $request->prodi_id;
+            if ($request->filled('kelas_id')) $user->kelas_id = $request->kelas_id;
+            if ($request->filled('blok_ruangan_id')) $user->blok_ruangan_id = $request->blok_ruangan_id;
+            if ($request->filled('no_kamar')) $user->no_kamar = $request->no_kamar;
+            if ($request->filled('asal_daerah')) $user->asal_daerah = $request->asal_daerah;
+            if ($request->filled('dosen_pa_id')) $user->dosen_pa_id = $request->dosen_pa_id;
             $user->save();
 
-            return redirect()->route('admin.profil', $user->id)->with('success', 'Profil berhasil diperbarui.');
+            return redirect()->route('admin.profil')->with('success', 'Profil berhasil diperbarui.');
         } elseif ($user->isUser()) {
             // script baru
             $cariKelas = Kelas::where('id', $request->kelas_id)->first();
-            if ($cariKelas->prodi_id == $user->prodi_id) { // Compare with existing prodi_id
+            if ($cariKelas && $cariKelas->prodi_id == $user->prodi_id) { // Compare with existing prodi_id
                 // Do not update NIM and prodi_id
                 $user->name = $request->name;
                 $user->kelas_id = $request->kelas_id;
@@ -106,7 +116,7 @@ class ProfileController extends Controller
                 if ($request->has('dosen_pa_id')) $user->dosen_pa_id = $request->dosen_pa_id;
                 $user->save();
 
-                return redirect()->route('home.profilshow', $user->id)->with('success', 'Profil berhasil diperbarui.');
+                return redirect()->route('home.profilshow')->with('success', 'Profil berhasil diperbarui.');
             } else {
                 return redirect()->back()->with('error', 'Prodi dan Kelas tidak sesuai.');
             }
@@ -154,57 +164,70 @@ class ProfileController extends Controller
 
     public function editProfileGmail(Request $request, $id)
     {
+        abort_unless((int)$id === auth()->id() || auth()->user()->isAdmin(), 403, 'Akses ditolak: Anda tidak memiliki izin mengubah informasi akun pengguna lain.');
+
         try {
-            $request->validate([
-                'no_hp' => 'required|numeric|digits_between:10,13|unique:users,no_hp,'.$id,
+            $user = User::findOrFail($id);
+
+            $rules = [
                 'email' => [
                     'required',
-                    'email:dns',
+                    'email',
                     'unique:users,email,'.$id,
                 ],
                 'password' => 'min:5|nullable',
-            ]);
+            ];
 
-            $user = User::find($id);
-            // dd($user);
-            $existingUser = User::where('no_hp', $request->no_hp)->first();
-            if ($existingUser && $existingUser->id != $user->id) {
-                return redirect()->back()->with('error', 'Nomor HP sudah digunakan oleh pengguna lain.');
+            if ($user->isUser()) {
+                $rules['no_hp'] = 'required|numeric|digits_between:10,13|unique:users,no_hp,'.$id;
+            } else {
+                $rules['no_hp'] = 'nullable|numeric|digits_between:10,13|unique:users,no_hp,'.$id;
             }
 
-            if (! $user) {
-                return redirect()->back()->with('error', 'Pengguna tidak ditemukan.');
+            $request->validate($rules);
+
+            if ($request->filled('no_hp')) {
+                $existingUser = User::where('no_hp', $request->no_hp)->first();
+                if ($existingUser && $existingUser->id != $user->id) {
+                    return redirect()->back()->with('error', 'Nomor HP sudah digunakan oleh pengguna lain.');
+                }
+                $user->no_hp = $request->no_hp;
             }
 
-            $user->no_hp = $request->no_hp;
             $user->email = $request->email;
 
             if ($request->filled('password')) {
                 $user->password = Hash::make($request->password);
+                $user->is_password_changed = true;
             }
 
             $user->save();
 
             if (!$user->isUser()) {
-                return redirect()->route('admin.profil', $user->id)->with('success-email', 'Informasi akun berhasil diperbarui.');
+                return redirect()->route('admin.profil')->with('success-email', 'Informasi akun berhasil diperbarui.');
             } else {
-                return redirect()->route('home.profilshow', $user->id)->with('success-email', 'Informasi akun berhasil diperbarui.');
+                return redirect()->route('home.profilshow')->with('success-email', 'Informasi akun berhasil diperbarui.');
             }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            throw $e;
         } catch (\Exception $e) {
             $user = User::find($id);
-            if (!$user->isUser()) {
-                return redirect()->route('admin.profil', $user->id)->with('error-email', 'Informasi akun Gagal diperbarui.');
+            if (!$user || !$user->isUser()) {
+                return redirect()->route('admin.profil')->with('error-email', 'Informasi akun Gagal diperbarui.');
             } else {
-                return redirect()->route('home.profilshow', $user->id)->with('error-email', 'Informasi akun Gagal diperbarui.');
+                return redirect()->route('home.profilshow')->with('error-email', 'Informasi akun Gagal diperbarui.');
             }
         }
     }
 
     public function deleteFotoProfile($id)
     {
-        // dd($id);
+        abort_unless((int)$id === auth()->id() || auth()->user()->isAdmin(), 403, 'Akses ditolak: Anda tidak memiliki izin menghapus foto profil pengguna lain.');
+
         $user = User::find($id);
-        if ($user->image) {
+        if ($user && $user->image) {
             Storage::delete('/public/images/'.$user->image);
             $user->image = null;
             $user->save();

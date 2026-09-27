@@ -32,9 +32,12 @@ class Fixes8IssuesTest extends TestCase
         $admin = User::factory()->create(['role_id' => 1]);
         $petugas = User::factory()->create(['role_id' => 2]); // Petugas
 
-        // Simulate failing validation or logic in editDataPetugas
+        // Simulate failing logic in editDataPetugas (accessing another user's profile or wrong password)
         $response = $this->actingAs($admin)->post(route('admin.editDataPetugas', $petugas->id), [
-            // Submitting wrong format or wrong data to trigger error
+            'name' => $petugas->name,
+            'email' => $petugas->email,
+            'role_id' => $petugas->role_id,
+            'reset_password' => 'wrongpass',
             'old_password' => 'wrong',
             'new_password' => 'newpassword',
         ]);

@@ -174,7 +174,6 @@
                                 </table>
                                 <div id="tableUpacaraNull"></div>
                         @endif
-                        </form>
                         @if ($dataPresensi->isEmpty())
                             <div class="relative overflow-x-auto border border-gray-200 bg-orange-50 rounded w-full">
                                 <table class="w-full text-sm text-center">
