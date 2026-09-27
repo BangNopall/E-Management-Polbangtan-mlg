@@ -14,7 +14,9 @@ trait DecryptsQrPayload
      */
     protected function decryptAndMergePayload(Request $request): void
     {
-        if ($request->filled('payload')) {
+        if (! $request->filled('payload')) {
+            throw new Exception('Payload QR Code wajib disertakan.');
+        }
 
         try {
             $decryptedJson = Crypt::decryptString($request->input('payload'));
@@ -35,11 +37,10 @@ trait DecryptsQrPayload
                 throw new Exception('Format QR Code terenkripsi tidak valid.');
             }
         } catch (Exception $e) {
-            if ($e->getMessage() === 'Kode QR ini sudah pernah digunakan.') {
+            if (in_array($e->getMessage(), ['Kode QR ini sudah pernah digunakan.', 'Payload QR Code wajib disertakan.'])) {
                 throw $e;
             }
             throw new Exception('Kode QR tidak valid atau telah kadaluarsa (Gagal Dekripsi).');
-        }
         }
     }
 }

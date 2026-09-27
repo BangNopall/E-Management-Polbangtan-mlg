@@ -87,6 +87,7 @@ class KonselingHandoffTest extends TestCase
             'role_id' => User::PEJABAT_ROLE_ID,
             'password' => bcrypt('password'),
         ]);
+        $pejabat->update(['is_password_changed' => true]);
 
         $response = $this->actingAs($pejabat)->get('/handoff/konseling');
 

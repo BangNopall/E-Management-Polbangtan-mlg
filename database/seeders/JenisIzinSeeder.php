@@ -18,7 +18,7 @@ class JenisIzinSeeder extends Seeder
             [
                 'nama' => 'Ijin Keluar Asrama',
                 'deskripsi' => 'Izin keluar area asrama untuk keperluan kegiatan organisasi, perihal dinas, atau pribadi.',
-                'kode_form' => 'AR.009',
+                'kode_form' => 'IKR',
                 'butuh_bermalam' => false,
                 'butuh_ukm' => true,
                 'butuh_konfirmasi_tiba' => true,

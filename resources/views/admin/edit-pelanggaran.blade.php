@@ -67,7 +67,6 @@
                 </div>
                 <ul class="flex flex-col gap-2 mt-2">
                     @foreach ($kategoriPelanggaran as $kategori)
-                        @include('partials.modals.hapusdata')
                         <div class="flex gap-1">
                             <input type="text" id="{{ $kategori->id }}" name="{{ $kategori->id }}"
                                 value="{{ $kategori->name }}"
@@ -83,6 +82,11 @@
                     @endforeach
                 </ul>
             </form>
+            @if (!auth()->user()->isPejabat())
+                @foreach ($kategoriPelanggaran as $kategori)
+                    @include('partials.modals.hapusdata')
+                @endforeach
+            @endif
             <button type="button" id="deleteButton" data-modal-target="simpan1Modal" data-modal-toggle="simpan1Modal"
                 class="text-white mt-2 w-auto block md:hidden bg-utama hover:bg-teal-800 focus:ring-2 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-3 py-2 mr-0 md:mr-3">Simpan</button>
             <div id="accordion-flush" class="mt-3" data-accordion="collapse" data-active-classes="bg-white text-gray-900"
@@ -192,7 +196,6 @@
                                     </td>
                                     <td class="px-3 py-2">
                                         @if (!auth()->user()->isPejabat())
-                                            @include('partials.modals.hapusjenis')
                                             <button type="button"
                                                 class="text-white text-xs w-auto bg-red-400 hover:bg-red-800 focus:ring-2 focus:outline-none focus:ring-red-300 font-medium rounded px-3 py-2 mr-0 md:mr-3"
                                                 id="deleteButton" data-modal-target="hapusjenisModal{{ $pelanggaran->id }}"
@@ -210,6 +213,11 @@
                     data-modal-toggle="simpan2Modal"
                     class="text-white mt-4 w-auto block md:hidden bg-utama hover:bg-teal-800 focus:ring-2 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-3 py-2 mr-0 md:mr-3">Simpan</button>
             </form>
+            @if (!auth()->user()->isPejabat())
+                @foreach ($jenisPelanggaran as $pelanggaran)
+                    @include('partials.modals.hapusjenis')
+                @endforeach
+            @endif
             <div id="accordion-flush-2" class="mt-3" data-accordion="collapse"
                 data-active-classes="bg-white text-gray-900" data-inactive-classes="text-gray-500">
                 <h2 id="accordion-flush-heading-2">

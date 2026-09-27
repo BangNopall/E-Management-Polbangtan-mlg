@@ -4,6 +4,7 @@ namespace Tests\Feature\Security;
 
 use App\Imports\UsersImport;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
@@ -86,5 +87,37 @@ class ExcelUploadSecurityTest extends TestCase
             str_starts_with($user->name, "'") || ! str_starts_with($user->name, '='),
             'Formula trigger character should be escaped with single quote or sanitized'
         );
+    }
+
+    public function test_laporan_izin_export_sanitizes_formula_injection(): void
+    {
+        $student = User::where('role_id', User::USER_ROLE_ID)->firstOrFail();
+        $jenisIzin = \App\Models\JenisIzin::first() ?? \App\Models\JenisIzin::create([
+            'nama' => 'Izin Test',
+            'kode' => 'IT',
+            'is_active' => true,
+        ]);
+
+        $pengajuan = \App\Models\PengajuanIzin::create([
+            'user_id' => $student->id,
+            'jenis_izin_id' => $jenisIzin->id,
+            'keperluan' => '=cmd|\'/C calc\'!A0',
+            'tujuan_lokasi' => '+1337-EXCEL-INJECTION',
+            'waktu_berangkat' => Carbon::now()->addDay(),
+            'waktu_kembali' => Carbon::now()->addDays(2),
+            'nama_snapshot' => '@DANGEROUS_FORMULA',
+            'nirm_snapshot' => $student->nim ?? '12345',
+            'status' => 'disetujui',
+            'nomor_surat' => 'AR.009/TEST/X/' . uniqid(),
+            'qr_token' => 'test_token_' . uniqid(),
+        ]);
+
+        $export = new \App\Exports\LaporanIzinExport(collect([$pengajuan]));
+        $html = $export->view()->render();
+
+        $this->assertStringNotContainsString('<td>+1337-EXCEL-INJECTION</td>', $html);
+        $this->assertStringNotContainsString('<td>@DANGEROUS_FORMULA</td>', $html);
+        $this->assertStringContainsString("'+1337-EXCEL-INJECTION", $html);
+        $this->assertStringContainsString("'@DANGEROUS_FORMULA", $html);
     }
 }

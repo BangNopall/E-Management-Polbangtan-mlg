@@ -36,6 +36,7 @@ class ApproverResolver
         }
 
         // 1. Run primary resolver strategy
+        $allowGenericFallback = empty($step->fallback_resolver);
         $candidates = $this->resolveStrategy(
             $step->resolver,
             $step->jabatan,
@@ -43,7 +44,8 @@ class ApproverResolver
             $step->lingkup_id,
             $ukmId,
             $date,
-            $student
+            $student,
+            $allowGenericFallback
         );
 
         if ($candidates->isNotEmpty()) {
@@ -59,8 +61,8 @@ class ApproverResolver
             $fallbackCandidates = $this->resolveStrategy(
                 $step->fallback_resolver,
                 $step->fallback_jabatan,
-                $step->lingkup ?? 'global',
-                $step->lingkup_id,
+                $step->fallback_lingkup ?? $step->lingkup ?? 'global',
+                $step->fallback_lingkup_id ?? $step->lingkup_id,
                 $ukmId,
                 $date,
                 $student
@@ -92,12 +94,13 @@ class ApproverResolver
         ?int $lingkupId,
         ?int $ukmId,
         ?string $date,
-        ?User $student
+        ?User $student,
+        bool $allowGenericFallback = true
     ): Collection {
         $lingkup = $lingkup ?? 'global';
         return match ($resolver) {
             'pejabat' => $this->resolvePejabat($jabatan, $lingkup, $lingkupId, $student),
-            'dosen_pa' => $this->resolveDosenPa($student),
+            'dosen_pa' => $this->resolveDosenPa($student, $allowGenericFallback),
             'pembina_ukm' => $this->resolvePembinaUkm($ukmId),
             'petugas_jaga' => $this->resolvePetugasJaga($date),
             default => collect(),
@@ -139,7 +142,7 @@ class ApproverResolver
     /**
      * Resolve Dosen PA candidate from student class relation, or fallback to Operator role users if null.
      */
-    private function resolveDosenPa(?User $student): Collection
+    private function resolveDosenPa(?User $student, bool $allowGenericFallback = true): Collection
     {
         if ($student) {
             $student->loadMissing('dosenPa');
@@ -155,6 +158,10 @@ class ApproverResolver
                     return collect([$dosenPaKelas]);
                 }
             }
+        }
+
+        if (! $allowGenericFallback) {
+            return collect();
         }
 
         // Fallback: Jika mahasiswa tidak memiliki dosen PA sama sekali,

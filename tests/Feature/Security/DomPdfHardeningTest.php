@@ -59,4 +59,12 @@ class DomPdfHardeningTest extends TestCase
         // Pejabat should NOT receive 403 Forbidden!
         $this->assertNotEquals(403, $response->getStatusCode(), 'Pejabat must not be blocked with 403 Forbidden when accessing approved permit PDF');
     }
+
+    public function test_generate_surat_izin_pdf_job_disables_remote(): void
+    {
+        $reflection = new \ReflectionClass(\App\Jobs\GenerateSuratIzinPdfJob::class);
+        $fileContents = file_get_contents($reflection->getFileName());
+
+        $this->assertStringNotContainsString("'isRemoteEnabled' => true", $fileContents, 'GenerateSuratIzinPdfJob must not enable remote resources.');
+    }
 }

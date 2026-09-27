@@ -10,5 +10,12 @@ storage/framework/sessions/*
 storage/framework/views/*
 .DS_Store
 .claude
+.superpowers
+.phpunit.cache
+.phpunit.result.cache
 *.sql
 *.xlsx
+public/excel/BLOK_*
+public/excel/Laporan-*
+public/pdf/BLOK_*
+public/pdf/Laporan-*

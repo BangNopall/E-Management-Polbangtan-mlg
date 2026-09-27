@@ -9,6 +9,7 @@ use App\Models\UkmPresensi;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Crypt;
 use Tests\TestCase;
 
 /**
@@ -27,6 +28,18 @@ class UkmScanTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Carbon::setTestNow(Carbon::parse('2026-10-01 14:00:00'));
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
+    }
+
     private function makeUser(int $roleId): User
     {
         return User::factory()->create([
@@ -35,6 +48,13 @@ class UkmScanTest extends TestCase
             'kelas_id' => null,
             'prodi_id' => null,
         ]);
+    }
+
+    private function makePayload(array $data): array
+    {
+        return [
+            'payload' => Crypt::encryptString(json_encode($data)),
+        ];
     }
 
     private function setupUkmJadwal(): array
@@ -105,12 +125,12 @@ class UkmScanTest extends TestCase
 
         $currentTime = Carbon::now()->format('H:i:s');
 
-        $response = $this->actingAs($pelatih)->post(route('admin.ukm.scan.store', $jadwal->id), [
+        $response = $this->actingAs($pelatih)->post(route('admin.ukm.scan.store', $jadwal->id), $this->makePayload([
             'user_id' => $mhsAnggota->id,
             'date' => Carbon::now()->toDateString(),
             'time' => $currentTime,
             'scanner' => 'absensi',
-        ]);
+        ]));
 
         $response->assertRedirect(route('admin.ukm.scan.show', $jadwal->id));
         $response->assertSessionHas('success');
@@ -171,12 +191,12 @@ class UkmScanTest extends TestCase
         // QR generated 45 seconds ago at 16:30:00
         $expiredTime = '16:30:00';
 
-        $response = $this->actingAs($pelatih)->post(route('admin.ukm.scan.store', $jadwal->id), [
+        $response = $this->actingAs($pelatih)->post(route('admin.ukm.scan.store', $jadwal->id), $this->makePayload([
             'user_id' => $mhsAnggota->id,
             'date' => '2026-08-04',
             'time' => $expiredTime,
             'scanner' => 'absensi',
-        ]);
+        ]));
 
         $response->assertRedirect(route('admin.ukm.scan.show', $jadwal->id));
         $response->assertSessionHas('error', 'QR Code Expired');
@@ -196,12 +216,12 @@ class UkmScanTest extends TestCase
 
         $currentTime = Carbon::now()->format('H:i:s');
 
-        $response = $this->actingAs($pelatih)->post(route('admin.ukm.scan.store', $jadwal->id), [
+        $response = $this->actingAs($pelatih)->post(route('admin.ukm.scan.store', $jadwal->id), $this->makePayload([
             'user_id' => $mhsBukanAnggota->id,
             'date' => Carbon::now()->toDateString(),
             'time' => $currentTime,
             'scanner' => 'absensi',
-        ]);
+        ]));
 
         $response->assertRedirect(route('admin.ukm.scan.show', $jadwal->id));
         $response->assertSessionHas('error');
@@ -224,12 +244,12 @@ class UkmScanTest extends TestCase
 
         $currentTime = Carbon::now()->format('H:i:s');
 
-        $response = $this->actingAs($pelatih)->post(route('admin.ukm.scan.store', $jadwal->id), [
+        $response = $this->actingAs($pelatih)->post(route('admin.ukm.scan.store', $jadwal->id), $this->makePayload([
             'user_id' => $mhsAnggota->id,
             'date' => Carbon::now()->toDateString(),
             'time' => $currentTime,
             'scanner' => 'absensi',
-        ]);
+        ]));
 
         $response->assertRedirect(route('admin.ukm.scan.show', $jadwal->id));
         $response->assertSessionHas('error', 'Anda Sudah Melakukan Presensi');
@@ -261,12 +281,12 @@ class UkmScanTest extends TestCase
         [$admin, $pelatih, $ukm, $jadwal, $mhsAnggota] = $this->setupUkmJadwal();
         $jadwal->update(['status_verifikasi' => 'menunggu']);
 
-        $response = $this->actingAs($pelatih)->post(route('admin.ukm.scan.store', $jadwal->id), [
+        $response = $this->actingAs($pelatih)->post(route('admin.ukm.scan.store', $jadwal->id), $this->makePayload([
             'user_id' => $mhsAnggota->id,
             'date' => Carbon::now()->toDateString(),
             'time' => Carbon::now()->format('H:i:s'),
             'scanner' => 'absensi',
-        ]);
+        ]));
 
         $response->assertSessionHas('error');
 
@@ -301,12 +321,12 @@ class UkmScanTest extends TestCase
         $showResponse = $this->actingAs($pelatihUkmLain)->get(route('admin.ukm.scan.show', $jadwal->id));
         $showResponse->assertStatus(403);
 
-        $storeResponse = $this->actingAs($pelatihUkmLain)->post(route('admin.ukm.scan.store', $jadwal->id), [
+        $storeResponse = $this->actingAs($pelatihUkmLain)->post(route('admin.ukm.scan.store', $jadwal->id), $this->makePayload([
             'user_id' => $mhsAnggota->id,
             'date' => Carbon::now()->toDateString(),
             'time' => Carbon::now()->format('H:i:s'),
             'scanner' => 'absensi',
-        ]);
+        ]));
         $storeResponse->assertStatus(403);
 
         $this->assertDatabaseMissing('ukm_presensis', [
