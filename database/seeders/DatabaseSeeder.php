@@ -85,7 +85,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call(PejabatSeeder::class);
         $this->call(StaffSeeder::class);
-        $this->call(UkmSeeder::class);
-        $this->call(JenisIzinSeeder::class);
+        // $this->call(UkmSeeder::class);
+        // $this->call(JenisIzinSeeder::class);
     }
 }
