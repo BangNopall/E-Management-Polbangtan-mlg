@@ -45,7 +45,7 @@ services:
     restart: always
     ports:
       # Terikat ke loopback host (127.0.0.1) agar diproxy oleh Host Nginx/SSL
-      - "${DOCKER_APP_PORT:-8000}:80"
+      - "127.0.0.1:${DOCKER_APP_PORT:-8000}:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./public:/var/www/html/public:ro
